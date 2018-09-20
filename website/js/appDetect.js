@@ -59,7 +59,7 @@
       this.onSuccess = __bind(this.onSuccess, this);      _.extend(this, Backbone.Events);
       this.lang = (navigator.language || navigator.userLanguage).toLowerCase();
       $.ajax({
-        url: "/api/localisation/desktop/" + this.lang,
+        url: '/locale/en/strings.txt',
         dataType: "json",
         success: this.onSuccess,
         error: this.loadBackup
@@ -71,6 +71,8 @@
       var d;
       d = null;
       if (event.responseText) {
+        console.log(event.responseText)
+
         d = JSON.parse(event.responseText);
       } else {
         d = event;

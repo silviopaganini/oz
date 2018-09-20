@@ -4833,7 +4833,7 @@
       this.onSuccess = __bind(this.onSuccess, this);      _.extend(this, Backbone.Events);
       this.lang = (navigator.language || navigator.userLanguage).toLowerCase();
       $.ajax({
-        url: "/api/localisation/desktop/" + this.lang,
+        url: '/locale/en/strings.txt',
         dataType: "json",
         success: this.onSuccess,
         error: this.loadBackup
@@ -4844,6 +4844,7 @@
     Locale.prototype.onSuccess = function(event) {
       var d;
       d = null;
+      console.log(event)
       if (event.responseText) {
         d = JSON.parse(event.responseText);
       } else {
@@ -17670,7 +17671,7 @@
     };
 
     WebCam.prototype.dispose = function() {
-      if (this.stream) {
+      if (this.stream && this.stream.stop) {
         this.stream.stop();
       }
       this.stream = null;
@@ -18093,62 +18094,62 @@
       this.sound.bind("mousedown", this.toogleSound);
       this.disableSound();
       this.$el.append(this.sound);
-      return require(["http://platform.twitter.com/widgets.js", "//apis.google.com/js/plusone.js"], this.onLibLoaded);
+      // return require(["http://platform.twitter.com/widgets.js", "//apis.google.com/js/plusone.js"], this.onLibLoaded);
     };
 
     ShareMenu.prototype.rerender = function() {
-      if (this.oz().locale.lang.indexOf("zh") === -1) {
-        this.$googleBtn = $('<div/>');
-        this.$googleBtn.attr({
-          "id": 'g-plusone',
-          'class': 'g-plusone',
-          'data-size': 'medium'
-        });
-        this.$facebookContainer = $("<div class='facebookShare'></div>");
-        this.$facebookBtn = $('<iframe/>');
-        this.$facebookBtn.attr({
-          'class': 'fb-like',
-          'src': "//www.facebook.com/plugins/like.php?send=false&layout=button_count&href=" + document.location.origin,
-          'scrolling': "no",
-          "frameborder": "0"
-        });
-        this.$facebookBtn.css({
-          'width': '100px'
-        });
-        this.$facebookContainer.css({
-          'margin-left': '20px'
-        });
-        this.$twitterContainer = $("<div class='twitterShare'></div>");
-        this.$twitterBtn = $('<a/>');
-        this.$twitterBtn.attr({
-          'class': 'twitter-share-button',
-          'href': 'https://twitter.com/share',
-          'data-lang': this.oz().locale.lang,
-          'data-size': 'small',
-          'data-hashtags': this.oz().locale.get('seo_twtter_hashtag'),
-          'data-text': this.oz().locale.get('seo_twtter_default_text'),
-          'data-via': this.oz().locale.get('seo_twitter_handle')
-        });
-        this.$el.prepend(this.$twitterContainer);
-        this.$twitterContainer.append(this.$twitterBtn);
-        this.$el.prepend(this.$facebookContainer);
-        this.$facebookContainer.append(this.$facebookBtn);
-        this.$el.prepend(this.$googleBtn);
-        twttr.widgets.load();
-        if (typeof gapi !== "undefined" && gapi !== null) {
-          gapi.plusone.render('g-plusone', {
-            size: "medium",
-            expandTo: 'top'
-          });
-        }
-        this.$googleBtn.css({
-          'width': '50px !important'
-        });
-      } else {
-        this.addWeibo();
-        this.addRenRen();
-      }
-      return this.$el.append($("<div class='clearfix'></div>"));
+      // if (this.oz().locale.lang.indexOf("zh") === -1) {
+      //   this.$googleBtn = $('<div/>');
+      //   this.$googleBtn.attr({
+      //     "id": 'g-plusone',
+      //     'class': 'g-plusone',
+      //     'data-size': 'medium'
+      //   });
+      //   this.$facebookContainer = $("<div class='facebookShare'></div>");
+      //   this.$facebookBtn = $('<iframe/>');
+      //   this.$facebookBtn.attr({
+      //     'class': 'fb-like',
+      //     'src': "//www.facebook.com/plugins/like.php?send=false&layout=button_count&href=" + document.location.origin,
+      //     'scrolling': "no",
+      //     "frameborder": "0"
+      //   });
+      //   this.$facebookBtn.css({
+      //     'width': '100px'
+      //   });
+      //   this.$facebookContainer.css({
+      //     'margin-left': '20px'
+      //   });
+      //   this.$twitterContainer = $("<div class='twitterShare'></div>");
+      //   this.$twitterBtn = $('<a/>');
+      //   this.$twitterBtn.attr({
+      //     'class': 'twitter-share-button',
+      //     'href': 'https://twitter.com/share',
+      //     'data-lang': this.oz().locale.lang,
+      //     'data-size': 'small',
+      //     'data-hashtags': this.oz().locale.get('seo_twtter_hashtag'),
+      //     'data-text': this.oz().locale.get('seo_twtter_default_text'),
+      //     'data-via': this.oz().locale.get('seo_twitter_handle')
+      //   });
+      //   this.$el.prepend(this.$twitterContainer);
+      //   this.$twitterContainer.append(this.$twitterBtn);
+      //   this.$el.prepend(this.$facebookContainer);
+      //   this.$facebookContainer.append(this.$facebookBtn);
+      //   this.$el.prepend(this.$googleBtn);
+      //   twttr.widgets.load();
+      //   if (typeof gapi !== "undefined" && gapi !== null) {
+      //     gapi.plusone.render('g-plusone', {
+      //       size: "medium",
+      //       expandTo: 'top'
+      //     });
+      //   }
+      //   this.$googleBtn.css({
+      //     'width': '50px !important'
+      //   });
+      // } else {
+      //   this.addWeibo();
+      //   this.addRenRen();
+      // }
+      // return this.$el.append($("<div class='clearfix'></div>"));
     };
 
     ShareMenu.prototype.onLibLoaded = function() {
@@ -19325,11 +19326,11 @@
                   @displayQuality = "hi"
       */
 
-      script = document.createElement('script');
-      script.src = 'http://j.maxmind.com/app/country.js';
-      script.charset = 'ISO-8859-1';
-      script.type = "text/javascript";
-      document.getElementsByTagName('head')[0].appendChild(script);
+      // script = document.createElement('script');
+      // script.src = 'http://j.maxmind.com/app/country.js';
+      // script.charset = 'ISO-8859-1';
+      // script.type = "text/javascript";
+      // document.getElementsByTagName('head')[0].appendChild(script);
       this.textureQuality = (window || document).textureQuality;
       this.displayQuality = (window || document).displayQuality;
       this.dofEnabled = (window || document).dof;
@@ -19412,7 +19413,7 @@
     AppView.prototype.looseFocus = function() {
       var _ref;
       Analytics.track('pause');
-      if (!((_ref = this.subArea) != null ? _ref.instructions.active : void 0) && this.pauseEnabled) {
+      if (!((_ref = this.subArea) != null ? (_ref.instructions.active ? _ref.instructions.active : null) : void 0) && this.pauseEnabled) {
         $(window).unbind('blur', this.looseFocus);
         $(window).bind('focus', this.startFocus);
         $(".scene3d").css({
