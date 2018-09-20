@@ -1,9 +1,9 @@
 {
-    "modelURL" : "./models/s002.if3d",
-    "jpgBasePath" : "./models/textures/s002/preload_jpg",
-    "ddsBasePath" : "./models/textures/s002/preload_#QUALITY#",
-    "auxBasePath" : "./models/textures/s002/aux_#QUALITY#",
-    "skyCubePath" : "./models/textures/carnivalsky2/",
+    "modelURL" : "/models/s002.if3d",
+    "jpgBasePath" : "/models/textures/s002/preload_jpg",
+    "ddsBasePath" : "/models/textures/s002/preload_#QUALITY#",
+    "auxBasePath" : "/models/textures/s002/aux_#QUALITY#",
+    "skyCubePath" : "/models/textures/carnivalsky2/",
     "skyCubeFormat" : ".png",
 
     "materialInstancerNames":{
@@ -34,10 +34,10 @@
     },
 
     "hotspots":[
-        {"name":"nextscene_hotspot","link":"storm","position":[160,20,-75],"size":4,"overrideMap":"./models/textures/scene3_next.dds"},
-        {"name":"ozstuff2","link":"","position":[17,20,-114],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
-        {"name":"ozstuff3","link":"","position":[6,19,-105],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
-        {"name":"prevtscene_hotspot","link":"music","position":[-10,20,-90],"size":8,"overrideMap":"./models/textures/scene1_prev.dds"},
+        {"name":"nextscene_hotspot","link":"storm","position":[160,20,-75],"size":4,"overrideMap":"/models/textures/scene3_next.dds"},
+        {"name":"ozstuff2","link":"","position":[17,20,-114],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"ozstuff3","link":"","position":[6,19,-105],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"prevtscene_hotspot","link":"music","position":[-10,20,-90],"size":8,"overrideMap":"/models/textures/scene1_prev.dds"},
         {"name":"zoetrope_hotspot","link":"zoetrope","position":[125,20,-70],"size":5}
     ],
     "pickables" : {
@@ -52,8 +52,8 @@
     "sun" : {
         "position": [-900,900,-3000],
         "size":1000,
-        "mainSprite":"./models/textures/lensflare/lensflare0_low.dds",
-        "flareSprite":"./models/textures/lensflare/hexangle.dds",
+        "mainSprite":"/models/textures/lensflare/lensflare0_low.dds",
+        "flareSprite":"/models/textures/lensflare/hexangle.dds",
         "flares" : [ [60,0.6],[70, 0.7], [120, 0.9], [70, 1.0] ]
     },
 
@@ -115,16 +115,16 @@
         "zTent_spec_diff.dds",
 
 
-        "./models/textures/particles/dandelion.dds",
-        "./models/textures/particles/dust0.dds",
-        "./models/textures/particles/dust1.dds",
-        "./models/textures/particles/dust2.dds",
-        "./models/textures/particles/dust3.dds",
-        "./models/textures/particles/dust4.dds",
-        "./models/textures/scene1_prev.dds",
-        "./models/textures/scene3_next.dds",
-        "./models/textures/lensflare/hexangle.dds",
-        "./models/textures/lensflare/lensflare0_low.dds"        
+        "/models/textures/particles/dandelion.dds",
+        "/models/textures/particles/dust0.dds",
+        "/models/textures/particles/dust1.dds",
+        "/models/textures/particles/dust2.dds",
+        "/models/textures/particles/dust3.dds",
+        "/models/textures/particles/dust4.dds",
+        "/models/textures/scene1_prev.dds",
+        "/models/textures/scene3_next.dds",
+        "/models/textures/lensflare/hexangle.dds",
+        "/models/textures/lensflare/lensflare0_low.dds"        
     ],
 
 

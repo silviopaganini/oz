@@ -892,7 +892,7 @@
     }
 
     IFLLoader.prototype.initWorker = function() {
-      this.worker = new Worker('./js/workers/iflworker.js');
+      this.worker = new Worker('/js/workers/iflworker.js');
       return this.worker.onmessage = this.onWorkerMessage;
     };
 
@@ -2951,7 +2951,7 @@
       this.oz = (window || document).oz;
       this.state = this.BatchState.PAUSED;
       CustomImageUtils.cacheTextures = true;
-      return this.batchLoadingSettings = ["./models/s001_settings.json", "./models/s002_settings.json", "./models/s003_settings.json"];
+      return this.batchLoadingSettings = ["/models/s001_settings.json", "/models/s002_settings.json", "/models/s003_settings.json"];
     };
 
     IFLModelManager.prototype.batchLoadingPhaseManager = function(value) {
@@ -3558,7 +3558,7 @@
         }
       };
       material = new THREE.ShaderMaterial(params);
-      material.map = shader.uniforms["map"].value = THREE.ImageUtils.loadTexture("./models/textures/particles/ozify.png");
+      material.map = shader.uniforms["map"].value = THREE.ImageUtils.loadTexture("/models/textures/particles/ozify.png");
       material.size = shader.uniforms["size"].value = 0.5;
       material.transparent = true;
       material.blending = THREE.AdditiveBlending;
@@ -4083,10 +4083,10 @@
       //   SoundController.swfLink = "http://soundcontroller.se/unit9/oz/";
       //   return require(["http://soundcontroller.se/unit9/oz/scsound.js"], SoundController.onLibLoaded);
       // } else {
-        SoundController.xmlLink = "./sounds/config.xml";
-        SoundController.mp3link = "./sounds/";
-        SoundController.swfLink = "./sounds/";
-        return require(["./js/vendor/scsound.js"], SoundController.onLibLoaded);
+        SoundController.xmlLink = "/sounds/config.xml";
+        SoundController.mp3link = "/sounds/";
+        SoundController.swfLink = "/sounds/";
+        return require(["/js/vendor/scsound.js"], SoundController.onLibLoaded);
       // }
     };
 
@@ -4776,7 +4776,7 @@
       this.preloader.on(PreloaderEvents.PROGRESS, this.onProgress);
       this.preloader.on(PreloaderEvents.FAIL, this.onFail);
       this.collection = new CollectionBatchLoad;
-      this.collection.url = "./js/assetList.json";
+      this.collection.url = "/js/assetList.json";
       this.collection.fetch({
         success: this.onCollectionSuccess,
         error: this.onCollectionError
@@ -4837,7 +4837,7 @@
       this.onSuccess = __bind(this.onSuccess, this);      _.extend(this, Backbone.Events);
       this.lang = (navigator.language || navigator.userLanguage).toLowerCase();
       $.ajax({
-        url: './locale/en/strings.txt',
+        url: '/locale/en/strings.txt',
         dataType: "json",
         success: this.onSuccess,
         error: this.loadBackup
@@ -4862,7 +4862,7 @@
     Locale.prototype.loadBackup = function() {
       var _this = this;
       $.ajax({
-        url: './locale/en/strings.txt',
+        url: '/locale/en/strings.txt',
         dataType: 'text',
         complete: this.onSuccess,
         error: function() {
@@ -5295,7 +5295,7 @@
         $(document).bind('pointerlockchange', this.pointerLockChange);
         $(document).bind('mozpointerlockchange', this.pointerLockChange);
         $(document).bind('webkitpointerlockchange', this.pointerLockChange);
-        b = $('body')[0];
+        b = document.querySelector('canvas');
         b.requestPointerLock = b.requestPointerLock || b.mozRequestPointerLock || b.webkitRequestPointerLock;
         b.requestPointerLock();
       }
@@ -6773,7 +6773,7 @@
     Carnival.prototype.render = function() {
       Carnival.__super__.render.apply(this, arguments);
       $.ajax({
-        url: "./models/s001_settings.json",
+        url: "/models/s001_settings.json",
         dataType: 'json',
         success: this.onSettingsLoaded
       });
@@ -7117,7 +7117,7 @@
         };
         mat = new THREE.ShaderMaterial(params);
         mat.name = "scene1_dustshader";
-        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("./models/textures/particles/dust" + i + ".dds");
+        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("/models/textures/particles/dust" + i + ".dds");
         mat.size = shader.uniforms["size"].value = Math.random();
         mat.scale = shader.uniforms["scale"].value = this.APP_HEIGHT / 2;
         mat.transparent = true;
@@ -7169,7 +7169,7 @@
         }
       };
       dandelionMaterial = new THREE.ShaderMaterial(params);
-      dandelionMaterial.map = dandelionShader.uniforms["map"].value = this.materialManager.getPreloadedTexture("./models/textures/particles/dandelion.dds");
+      dandelionMaterial.map = dandelionShader.uniforms["map"].value = this.materialManager.getPreloadedTexture("/models/textures/particles/dandelion.dds");
       dandelionMaterial.size = dandelionShader.uniforms["size"].value = 2;
       dandelionMaterial.scale = dandelionShader.uniforms["scale"].value = this.APP_HEIGHT / 2;
       dandelionMaterial.transparent = true;
@@ -7891,7 +7891,7 @@
     Carnival2.prototype.render = function() {
       Carnival2.__super__.render.apply(this, arguments);
       $.ajax({
-        url: "./models/s002_settings.json",
+        url: "/models/s002_settings.json",
         dataType: 'json',
         success: this.onSettingsLoaded
       });
@@ -8161,7 +8161,7 @@
           }
         };
         mat = new THREE.ShaderMaterial(params);
-        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("./models/textures/particles/dust" + i + ".dds");
+        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("/models/textures/particles/dust" + i + ".dds");
         mat.size = shader.uniforms["size"].value = Math.random();
         mat.scale = shader.uniforms["scale"].value = this.APP_HEIGHT / 2;
         mat.transparent = true;
@@ -8799,7 +8799,7 @@
     Carnival3.prototype.render = function() {
       Carnival3.__super__.render.apply(this, arguments);
       $.ajax({
-        url: "./models/s003_settings.json",
+        url: "/models/s003_settings.json",
         dataType: 'json',
         success: this.onSettingsLoaded
       });
@@ -9001,7 +9001,7 @@
           }
         };
         mat = new THREE.ShaderMaterial(params);
-        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("./models/textures/particles/dust" + i + ".dds");
+        mat.map = shader.uniforms["map"].value = this.materialManager.getPreloadedTexture("/models/textures/particles/dust" + i + ".dds");
         mat.size = shader.uniforms["size"].value = Math.random();
         mat.scale = shader.uniforms["scale"].value = this.APP_HEIGHT / 2;
         mat.transparent = true;
@@ -13265,7 +13265,7 @@
         _this.texture[0].height = img.height;
         return _this.texture[0].getContext("2d").drawImage(img, 0, 0, img.width, img.height);
       };
-      img.src = "../img/zoetrope/zoetrope_canvas_texture.png";
+      img.src = "/img/zoetrope/zoetrope_canvas_texture.png";
       return null;
     };
 
@@ -13397,11 +13397,11 @@
       this.cubeRefMesh = new THREE.Mesh(cube, new THREE.MeshLambertMaterial({
         color: 0xFFFFFF
       }));
-      this.sl1 = this.addPlane(2000, 227, 1.0, 1100, 0, -80, 0, 0, 0, "./models/textures/stormsky/storm/sl1.png");
-      this.sl2 = this.addPlane(2000, 227, 1.0, 1100, 0, -90, 0, 0, 0, "./models/textures/stormsky/storm/sl2.png");
-      this.sl3 = this.addPlane(2100, 327, 1.0, 1000, 0, -100, 0, 0, 0, "./models/textures/stormsky/storm/sl3.png");
-      this.bal = this.addPlane(212, 315, 0.3, 0, 0, -150, 0, 0, 0, "./models/textures/stormsky/storm/balloon.png");
-      this.sl4 = this.addPlane(2500, 374, 1.0, 900, 0, -180, 0, 0, 0, "./models/textures/stormsky/storm/sl4.png");
+      this.sl1 = this.addPlane(2000, 227, 1.0, 1100, 0, -80, 0, 0, 0, "/models/textures/stormsky/storm/sl1.png");
+      this.sl2 = this.addPlane(2000, 227, 1.0, 1100, 0, -90, 0, 0, 0, "/models/textures/stormsky/storm/sl2.png");
+      this.sl3 = this.addPlane(2100, 327, 1.0, 1000, 0, -100, 0, 0, 0, "/models/textures/stormsky/storm/sl3.png");
+      this.bal = this.addPlane(212, 315, 0.3, 0, 0, -150, 0, 0, 0, "/models/textures/stormsky/storm/balloon.png");
+      this.sl4 = this.addPlane(2500, 374, 1.0, 900, 0, -180, 0, 0, 0, "/models/textures/stormsky/storm/sl4.png");
       this.scene.add(this.sl1);
       this.scene.add(this.sl2);
       this.scene.add(this.sl3);
@@ -13446,7 +13446,7 @@
 
     Storm.prototype.initSky = function() {
       var cubeShader, format, material, path, skyText, urls;
-      path = "./models/textures/stormsky/";
+      path = "/models/textures/stormsky/";
       format = '.png';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       skyText = THREE.ImageUtils.loadTextureCube(urls);
@@ -13476,6 +13476,7 @@
       e = event.originalEvent;
       mX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
       mY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+      console.log(mX, mY)
       this.mouseX += mX * 1.2;
       return this.mouseY += mY;
     };
@@ -13953,7 +13954,7 @@
       this.loader.enableTextureCache = false;
       this.loader.pickableObjects = [];
       this.loader.customMaterialInstancer = this.instanceMaterial;
-      this.loader.load("./models/storm.if3d", this.onSceneLoaded, this.onSceneProgress);
+      this.loader.load("/models/storm.if3d", this.onSceneLoaded, this.onSceneProgress);
       this.onColorCorrectionChange();
       this.initGodrays();
       this.initTornado();
@@ -14011,8 +14012,8 @@
         _this = this;
       sunLight = new THREE.AmbientLight();
       this.scene.add(sunLight);
-      textureFlare0 = THREE.ImageUtils.loadTexture("./models/textures/lensflare/lensflare0_low.png", null, this.onTexLoaded);
-      textureFlare3 = THREE.ImageUtils.loadTexture("./models/textures/lensflare/hexangle.png", null, this.onTexLoaded);
+      textureFlare0 = THREE.ImageUtils.loadTexture("/models/textures/lensflare/lensflare0_low.png", null, this.onTexLoaded);
+      textureFlare3 = THREE.ImageUtils.loadTexture("/models/textures/lensflare/hexangle.png", null, this.onTexLoaded);
       flareColor = new THREE.Color(0xFFFFFF);
       this.lensFlare = new THREE.LensFlare(textureFlare0, 1000, 0.0, THREE.AdditiveBlending, flareColor);
       this.lensFlare.add(textureFlare3, 60, 0.6, THREE.AdditiveBlending);
@@ -14041,15 +14042,15 @@
       this.tornadoH = this.SCENE_HEIGHT / this.tornadoSamples;
       this.TORNADO_POS = new THREE.Vector3(0, -500 * this.SCENE_SCALE, -400 * this.SCENE_SCALE);
       format = this.Q_STR + '.png';
-      path = "./models/textures/storm/Env/earth_diff_";
+      path = "/models/textures/storm/Env/earth_diff_";
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.tornadoEnvMap = THREE.ImageUtils.loadTextureCube(urls, null, this.onTexLoaded);
       this.tornadoEnvMap.format = THREE.RGBFormat;
-      path = "./models/textures/storm/Env/earth_spec_";
+      path = "/models/textures/storm/Env/earth_spec_";
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.tornadoSpecMap = THREE.ImageUtils.loadTextureCube(urls, null, this.onTexLoaded);
       this.tornadoSpecMap.format = THREE.RGBFormat;
-      this.tornadoTexture = THREE.ImageUtils.loadTexture("./models/textures/storm/tornado.png", null, this.onTexLoaded);
+      this.tornadoTexture = THREE.ImageUtils.loadTexture("/models/textures/storm/tornado.png", null, this.onTexLoaded);
       this.tornadoTexture.flipY = true;
       this.tornadoTexture.wrapS = this.tornadoTexture.wrapT = THREE.RepeatWrapping;
       win = false;
@@ -14075,7 +14076,7 @@
         transparent: true
       });
       this.sal2xMaterial.uniforms["resolution"].value = new THREE.Vector2(this.SCENE_WIDTH, this.SCENE_HEIGHT);
-      return this.texWhite = THREE.ImageUtils.loadTexture("./models/textures/white.png", null, this.onTexLoaded);
+      return this.texWhite = THREE.ImageUtils.loadTexture("/models/textures/white.png", null, this.onTexLoaded);
     };
 
     Stormtest.prototype.addClouds = function(mesh, rx, ry, rz, num, white, seed) {
@@ -14084,7 +14085,7 @@
       mesh.scale.set(mesh.scale.x * this.SCENE_SCALE, mesh.scale.y * this.SCENE_SCALE, mesh.scale.z * this.SCENE_SCALE);
       if (!this.texClouds) {
         this.texClouds = [];
-        this.texClouds.push(this.Q_LOADER("./models/textures/storm/cloud1" + this.Q_STR + this.Q_EXT));
+        this.texClouds.push(this.Q_LOADER("/models/textures/storm/cloud1" + this.Q_STR + this.Q_EXT));
         this.shaderClouds = new IFLCloudsShader;
       }
       clouds = [];
@@ -14206,11 +14207,11 @@
       if (!this.Q_DROPS) {
         return;
       }
-      this.texDrops[0] = this.Q_LOADER("./models/textures/storm/drop1" + this.Q_EXT, null, this.onTexLoaded);
-      this.texDrops[1] = this.Q_LOADER("./models/textures/storm/drop2" + this.Q_EXT, null, this.onTexLoaded);
-      this.texDrops[2] = this.Q_LOADER("./models/textures/storm/drop3" + this.Q_EXT, null, this.onTexLoaded);
-      this.texDrops[3] = this.Q_LOADER("./models/textures/storm/drop4" + this.Q_EXT, null, this.onTexLoaded);
-      this.texDrops[4] = this.Q_LOADER("./models/textures/storm/drop5" + this.Q_EXT, null, this.onTexLoaded);
+      this.texDrops[0] = this.Q_LOADER("/models/textures/storm/drop1" + this.Q_EXT, null, this.onTexLoaded);
+      this.texDrops[1] = this.Q_LOADER("/models/textures/storm/drop2" + this.Q_EXT, null, this.onTexLoaded);
+      this.texDrops[2] = this.Q_LOADER("/models/textures/storm/drop3" + this.Q_EXT, null, this.onTexLoaded);
+      this.texDrops[3] = this.Q_LOADER("/models/textures/storm/drop4" + this.Q_EXT, null, this.onTexLoaded);
+      this.texDrops[4] = this.Q_LOADER("/models/textures/storm/drop5" + this.Q_EXT, null, this.onTexLoaded);
       for (i = _i = 0, _ref = this.MAX_DROPS; _i <= _ref; i = _i += 1) {
         this.drops[i] = {
           active: false,
@@ -14622,7 +14623,7 @@
 
     Stormtest.prototype.instanceFresnelMaterial = function(mesh, meshname, materialname) {
       var material, params, path, shader, uniforms;
-      path = "./models/textures/storm/" + materialname + "/" + materialname;
+      path = "/models/textures/storm/" + materialname + "/" + materialname;
       shader = new IFLStormFresnelShader;
       params = {
         fragmentShader: shader.fragmentShader,
@@ -14645,7 +14646,7 @@
 
     Stormtest.prototype.instanceBasicMaterial = function(mesh, meshname, materialname) {
       var map, material, path;
-      path = "./models/textures/storm/" + materialname;
+      path = "/models/textures/storm/" + materialname;
       map = this.Q_LOADER(path, null, this.onTexLoaded);
       map.flipY = false;
       material = new THREE.MeshBasicMaterial({
@@ -17080,7 +17081,7 @@
         height: 392,
         top: 0,
         left: 0,
-        background: "url('./models/textures/drops_tl.png')"
+        background: "url('/models/textures/drops_tl.png')"
       });
       this.topRight = $("<div id='drops_overlay2'></div>");
       this.topRight.css({
@@ -17089,7 +17090,7 @@
         height: 492,
         top: 0,
         right: 0,
-        background: "url('./models/textures/drops_tr.png')"
+        background: "url('/models/textures/drops_tr.png')"
       });
       this.bottomLeft = $("<div id='drops_overlay3'></div>");
       this.bottomLeft.css({
@@ -17098,7 +17099,7 @@
         height: 543,
         bottom: 0,
         left: 0,
-        background: "url('./models/textures/drops_bl.png')"
+        background: "url('/models/textures/drops_bl.png')"
       });
       this.bottomRight = $("<div id='drops_overlay4'></div>");
       this.bottomRight.css({
@@ -17107,7 +17108,7 @@
         height: 286,
         bottom: 0,
         right: 0,
-        background: "url('./models/textures/drops_br.png')"
+        background: "url('/models/textures/drops_br.png')"
       });
       this.container.append(this.topLeft);
       this.container.append(this.topRight);
