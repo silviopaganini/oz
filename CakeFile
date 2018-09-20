@@ -1,3 +1,5 @@
+aws s3 sync website s3://fluuu.id/projects/oz --exclude \"website/prototypes/*\" --exclude \"*.git/*\" --exclude \"*/node_modules/*\" --exclude \"npm-debug.log\" --exclude \"*/jspm_packages/*\" --delete --profile fluuuid
+
 
 pro = require('uglify-js').uglify
 jsp = require("uglify-js").parser

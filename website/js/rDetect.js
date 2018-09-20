@@ -1,10 +1,10 @@
 var paths = {
-    "modernizr"      : "vendor/modernizr-2.6.2.min",
-    "jquery"         : "vendor/jquery-1.8.3.min",
-    "underscore"     : "vendor/underscore-1.3.3.min",
-    "backbone"       : "vendor/backbone-0.9.2.min",
-    "json2"          : "vendor/json2",
-    "BrowserDetect"  : "vendor/BrowserDetect"
+    "modernizr"      : "./js/vendor/modernizr-2.6.2.min",
+    "jquery"         : "./js/vendor/jquery-1.8.3.min",
+    "underscore"     : "./js/vendor/underscore-1.3.3.min",
+    "backbone"       : "./js/vendor/backbone-0.9.2.min",
+    "json2"          : "./js/vendor/json2",
+    "BrowserDetect"  : "./js/vendor/BrowserDetect"
 };
 
 
@@ -13,7 +13,7 @@ for(var n in paths) libs.push(n);
 
 requirejs.config({
 
-    baseUrl: '/js',
+    baseUrl: '.',
 
     paths: paths,
 
@@ -28,5 +28,5 @@ requirejs.config({
 
 require(libs, function()
 {
-    require(['appDetect']);
+    require(['./js/appDetect']);
 });

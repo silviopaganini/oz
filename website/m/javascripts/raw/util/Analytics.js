@@ -93,11 +93,14 @@ Package('util',
 
 			init : function()
 			{
+				return
 				this.setUpGoogleAnalytics(MjConfig.getInstance().googleAnalyticsAccount);
 			},
 
 			setUpGoogleAnalytics : function(account)
 			{
+				return
+
 				if(this.initialised)
 				{
 					return;
@@ -118,17 +121,20 @@ Package('util',
 
 			trackGoogleAnalyticsPageView : function(page)
 			{
+				return
 				window._gaq.push(['_trackPageview', page]);
 			},
 
 			trackGoogleAnalyticsEvent : function(event)
 			{
+				return
 				this.log('tracking event:', JSON.stringify(event));
 				window._gaq.push(['_trackEvent', event.category, event.action, event.label, event.value]);
 			},
 
 			trackFloodLight : function(tag)
 			{
+				return
 				var old = $('#floodLightTrack');
 				if(old.length !== 0)
 				{

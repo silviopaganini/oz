@@ -1,9 +1,9 @@
 {
-    "modelURL" : "/models/s001.if3d",
-    "jpgBasePath" : "/models/textures/s001_b/preload_jpg",
-    "ddsBasePath" : "/models/textures/s001_b/preload_#QUALITY#",
-    "auxBasePath" : "/models/textures/s001_b/aux_#QUALITY#",
-    "skyCubePath" : "/models/textures/s001_b/env/",
+    "modelURL" : "./models/s001.if3d",
+    "jpgBasePath" : "./models/textures/s001_b/preload_jpg",
+    "ddsBasePath" : "./models/textures/s001_b/preload_#QUALITY#",
+    "auxBasePath" : "./models/textures/s001_b/aux_#QUALITY#",
+    "skyCubePath" : "./models/textures/s001_b/env/",
     "skyCubeFormat" : ".png",
 
     "materialInstancerNames":{
@@ -50,18 +50,18 @@
     "sun" : {
         "position": [400,650,-1900],
         "size":1000,
-        "mainSprite":"/models/textures/lensflare/lensflare0_low.dds",
-        "flareSprite":"/models/textures/lensflare/hexangle.dds",
+        "mainSprite":"./models/textures/lensflare/lensflare0_low.dds",
+        "flareSprite":"./models/textures/lensflare/hexangle.dds",
         "flares" : [ [60,0.6],[70, 0.7], [120, 0.9], [70, 1.0] ]
     },
     
     "hotspots":[
-        {"name":"ozstuff1","link":"","position":[-111.8,11.6,-53.6],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
-        {"name":"ozstuff2","link":"","position":[-131.836,24.538,-36.638],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
-        {"name":"ozstuff3","link":"","position":[-38.7,11.6,-70.4],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"ozstuff1","link":"","position":[-111.8,11.6,-53.6],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"ozstuff2","link":"","position":[-131.836,24.538,-36.638],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"ozstuff3","link":"","position":[-38.7,11.6,-70.4],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
         {"name":"cutout_hotspot","link":"cutout","position":[-60,20,-75],"size":13},
         {"name":"music_hotspot","link":"music","position":[-16,20,-65],"size":7},
-        {"name":"nextscene_hotspot","link":"zoetrope","position":[-8,15,-40],"size":3,"overrideMap":"/models/textures/scene2_next.dds"}
+        {"name":"nextscene_hotspot","link":"zoetrope","position":[-8,15,-40],"size":3,"overrideMap":"./models/textures/scene2_next.dds"}
     ],
 
     "navigationPoints":{
@@ -158,15 +158,15 @@
         "signpost.dds",
         "organ_characters.dds",
 
-        "/models/textures/particles/dandelion.dds",
-        "/models/textures/particles/dust0.dds",
-        "/models/textures/particles/dust1.dds",
-        "/models/textures/particles/dust2.dds",
-        "/models/textures/particles/dust3.dds",
-        "/models/textures/particles/dust4.dds",
-        "/models/textures/scene2_next.dds",
-        "/models/textures/lensflare/hexangle.dds",
-        "/models/textures/lensflare/lensflare0_low.dds"
+        "./models/textures/particles/dandelion.dds",
+        "./models/textures/particles/dust0.dds",
+        "./models/textures/particles/dust1.dds",
+        "./models/textures/particles/dust2.dds",
+        "./models/textures/particles/dust3.dds",
+        "./models/textures/particles/dust4.dds",
+        "./models/textures/scene2_next.dds",
+        "./models/textures/lensflare/hexangle.dds",
+        "./models/textures/lensflare/lensflare0_low.dds"
     ],
 
 

@@ -1,9 +1,9 @@
 {
-    "modelURL" : "/models/s003.if3d",
-    "jpgBasePath" : "/models/textures/s003/preload_jpg",
-    "ddsBasePath" : "/models/textures/s003/preload_#QUALITY#",
-    "auxBasePath" : "/models/textures/s003/aux_#QUALITY#",
-    "skyCubePath" : "/models/textures/carnivalsky2/",
+    "modelURL" : "./models/s003.if3d",
+    "jpgBasePath" : "./models/textures/s003/preload_jpg",
+    "ddsBasePath" : "./models/textures/s003/preload_#QUALITY#",
+    "auxBasePath" : "./models/textures/s003/aux_#QUALITY#",
+    "skyCubePath" : "./models/textures/carnivalsky2/",
     "skyCubeFormat" : ".png",
 
     "materialInstancerNames":{
@@ -29,8 +29,8 @@
 
     "hotspots":[
         {"name":"baloon_hotspot","link":"storm","position":[120,57,-330],"size":90,"localizedTexture":"balloon"},
-        {"name":"ozstuff1","link":"","position":[-90,12.5,-96],"size":1,"overrideMap":"/models/textures/ozificable_icon.dds","disabled":true},
-        {"name":"prevscene_hotspot","link":"zoetrope","position":[-110,20,-90],"size":7,"overrideMap":"/models/textures/scene2_prev.dds"}
+        {"name":"ozstuff1","link":"","position":[-90,12.5,-96],"size":1,"overrideMap":"./models/textures/ozificable_icon.dds","disabled":true},
+        {"name":"prevscene_hotspot","link":"zoetrope","position":[-110,20,-90],"size":7,"overrideMap":"./models/textures/scene2_prev.dds"}
     ],
 
     "pickables" : {
@@ -48,8 +48,8 @@
     "sun" : {
         "position": [-550,1100,-3100],
         "size":1000,
-        "mainSprite":"/models/textures/lensflare/lensflare0_low.dds",
-        "flareSprite":"/models/textures/lensflare/hexangle.dds",
+        "mainSprite":"./models/textures/lensflare/lensflare0_low.dds",
+        "flareSprite":"./models/textures/lensflare/hexangle.dds",
         "flares" : [ [60,0.6],[70, 0.7], [120, 0.9], [70, 1.0] ]
     },
 
@@ -83,15 +83,15 @@
         "terrain_lightmap.dds",
         "Trees_simple_diff.dds",
 
-        "/models/textures/particles/dandelion.dds",
-        "/models/textures/particles/dust0.dds",
-        "/models/textures/particles/dust1.dds",
-        "/models/textures/particles/dust2.dds",
-        "/models/textures/particles/dust3.dds",
-        "/models/textures/particles/dust4.dds",
-        "/models/textures/scene2_prev.dds",
-        "/models/textures/lensflare/hexangle.dds",
-        "/models/textures/lensflare/lensflare0_low.dds"        
+        "./models/textures/particles/dandelion.dds",
+        "./models/textures/particles/dust0.dds",
+        "./models/textures/particles/dust1.dds",
+        "./models/textures/particles/dust2.dds",
+        "./models/textures/particles/dust3.dds",
+        "./models/textures/particles/dust4.dds",
+        "./models/textures/scene2_prev.dds",
+        "./models/textures/lensflare/hexangle.dds",
+        "./models/textures/lensflare/lensflare0_low.dds"        
         
     ],
 

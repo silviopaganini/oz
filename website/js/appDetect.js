@@ -288,7 +288,7 @@
       var script;
       script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = '/js/r.js';
+      script.src = './js/r.js';
       return $("head").append(script);
     };
     window.onLowClick = function() {
@@ -409,10 +409,10 @@
       return window.detection.onSuccess();
     };
     img = new Image();
-    img.src = '/img/home/interface_1x.png';
+    img.src = './img/home/interface_1x.png';
     if (window.devicePixelRatio === 2) {
       img2 = new Image();
-      img2.src = '/img/home/interface_2x.png';
+      img2.src = './img/home/interface_2x.png';
     }
     return window.detection.init();
   });

@@ -1,20 +1,20 @@
 var paths = {
-    "three"                 : "vendor/three/three.merged",
-    "jquery.pause"          : "vendor/jquery.pause.min",
-    "transit"               : "vendor/jquery.transit.min",
-    "tween"                 : "vendor/Tween",
-    'preloadJS'             : "vendor/preloadjs-0.2.0.min",
-    "dat.gui"               : "vendor/dat.gui.min",
-    "stats"                 : "vendor/Stats",
-    "plugins"               : "plugins",
-    "sonic"                 : "vendor/sonic",
-    "analytics"             : "http://www.google-analytics.com/ga",
-    "easeljs"               : "vendor/easeljs-0.5.0.min",
-    "tweenmax"              : "vendor/gsap/TweenMax.min",
-    "gsap"                  : "vendor/gsap/jquery.gsap.min",
-    "seedrandom"            : "vendor/seedrandom-min",
-    "ccapture"              : "vendor/CCapture",
-    "whammy"                : "vendor/Whammy"
+    "three"                 : "./vendor/three/three.merged",
+    "jquery.pause"          : "./vendor/jquery.pause.min",
+    "transit"               : "./vendor/jquery.transit.min",
+    "tween"                 : "./vendor/Tween",
+    'preloadJS'             : "./vendor/preloadjs-0.2.0.min",
+    "dat.gui"               : "./vendor/dat.gui.min",
+    "stats"                 : "./vendor/Stats",
+    "plugins"               : "./plugins",
+    "sonic"                 : "./vendor/sonic",
+    // "analytics"             : "http://www.google-analytics.com/ga",
+    "easeljs"               : "./vendor/easeljs-0.5.0.min",
+    "tweenmax"              : "./vendor/gsap/TweenMax.min",
+    "gsap"                  : "./vendor/gsap/jquery.gsap.min",
+    "seedrandom"            : "./vendor/seedrandom-min",
+    "ccapture"              : "./vendor/CCapture",
+    "whammy"                : "./vendor/Whammy"
 };
 
 // var threeModules = [
@@ -42,11 +42,11 @@ var libs = [];
 for(var n in paths) libs.push(n);
 
 requirejs.config({
-    baseUrl: '/js',
+    baseUrl: './js',
     paths: paths
 });
 
 require(libs, function()
 {
-    require(['app']);
+    require(['./app']);
 });
