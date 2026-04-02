@@ -1350,7 +1350,16 @@ SCSound.Core.Sound.prototype = {
         if (this.voice) {
             if(this.isPlaying)
             {
-                this.voice.stop(0);
+                try {
+                    if (this.voice.stop) {
+                        this.voice.stop(0);
+                    } else if (this.voice.noteOff) {
+                        this.voice.noteOff(0);
+                    }
+                } catch (e) {
+                    // Modern WebAudio throws if stop() is called before start().
+                    // Ignore here to preserve legacy sequencing behavior.
+                }
             }
 
             this.isPlaying = false;
@@ -1377,7 +1386,18 @@ SCSound.Core.Group.prototype = {
                 var effect = {};
                 if (this.inserts[i].effectId == "Biquad") {
                     effect.fx = SCSound.Core.SoundController.context.createBiquadFilter();
-                    effect.fx.type = effect.fx[this.inserts[i].params["type"]];
+                    var filterType = this.inserts[i].params["type"];
+                    if (typeof filterType === "string") {
+                        filterType = filterType.toLowerCase();
+                    }
+                    // Old code expects numeric constants; modern WebAudio expects string enums.
+                    if (typeof filterType === "string" && typeof effect.fx[filterType] !== "undefined") {
+                        filterType = effect.fx[filterType];
+                    }
+                    if (typeof filterType === "undefined" || filterType === null || filterType === "") {
+                        filterType = "lowpass";
+                    }
+                    effect.fx.type = filterType;
                     effect.fx.frequency.value = this.inserts[i].params["frequency"];
                     effect.fx.Q.value = this.inserts[i].params["Q"];
                     effect.fx.gain.value = this.inserts[i].params["gain"];

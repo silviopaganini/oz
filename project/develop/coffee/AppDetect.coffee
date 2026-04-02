@@ -10,18 +10,10 @@ $ ->
     window.detection.onSuccess = () =>
 
         $('#detect').remove()
-
-        $('.qualityCheck').css { 'display':'table' }
-
-        $('.qualityCheck').animate { opacity:1 }, 1000
-
-        # Fix alignment button (Chrome Win / Chrome OSx)
-        if navigator.appVersion.indexOf("Win") != -1
-            $('.qualityCheck').find('.settings_button').each (index, item) =>
-                $(item).css {"padding" : "7px 20px 8px 20px"}
-
-        $('.low_quality').click onLowClick
-        $('.high_quality').click onHighClick
+        (window || document).textureQuality = "med"
+        (window || document).displayQuality = "hi"
+        (window || document).dof = true
+        window.onCompleteAnim()
 
     
     window.onQuality = () =>

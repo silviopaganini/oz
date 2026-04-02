@@ -51,7 +51,7 @@ class Storm extends AbstractChapter
         ambient = new THREE.AmbientLight 0xFFFFFF
         @scene.add ambient
 
-        cube = new THREE.CubeGeometry 1, 1, 1
+        cube = if THREE.BoxGeometry? then new THREE.BoxGeometry(1, 1, 1) else new THREE.PlaneGeometry(1, 1)
         @cubeRefMesh = new THREE.Mesh cube,  new THREE.MeshLambertMaterial { color: 0xFFFFFF }
         #@scene.add @cubeRefMesh
 
@@ -70,7 +70,8 @@ class Storm extends AbstractChapter
 
         @onResize()
 
-        @trigger 'onWorldLoaded'
+        # Emit async so AppView listeners (attached right after render()) can catch it.
+        window.setTimeout((=> @trigger 'onWorldLoaded'), 0)
         
         # @addChild @renderer.domElement
 
@@ -136,7 +137,8 @@ class Storm extends AbstractChapter
             depthWrite: false
             side: THREE.BackSide
 
-        @skyCube = new THREE.Mesh new THREE.CubeGeometry( 10000, 10000, 10000 ), material
+        skyGeom = if THREE.BoxGeometry? then new THREE.BoxGeometry(10000, 10000, 10000) else new THREE.PlaneGeometry(10000, 10000)
+        @skyCube = new THREE.Mesh skyGeom, material
         @skyCube.name = "skyCube"
         @scene.add @skyCube
     

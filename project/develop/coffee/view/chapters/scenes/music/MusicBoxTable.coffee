@@ -45,6 +45,11 @@ class MusicBoxTable extends Abstract
 
     goShare : =>
 
+        onDone = =>
+            @oz().appView.subArea.buttons.share.enable()
+            @oz().appView.subLoader.hide()
+            null
+
         Analytics.track 'music_share'
 
         @oz().appView.subArea.buttons.share.disable()
@@ -57,8 +62,24 @@ class MusicBoxTable extends Abstract
         data.notes = @data.notes
         data.loops = @data.loops
 
-        Requester.addMusic JSON.stringify(data), @musicSaved, @fail
-        # For preview: Requester.getMusic data.result.id, @onGetMusic, @fail
+        # Try native file sharing first (no backend dependency).
+        if navigator.share? and window.File? and window.Blob?
+            try
+                blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
+                file = new File([blob], "oz-music-loop.json", { type: "application/json" })
+                payload =
+                    title: @oz().locale.get("music_nice_tune")
+                    text: @oz().locale.get("music_share_disclaimer")
+                    files: [file]
+
+                if navigator.canShare? and navigator.canShare({ files: [file] })
+                    navigator.share(payload).then(onDone).catch(onDone)
+                    return null
+            catch error
+                # Fallback below.
+                null
+
+        @showShareBox { id: window.location.origin + "/" }
 
         null
 

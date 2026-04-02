@@ -7,16 +7,7 @@ class Locale
 
         _.extend @, Backbone.Events
 
-        @lang = (navigator.language || navigator.userLanguage).toLowerCase()
-        #@lang = @lang + '-' + @lang if @lang.indexOf('-') == -1
-
-        # @lang = "zh-hk"
-
-        $.ajax 
-            url      : "/api/localisation/desktop/" + @lang
-            dataType : "json"
-            success  : @onSuccess
-            error    : @loadBackup
+        @loadBackup()
 
         null
             

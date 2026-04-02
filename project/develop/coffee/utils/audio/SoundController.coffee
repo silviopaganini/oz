@@ -14,6 +14,7 @@ class SoundController
     @userLoopLonger : null
 
     @active : false
+    @audioUnlockInstalled : false
     @onBatchComplete : null
     batchLoaded : false
 
@@ -44,8 +45,32 @@ class SoundController
     @onLibLoaded:=>
         if @active
             SCSound.initialize @xmlLink, @mp3link, @swfLink, @onloadcomplete, @onloadprogress, @onbatchloaded
+            @installAudioUnlock()
         else
             @progress = 100        
+
+    @installAudioUnlock: =>
+        return if @audioUnlockInstalled
+        @audioUnlockInstalled = true
+
+        unlock = =>
+            try
+                ctx = SCSound?.Core?.SoundController?.context
+                if ctx? and ctx.state == "suspended" and ctx.resume?
+                    ctx.resume()
+
+                if !ctx? or ctx.state != "suspended"
+                    window.removeEventListener "pointerdown", unlock, true
+                    window.removeEventListener "touchstart", unlock, true
+                    window.removeEventListener "keydown", unlock, true
+                    window.removeEventListener "click", unlock, true
+            catch error
+                null
+
+        window.addEventListener "pointerdown", unlock, true
+        window.addEventListener "touchstart", unlock, true
+        window.addEventListener "keydown", unlock, true
+        window.addEventListener "click", unlock, true
 
     @onloadprogress: (percent) =>
 

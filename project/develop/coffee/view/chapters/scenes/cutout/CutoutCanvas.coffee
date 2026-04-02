@@ -36,12 +36,12 @@ class CutoutCanvas extends Abstract
         @canvas = document.createElement('canvas')
         @canvas.width = 1024
         @canvas.height = 1024
-        @ctx = @canvas.getContext '2d'
+        @ctx = @canvas.getContext '2d', willReadFrequently: true
 
         @camCanvas = document.createElement 'canvas'
         @camCanvas.width = 1024
         @camCanvas.height = 1024
-        @camCtx = @camCanvas.getContext '2d'
+        @camCtx = @camCanvas.getContext '2d', willReadFrequently: true
 
         $(@canvas).css
             "z-index"   : 99
@@ -99,17 +99,23 @@ class CutoutCanvas extends Abstract
         context.setTransform(1, 0, 0, 1, 0, 0)
         context.save()
 
-        if nocamera == false
+        if nocamera == false and @coord? and @camSize? and @oz().cam?
+            camFrame = @oz().cam.flipImage()
+            if !camFrame?
+                context.restore()
+                context.drawImage((if oz then @cutout_oz else @cutout), 0, 0)
+                return canvas
+
             if @coord.o != 0
                 context.translate @coord.x, @coord.y + @camSize[0]
                 context.rotate @coord.o
                 # @ctx.drawImage @colorCorrectCam( @oz().cam.flipImage() ), (@camSize[0] >> 1), -(@camSize[1] >> 1), @camSize[0], @camSize[1]
-                context.drawImage @oz().cam.flipImage(), (@camSize[0] >> 1), -(@camSize[1] >> 1), @camSize[0], @camSize[1]
+                context.drawImage camFrame, (@camSize[0] >> 1), -(@camSize[1] >> 1), @camSize[0], @camSize[1]
             else
                 context.rotate @coord.o
                 context.translate @coord.x, @coord.y
                 # @ctx.drawImage @colorCorrectCam( @oz().cam.flipImage() ), -(@camSize[0] >> 1), - (@camSize[1] >> 1), @camSize[0], @camSize[1]
-                context.drawImage @oz().cam.flipImage(), -(@camSize[0] >> 1), - (@camSize[1] >> 1), @camSize[0], @camSize[1]
+                context.drawImage camFrame, -(@camSize[0] >> 1), - (@camSize[1] >> 1), @camSize[0], @camSize[1]
 
             context.restore()
 
@@ -133,10 +139,10 @@ class CutoutCanvas extends Abstract
         @renderTexture()
 
         @photoCanvas = document.createElement('canvas')
-        @photoCtx = @photoCanvas.getContext '2d'
+        @photoCtx = @photoCanvas.getContext '2d', willReadFrequently: true
 
         @photoCanvasTemp = document.createElement('canvas')
-        @photoCtxTemp = @photoCanvasTemp.getContext '2d'
+        @photoCtxTemp = @photoCanvasTemp.getContext '2d', willReadFrequently: true
 
 
         if @coord.o != 0

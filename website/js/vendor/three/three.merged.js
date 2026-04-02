@@ -8784,7 +8784,7 @@ THREE.RenderableVertex.prototype.copy = function ( vertex ) {
 
 THREE.WebGLRenderer = function ( parameters ) {
 
-	console.log( 'THREE.WebGLRenderer', THREE.REVISION );
+	// Legacy debug log removed to avoid noisy duplicate messages.
 
 	parameters = parameters || {};
 
@@ -15848,7 +15848,8 @@ THREE.WebGLRenderer = function ( parameters ) {
 	// this.addPrePlugin( this.shadowMapPlugin );
 
 	// this.addPostPlugin( new THREE.SpritePlugin() );
-	this.addPostPlugin( new THREE.LensFlarePlugin() );
+	// Disabled for modern browser compatibility (legacy shader fails to link on current Chromium/WebGL stacks).
+	// this.addPostPlugin( new THREE.LensFlarePlugin() );
 
 };
 

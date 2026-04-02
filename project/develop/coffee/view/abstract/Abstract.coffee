@@ -196,9 +196,9 @@ class Abstract extends Backbone.View
             document.addEventListener 'mozpointerlockchange', @pointerLockChange, false
             document.addEventListener 'webkitpointerlockchange', @pointerLockChange, false
 
-            b = document.body
+            b = document.querySelector('canvas') || document.body
             b.requestPointerLock = b.requestPointerLock || b.mozRequestPointerLock || b.webkitRequestPointerLock
-            b.requestPointerLock()
+            b.requestPointerLock?()
 
         null
 
@@ -217,12 +217,11 @@ class Abstract extends Backbone.View
 
 
     pointerLockChange : (event) =>
-        requestedElement = document.body
-        console.log document.pointerLockElement, document.mozPointerLockElement, document.webkitPointerLockElement
-        if (document.pointerLockElement is requestedElement || document.mozPointerLockElement is requestedElement || document.webkitPointerLockElement is requestedElement) 
+        requestedElement = document.querySelector('canvas') || document.body
+        currentElement = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement
+        if currentElement is requestedElement
             @onLock()
         else
-            @releasePointLock()
             @onUnLock()
 
         null

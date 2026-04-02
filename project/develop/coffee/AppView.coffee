@@ -369,7 +369,7 @@ class AppView extends Abstract
             #     return "PerformanceTestNoloop"             
 
             when "storm"
-                return "Stormtest"
+                return "StormInteractive"
 
             when "final"
                 return "Final"

@@ -330,8 +330,57 @@ class ZoetropeMakeMovie extends Abstract
         @share.disable()
         @done.disable()
         @oz().appView.subLoader.show true
-        @requestSave()
+        @shareCurrentCapture()
 
+        null
+
+    shareCurrentCapture : =>
+        photoCanvas = @timeline.canvas[0]
+        shareUrl = window.location.origin
+        shareText = @oz().locale.get("zoetrope_share_movie")
+        shareTitle = @oz().locale.get("zoetrope_done_button")
+
+        onDone = =>
+            @oz().appView.subLoader.hide()
+            @share.enable()
+            @done.enable()
+            null
+
+        if navigator.share? and photoCanvas?.toBlob?
+            photoCanvas.toBlob ((blob) =>
+                if !blob?
+                    @fallbackShareCapture(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+                    return
+
+                if window.File?
+                    file = new File([blob], "oz-zoetrope.jpg", { type: "image/jpeg" })
+                    payload =
+                        title: shareTitle
+                        text: shareText
+                        files: [file]
+
+                    if navigator.canShare? and navigator.canShare({ files: [file] })
+                        navigator.share(payload).then(onDone).catch(onDone)
+                        return
+
+                @fallbackShareCapture(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+            ), "image/jpeg", 0.92
+            return
+
+        @fallbackShareCapture(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+        return null
+
+    fallbackShareCapture : (photoCanvas, shareTitle, shareText, shareUrl, done) =>
+        if navigator.share?
+            navigator.share({
+                title: shareTitle
+                text: shareText
+                url: shareUrl
+            }).then(done).catch(done)
+            return
+
+        window.open(photoCanvas.toDataURL("image/jpeg"), "_blank")
+        done()
         null
 
     requestSave: =>

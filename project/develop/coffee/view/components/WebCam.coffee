@@ -49,10 +49,25 @@ class WebCam
             @init()
             return
 
-        src = window.URL.createObjectURL(@stream)
-        @dom().src = src
+        video = @dom()
+        return unless video?
 
-        #return
+        # Modern browsers require MediaStream on srcObject.
+        if "srcObject" of video
+            video.srcObject = @stream
+            return @stream
+
+        # Legacy fallback.
+        src = null
+        if window.URL?.createObjectURL?
+            try
+                src = window.URL.createObjectURL(@stream)
+            catch error
+                src = null
+
+        if src?
+            video.src = src
+
         src
 
     dom : =>

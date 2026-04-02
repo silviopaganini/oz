@@ -308,9 +308,62 @@ class Cutout extends AbstractScene
         
         @oz().appView.subLoader.show true
 
-        data = @canvas.getPhoto false, true
-        Requester.addImage data, "cutout", @requestSaveDone, @fail
+        @shareCurrentPhoto()
 
+        null
+
+    restoreShareButtons : =>
+        @polaroid.addShareButtons(@shareClick, @tryAgainClick)
+        null
+
+    shareCurrentPhoto : =>
+        photoCanvas = @canvas.getPhoto(true, true)
+        shareUrl = window.location.origin
+        shareText = @oz().locale.get("shareBoxSubCutout")
+        shareTitle = @oz().locale.get("cutoutCTA")
+
+        onDone = =>
+            @oz().appView.subLoader.hide()
+            @restoreShareButtons()
+            null
+
+        # Prefer native share with the generated image.
+        if navigator.share? and photoCanvas?.toBlob?
+            photoCanvas.toBlob ((blob) =>
+                if !blob?
+                    @fallbackSharePhoto(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+                    return
+
+                if window.File?
+                    file = new File([blob], "oz-cutout.jpg", { type: "image/jpeg" })
+                    payload =
+                        title: shareTitle
+                        text: shareText
+                        files: [file]
+
+                    if navigator.canShare? and navigator.canShare({ files: [file] })
+                        navigator.share(payload).then(onDone).catch(onDone)
+                        return
+
+                @fallbackSharePhoto(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+            ), "image/jpeg", 0.92
+            return
+
+        @fallbackSharePhoto(photoCanvas, shareTitle, shareText, shareUrl, onDone)
+        return null
+
+    fallbackSharePhoto : (photoCanvas, shareTitle, shareText, shareUrl, done) =>
+        if navigator.share?
+            navigator.share({
+                title: shareTitle
+                text: shareText
+                url: shareUrl
+            }).then(done).catch(done)
+            return
+
+        # Last resort: open the generated photo in a new tab for manual share/save.
+        window.open(photoCanvas.toDataURL("image/jpeg"), "_blank")
+        done()
         null
 
     fail : =>

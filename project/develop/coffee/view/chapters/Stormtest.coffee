@@ -1,4 +1,4 @@
-class Stormtest extends Base3DChapter
+class StormInteractive extends Base3DChapter
 
     # WARNING:
     # This contains some tricks to render correctly, as it has a fullscreen shader (tornado) that is outside composer pipeline, and it's in the middle of the scene
@@ -29,6 +29,8 @@ class Stormtest extends Base3DChapter
     L_LOADSCENE : 0
     # Scene
     enableRender : false
+    compatDisableFrontPass : true
+    compatDisableSceneMeshPass : true
     stormAnimTime : 0
     stormState : 0
     sceneRT : null
@@ -82,9 +84,18 @@ class Stormtest extends Base3DChapter
 
     onMouseClick:(event)=>
         return unless @enableMouse and @animStarted
-        if !@animPaused || !@stormControls
-            @pointLock()
         super
+
+    onMouseMove:(event)=>
+        return unless @enableMouse
+        super(event)
+        @mousePos.x = UTILS.clamp(@mouseX / (@APP_WIDTH * 0.5), -1, 1)
+        @mousePos.y = UTILS.clamp(-@mouseY / (@APP_HEIGHT * 0.5) + 0.6, 0.6, 1.0)
+
+    onMouseDown:(event)=>
+        return unless @enableMouse
+        super(event)
+        null
 
     # get mouse coords when lock
     onLockMouseMove:(event)=>
@@ -121,12 +132,10 @@ class Stormtest extends Base3DChapter
             if event.ctrlKey && event.keyCode == 65
                 @animPaused = !@animPaused
                 if @animPaused
-                    @releasePointLock()
                     SoundController.send "storm_scene_pause"
                     @CAMERA_ORBIT_H = Math.PI/2.0
                     @CAMERA_ORBIT_V = Math.PI/2.5
                 else
-                    @pointLock()
                     SoundController.send "storm_scene_resume"
                     @CAMERA_ORBIT_H = 0.7
                     @CAMERA_ORBIT_V = 0.5
@@ -186,16 +195,14 @@ class Stormtest extends Base3DChapter
                 @MIN_SAMPLES  = 4
                 @MAX_SAMPLES  = 12
                 @Q_STR        = ""
-        # DDS Support
-        if @oz().appView.ddsSupported
-            @Q_EXT        = ".dds"
-            @Q_LOADER     = THREE.ImageUtils.loadCompressedTexture
-            @Q_DROPS      = true
-        else
-            @Q_STR        = "_low"
-            @Q_EXT        = ".png"
-            @Q_LOADER     = THREE.ImageUtils.loadTexture
-            @Q_DROPS      = false
+        # Force PNG path in StormInteractive.
+        # DDS compressed textures in this scene trigger NPOT/driver errors on modern browsers.
+        @Q_STR        = "_low"
+        @Q_EXT        = ".png"
+        @Q_LOADER     = THREE.ImageUtils.loadTexture
+        @Q_DROPS      = false
+        # Keep loading completion in sync with optional drops textures.
+        @L_TEXNUM     = if @Q_DROPS then 49 else 44
         # Tornado samples
         @tornadoSamples = @MIN_SAMPLES
         @tornadoW = @APP_WIDTH  / @tornadoSamples
@@ -209,6 +216,7 @@ class Stormtest extends Base3DChapter
         # Mouse events
         document.addEventListener( 'mouseup',   @onMouseUp,    false )
         document.addEventListener( 'mousedown', @onMouseDown,  false )
+        document.addEventListener( 'mousemove', @onMouseMove,  false )
         document.addEventListener( 'click',     @onMouseClick, false )
 
         @initQuality()
@@ -683,7 +691,8 @@ class Stormtest extends Base3DChapter
         @mousePos = {x : 0, y : 0}
         @curPos = {x : 0, y : 0}
         @prevPos = {x : 0, y : 0}
-        @animStarted = true
+        @mouseDown = false
+        @animStarted = false
         @animPaused = false
         @stormAnimTime = 0
         @stormState = 0
@@ -692,11 +701,13 @@ class Stormtest extends Base3DChapter
         @balloon.anim.play(false, 0)
         @CAMERA_ORBIT_H = 0.7
         @CAMERA_ORBIT_V = 0.5
-        if lock then @pointLock()
+        null
 
     activate:()->
         Analytics.track 'storm_enter_page', "Google_OZ_Balloon Ride"
         @onRestart( false )
+        @animPaused = false
+        @animStarted = true
         return
 
     pause:()->
@@ -977,71 +988,92 @@ class Stormtest extends Base3DChapter
     # Render tornado storm scene
     # ----------------------------------------------------------------------------------------------------------------------------------
     renderScene:()->
+        isFiniteNumber = (v) -> typeof v is "number" and isFinite(v)
         @curPos.x = UTILS.lerp( 0.09, @curPos.x, @mousePos.x )
         @curPos.y = UTILS.lerp( 0.19, @curPos.y, @mousePos.y )
 
         # Default
         time = frame = next = step = speed = 0
+        cameraAngle = 0
         if !@animPaused
-            # Speed based on mouse position
-            desp = @curPos.x
-            if desp < 0
-                speed = UTILS.lerp( -desp, 1.0, @SPEED_MIN )
+            canUsePath = @balloon?.anim? and @cameraPosData?.length > 1 and @cameraTgtData?.length > 1
+            if !canUsePath
+                time = @stormAnimTime
             else
-                speed = UTILS.lerp( desp, 1.0, @SPEED_MAX )
-            speed = UTILS.clamp( speed, @SPEED_MIN, @SPEED_MAX )
+            # Speed based on mouse position
+                desp = @curPos.x
+                if desp < 0
+                    speed = UTILS.lerp( -desp, 1.0, @SPEED_MIN )
+                else
+                    speed = UTILS.lerp( desp, 1.0, @SPEED_MAX )
+                speed = UTILS.clamp( speed, @SPEED_MIN, @SPEED_MAX )
 
-            # Scene time
-            speed = if @animPaused || !@animStarted then 0 else speed*0.75
-            @stormAnimTime = @balloon.anim.currentTime
-            @balloon.anim.timeScale = speed
-            time   = @stormAnimTime
-            # Real frame
-            tframe = time * @CAMERA_DATA_FPS
-            frame  = UTILS.clamp( Math.floor(tframe), 0, @cameraPosData.length - 2 )
-            next   = frame + 1
-            step   = tframe - frame
+                # Scene time
+                speed = if @animPaused || !@animStarted then 0 else speed*0.75
+                @stormAnimTime = @balloon.anim.currentTime
+                @balloon.anim.timeScale = speed
+                time   = @stormAnimTime
+                # Real frame
+                tframe = time * @CAMERA_DATA_FPS
+                if isFiniteNumber(tframe)
+                    maxFrame = Math.min(@cameraPosData.length, @cameraTgtData.length) - 2
+                    frame  = UTILS.clamp( Math.floor(tframe), 0, maxFrame )
+                    if isFiniteNumber(frame)
+                        next   = frame + 1
+                        step   = tframe - frame
+                        srcCur = @cameraPosData[frame]
+                        srcNext = @cameraPosData[next]
+                        tgtCur = @cameraTgtData[frame]
+                        tgtNext = @cameraTgtData[next]
+                        if srcCur? and srcNext? and tgtCur? and tgtNext?
+                            src = @cameraLerp( @camSrc, step, srcCur, srcNext )
+                            tgt = @cameraLerp( @camTgt, step, tgtCur, tgtNext )
 
-            # Camera path
-            src = @cameraLerp( @camSrc, step, @cameraPosData[frame], @cameraPosData[next] )
-            tgt = @cameraLerp( @camTgt, step, @cameraTgtData[frame], @cameraTgtData[next] )
+                            # Camera orbit
+                            ax = @curPos.x * @CAMERA_ORBIT_H
+                            ay = @curPos.y * @CAMERA_ORBIT_V
 
-            # Camera orbit
-            ax = @curPos.x * @CAMERA_ORBIT_H
-            ay = @curPos.y * @CAMERA_ORBIT_V
+                            # Rotate up and right around orbit
+                            @camdir.set( src.x - tgt.x, src.y - tgt.y, src.z - tgt.z )
+                            @camv.set( @camdir.x, @camdir.y, @camdir.z )
+                            @camv.normalize()
+                            @camu.set( @camera.up.x, @camera.up.y, @camera.up.z )
+                            @camr.set( @camera.up.x, @camera.up.y, @camera.up.z )
+                            @camr.crossSelf( @camv )
+                            @matRotX.makeRotationAxis( @camr, ay )
+                            @matRotX.multiplyVector3( @camdir )
+                            @matRotX.makeRotationAxis( @camu, ax )
+                            @matRotX.multiplyVector3( @camdir )        
+                            camX = @camdir.x + tgt.x
+                            camY = @camdir.y + tgt.y
+                            camZ = @camdir.z + tgt.z
+                            if isFiniteNumber(camX) and isFiniteNumber(camY) and isFiniteNumber(camZ)
+                                @camera.position.set( camX, camY, camZ )
+                                if @audioListener? and isFiniteNumber(@camera.position.x) and isFiniteNumber(@camera.position.y) and isFiniteNumber(@camera.position.z)
+                                    @audioListener.position.set( @camera.position.x, @camera.position.y, @camera.position.z )
 
-            # Rotate up and right around orbit
-            @camdir.set( src.x - tgt.x, src.y - tgt.y, src.z - tgt.z )
-            @camv.set( @camdir.x, @camdir.y, @camdir.z )
-            @camv.normalize()
-            @camu.set( @camera.up.x, @camera.up.y, @camera.up.z )
-            @camr.set( @camera.up.x, @camera.up.y, @camera.up.z )
-            @camr.crossSelf( @camv )
-            @matRotX.makeRotationAxis( @camr, ay )
-            @matRotX.multiplyVector3( @camdir )
-            @matRotX.makeRotationAxis( @camu, ax )
-            @matRotX.multiplyVector3( @camdir )        
-            @camera.position.set( @camdir.x + tgt.x, @camdir.y + tgt.y, @camdir.z + tgt.z  )
-            @audioListener.position.set( @camera.position.x, @camera.position.y, @camera.position.z )
+                                # Displace target
+                                @camdir.normalize()
+                                @camu.set( 0, -1, 0 )
+                                @camu.crossSelf( @camdir )
+                                dd = (@curPos.x * 10 * 5 / 12);
+                                tgt.set( tgt.x + @camu.x * dd, tgt.y + @camu.y * dd, tgt.z + @camu.z * dd )
 
-            # Displace target
-            @camdir.normalize()
-            @camu.set( 0, -1, 0 )
-            @camu.crossSelf( @camdir )
-            dd = (@curPos.x * 10 * 5 / 12);
-            tgt.set( tgt.x + @camu.x * dd, tgt.y + @camu.y * dd, tgt.z + @camu.z * dd )
-
-            # Camera lookat
-            @camdir.set( tgt.x, tgt.y, tgt.z )
-            @camera.lookAt( @camdir )
-            cameraAngle = Math.atan2( @camdir.z - @camera.position.z, @camdir.x - @camera.position.x ) - Math.PI/2.0
+                                # Camera lookat
+                                @camdir.set( tgt.x, tgt.y, tgt.z )
+                                if isFiniteNumber(@camdir.x) and isFiniteNumber(@camdir.y) and isFiniteNumber(@camdir.z)
+                                    @camera.lookAt( @camdir )
+                                    cameraAngle = Math.atan2( @camdir.z - @camera.position.z, @camdir.x - @camera.position.x ) - Math.PI/2.0
+                                    cameraAngle = 0 unless isFiniteNumber(cameraAngle)
         else
             time = @stormAnimTime
-            @balloon.anim.timeScale = 0
-            @stormControls.movementSpeed = if @stormControls.mouseDragOn then 0 else 8
-            @stormControls.lookSpeed = if @stormControls.mouseDragOn then 0.08 else 0
-            @stormControls.update( @delta )
-            @audioListener.position.set( @camera.position.x, @camera.position.y, @camera.position.z )
+            @balloon.anim.timeScale = 0 if @balloon?.anim?
+            if @stormControls?
+                @stormControls.movementSpeed = if @stormControls.mouseDragOn then 0 else 8
+                @stormControls.lookSpeed = if @stormControls.mouseDragOn then 0.08 else 0
+                @stormControls.update( @delta )
+            if @audioListener? and isFiniteNumber(@camera.position.x) and isFiniteNumber(@camera.position.y) and isFiniteNumber(@camera.position.z)
+                @audioListener.position.set( @camera.position.x, @camera.position.y, @camera.position.z )
 
         # State
         switch @stormState
@@ -1102,18 +1134,31 @@ class Stormtest extends Base3DChapter
         # ==============================================================================================================
         # PASS 1: Background
         # ==============================================================================================================
-        @earth_floor.visible = time < @TIME_ENTER_TORNADO
-        @earth_sky.visible = time < @TIME_ENTER_TORNADO
-        @oz_sky.visible = time >= @TIME_ENTER_TORNADO
-        @balloon.visible = false
-        cloud.visible = false for cloud in @fdclouds
-        cloud.visible = time < @TIME_ENTER_TORNADO for cloud in @farclouds
-        debris.obj.visible = !debris.front && time < @TIME_ENTER_TORNADO for debris in @debrisOutside
-        debris.obj.visible = false for debris in @debrisInside
-        # Render
-        if @godrays.enabled
-            @renderer.render( @scene, @camera, @godrays.rtTextureColors )
+        if !@compatDisableSceneMeshPass
+            @earth_floor.visible = time < @TIME_ENTER_TORNADO
+            @earth_sky.visible = time < @TIME_ENTER_TORNADO
+            @oz_sky.visible = time >= @TIME_ENTER_TORNADO
+            # Keep balloon visible in compatibility mode (front pass is disabled).
+            @balloon.visible = true
+            cloud.visible = false for cloud in @fdclouds
+            cloud.visible = time < @TIME_ENTER_TORNADO for cloud in @farclouds
+            debris.obj.visible = !debris.front && time < @TIME_ENTER_TORNADO for debris in @debrisOutside
+            debris.obj.visible = false for debris in @debrisInside
+            # Render
+            if @godrays.enabled
+                @renderer.render( @scene, @camera, @godrays.rtTextureColors )
+            else
+                @renderer.render( @scene, @camera, @sceneRT )
         else
+            # Stable render pass: balloon + sky only, no debris/compressed textures.
+            @earth_floor.visible = false
+            @earth_sky.visible = true
+            @oz_sky.visible = false
+            @balloon.visible = true
+            cloud.visible = false for cloud in @fdclouds
+            cloud.visible = false for cloud in @farclouds
+            debris.obj.visible = false for debris in @debrisOutside
+            debris.obj.visible = false for debris in @debrisInside
             @renderer.render( @scene, @camera, @sceneRT )
 
         # ==============================================================================================================
@@ -1134,27 +1179,29 @@ class Stormtest extends Base3DChapter
         # ==============================================================================================================
         # PASS 3: Front
         # ==============================================================================================================
-        @earth_floor.visible = false
-        @earth_sky.visible = false
-        @oz_sky.visible = false
-        @balloon.visible = false
-        @balloon.visible = true
-        # @scene.add( @lensFlare ) if time < 18 or time > 30
-        debris.obj.visible = debris.front && time < @TIME_ENTER_TORNADO for debris in @debrisOutside
-        debris.obj.visible = true for debris in @debrisInside if time > @TIME_ENTER_TORNADO
-        cloud.visible = time < @TIME_ENTER_TORNADO for cloud in @fdclouds
-        cloud.visible = false for cloud in @farclouds
-        # Render
-        if @godrays.enabled
-            @renderer.render( @scene, @camera, @godrays.rtTextureColors )
-        else
-            @renderer.render( @scene, @camera, @sceneRT )
-        # @scene.remove( @lensFlare )        
+        # Compatibility path: skip legacy front pass that is unstable on modern drivers.
+        if !@compatDisableFrontPass
+            @earth_floor.visible = false
+            @earth_sky.visible = false
+            @oz_sky.visible = false
+            @balloon.visible = false
+            @balloon.visible = true
+            # @scene.add( @lensFlare ) if time < 18 or time > 30
+            debris.obj.visible = debris.front && time < @TIME_ENTER_TORNADO for debris in @debrisOutside
+            debris.obj.visible = true for debris in @debrisInside if time > @TIME_ENTER_TORNADO
+            cloud.visible = time < @TIME_ENTER_TORNADO for cloud in @fdclouds
+            cloud.visible = false for cloud in @farclouds
+            # Render
+            if @godrays.enabled
+                @renderer.render( @scene, @camera, @godrays.rtTextureColors )
+            else
+                @renderer.render( @scene, @camera, @sceneRT )
+            # @scene.remove( @lensFlare )        
 
         # ==============================================================================================================
         # PASS 4: Godrays
         # ==============================================================================================================
-        if @godrays.enabled
+        if @godrays.enabled and !@compatDisableSceneMeshPass
             # flare.visible = false for flare in @lensFlare.lensFlares
             cloud.visible = false for cloud in @ftclouds
             cloud.visible = false for cloud in @farclouds
@@ -1202,6 +1249,7 @@ class Stormtest extends Base3DChapter
             $('body').unbind 'click'
             document.removeEventListener( 'mouseup',   @onMouseUp,    false )
             document.removeEventListener( 'mousedown', @onMouseDown,  false )
+            document.removeEventListener( 'mousemove', @onMouseMove,  false )
             document.removeEventListener( 'click',     @onMouseClick, false )
 
             @releasePointLock()
@@ -1432,8 +1480,13 @@ class Stormtest extends Base3DChapter
                 @tornadoW = @SCENE_WIDTH  / @tornadoSamples
                 @tornadoH = @SCENE_HEIGHT / @tornadoSamples
 
-        # Render
-        @renderScene()
+        # Render (guard legacy GL path on modern drivers)
+        try
+            @renderScene()
+        catch error
+            @enableRender = false
+            if window.console? and console.error?
+                console.error "[StormInteractive] Rendering disabled after GL error", error
 
         # Overlay
         #@hud.render( @overlay, 0,0, @SCENE_WIDTH, @SCENE_HEIGHT, 0, 0.4 )
@@ -3867,3 +3920,5 @@ class Stormtest extends Base3DChapter
             [ 154.050582886,923.007385254,-334.335723877 ]
             [ 154.148590088,923.085144043,-334.310791016 ]
         ]
+# Backward-compatible alias.
+Stormtest = StormInteractive

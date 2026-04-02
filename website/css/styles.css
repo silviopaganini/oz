@@ -29,7 +29,7 @@
 @font-face {
   font-family: 'FuturaStd-Heavy';
   src: url("/m/fonts/FuturaStd-Heavy.eot");
-  src: url("FuturaStd-Heavy.woff") format("woff"), url("FuturaStd-Heavy.ttf") format("truetype"), url("FuturaStd-Heavy.svg") format("svg");
+  src: url("FuturaStd-Heavy.ttf") format("truetype"), url("FuturaStd-Heavy.svg") format("svg");
   font-weight: normal;
   font-style: normal
 }

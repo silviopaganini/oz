@@ -19,6 +19,44 @@
 // Flash Trace (can't live without it)
 (function(){(window || document).trace = function(){console.log(arguments);};})();
 
+// Canvas 2D compatibility/perf shim for legacy libraries (EaselJS, Sonic, etc.).
+// They call getContext('2d') and then use getImageData heavily.
+(function() {
+    if (!window.HTMLCanvasElement || !HTMLCanvasElement.prototype.getContext) return;
+    var _getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function(type, opts) {
+        if (type === '2d' && (opts === undefined || opts === null)) {
+            try {
+                return _getContext.call(this, type, { willReadFrequently: true });
+            } catch (e) {
+                // Ignore and fall back to original behavior.
+            }
+        }
+        return _getContext.call(this, type, opts);
+    };
+}());
+
+// jQuery 1.x compatibility guard:
+// Some legacy script endpoints now return HTML (e.g. redirects/error pages),
+// which causes "Unexpected token '<'" when jQuery tries to globalEval.
+(function() {
+    if (!window.jQuery) return;
+    window.jQuery.ajaxSetup({
+        converters: {
+            "text script": function(text) {
+                if (/^\s*</.test(text)) {
+                    if (window.console && console.warn) {
+                        console.warn("Skipped evaluating script response because it looks like HTML.");
+                    }
+                    return text;
+                }
+                window.jQuery.globalEval(text);
+                return text;
+            }
+        }
+    });
+}());
+
 // SOCIAL
 window.___gcfg=
 {

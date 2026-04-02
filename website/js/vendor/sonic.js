@@ -137,7 +137,7 @@
                 data = this.data;
 
             this.canvas = document.createElement('canvas');
-            this._ = this.canvas.getContext('2d');
+            this._ = this.canvas.getContext('2d', { willReadFrequently: true });
 
             this.canvas.className = this.domClass;
 

@@ -26,7 +26,7 @@ class LocalisedTexture
         @canvas = document.createElement 'canvas'
         @canvas.width = 1000
         @canvas.height = 1000
-        @ctx = @canvas.getContext '2d'
+        @ctx = @canvas.getContext '2d', willReadFrequently: true
 
         @wHalf = parseInt(@canvas.width) / 2
 
@@ -90,7 +90,7 @@ class LocalisedTexture
     trim : () =>
 
         c      = @canvas
-        copy   = document.createElement('canvas').getContext('2d')
+        copy   = document.createElement('canvas').getContext('2d', willReadFrequently: true)
         pixels = @ctx.getImageData(0, 0, c.width, c.height)
         l      = pixels.data.length
         
