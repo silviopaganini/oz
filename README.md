@@ -1,8 +1,5 @@
 # Find Your Way to Oz
 
-> _"UNIT9 and Google Labs' 'Your Way to Oz' built an entire 3D carnival in the browser for Disney back in 2013, then ripped it apart with a volumetric GLSL vortex. No physics sim. The wind, the grass, the debris: all faked beautifully."_
-> — WebGL / WebGPU, LinkedIn 2026
-
 **[Live demo → oz.fluuu.id](https://oz.fluuu.id)**
 
 ---
