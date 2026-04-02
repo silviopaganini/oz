@@ -199,7 +199,7 @@ class AppView extends Abstract
 
         Analytics.track 'pause'
         
-        if !@subArea?.instructions.active && @pauseEnabled
+        if !@subArea?.instructions?.active && @pauseEnabled
 
             $(window).unbind 'blur', @looseFocus
             $(window).bind 'focus', @startFocus

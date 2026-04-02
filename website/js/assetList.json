@@ -6,7 +6,6 @@
             { "id" : "templates", "src" : "/js/templates/templates.xml" },
             { "id" : "trackingTags", "src" : "/js/data/tracking.json" },
             { "id" : "credits", "src" : "/js/data/credits.json" },
-            { "id" : "trackingTagsFloodlight", "src" : "/js/data/floodlight.json" },
 
             { "id" : "interfaceAssets", "src" : "/img/home/interface_1x.png" },
             { "id" : "interfaceAssets2x", "src" : "/img/home/interface_2x.png", "retina" : true },

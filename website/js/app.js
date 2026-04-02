@@ -4228,8 +4228,6 @@
 
     Analytics.started = false;
 
-    Analytics.tagsFlood = null;
-
     Analytics.GA_ACCOUNT = '37524215-3';
 
     Analytics.start = function() {
@@ -4237,12 +4235,11 @@
       window._gaq.push(['_setAccount', "UA-" + Analytics.GA_ACCOUNT]);
       window._gaq.push(['_trackPageview']);
       Analytics.tags = JSON.parse(window.oz.baseAssets.get('trackingTags').result);
-      Analytics.tagsFlood = JSON.parse(window.oz.baseAssets.get('trackingTagsFloodlight').result);
       Analytics.started = true;
       return null;
     };
 
-    Analytics.track = function(param, floodlight) {
+    Analytics.track = function(param) {
       var i, o, ref, tag, v;
       if (!Analytics.started) {
         Analytics.start();
@@ -4258,29 +4255,6 @@
           window._gaq.push(tag);
         }
       }
-      if (floodlight) {
-        Analytics.trackFloodlight(floodlight);
-      }
-      return null;
-    };
-
-    Analytics.trackFloodlight = function(tag) {
-      var a, axel, cat, i, iframe;
-      i = $('#floodlightTrack');
-      if (i.length > 0) {
-        i.remove();
-      }
-      axel = Math.random() + "";
-      a = axel * 10000000000000;
-      cat = Analytics.tagsFlood[tag].cat;
-      iframe = $('<img id="floodlightTrack" />');
-      iframe.attr({
-        src: "http://3944448.fls.doubleclick.net/activityi;src=3944448;type=googl379;cat=" + cat + ";ord=" + a + "?",
-        width: 1,
-        height: 1,
-        style: "visibility:hidden; position: absolute; top:0; left:0"
-      });
-      $('body').prepend(iframe);
       return null;
     };
 
@@ -4957,21 +4931,6 @@
     return Templates;
 
   })();
-
-  Wrapper = (function(superClass) {
-    extend(Wrapper, superClass);
-
-    function Wrapper() {
-      return Wrapper.__super__.constructor.apply(this, arguments);
-    }
-
-    Wrapper.prototype.tagName = 'div';
-
-    Wrapper.prototype.id = 'wrapper';
-
-    return Wrapper;
-
-  })(Abstract);
 
   Abstract = (function(superClass) {
     extend(Abstract, superClass);
@@ -5748,6 +5707,2649 @@
     return AbstractScene;
 
   })(Abstract);
+
+  Canvas = (function(superClass) {
+    extend(Canvas, superClass);
+
+    function Canvas() {
+      this.initialize = bind1(this.initialize, this);
+      return Canvas.__super__.constructor.apply(this, arguments);
+    }
+
+    Canvas.prototype.tagName = 'canvas';
+
+    Canvas.prototype.context = null;
+
+    Canvas.prototype.attr = null;
+
+    Canvas.prototype.paused = true;
+
+    Canvas.prototype.initialize = function(w, h) {
+      if (w == null) {
+        w = 1024;
+      }
+      if (h == null) {
+        h = 768;
+      }
+      this.attr = {
+        width: w,
+        height: h
+      };
+      Canvas.__super__.initialize.call(this);
+      return null;
+    };
+
+    Canvas.prototype.init = function() {
+      this.$el.attr(this.attr);
+      this.context = this.el.getContext('2d');
+      return null;
+    };
+
+    return Canvas;
+
+  })(Abstract);
+
+  CheckBox = (function(superClass) {
+    extend(CheckBox, superClass);
+
+    function CheckBox() {
+      this.val = bind1(this.val, this);
+      this.toggleCheck = bind1(this.toggleCheck, this);
+      this.click = bind1(this.click, this);
+      this.init = bind1(this.init, this);
+      return CheckBox.__super__.constructor.apply(this, arguments);
+    }
+
+    CheckBox.prototype.check = null;
+
+    CheckBox.prototype.checked = null;
+
+    CheckBox.prototype.className = 'openingCheckBox';
+
+    CheckBox.prototype.init = function() {
+      this.$el.addClass('btanimated');
+      this.check = new SSAsset('interface', 'checkbox');
+      this.check.mouseEnabled(false);
+      this.addChild(this.check);
+      this.check.$el.addClass('openingCheckBox');
+      this.check.$el.css({
+        'background-position-y': parseInt(this.check.$el.css('background-position-y')) + 1,
+        'height': parseInt(this.check.$el.css('height')) + 1,
+        'width': parseInt(this.check.$el.css('width')) + 1
+      });
+      this.checked = new SSAsset('interface', 'checkbox_checked');
+      this.checked.mouseEnabled(false);
+      this.addChild(this.checked);
+      this.checked.$el.addClass('openingCheckBox');
+      this.checked.$el.css({
+        'background-position-y': parseInt(this.checked.$el.css('background-position-y')) + 1,
+        'height': parseInt(this.checked.$el.css('height')) + 1,
+        'width': parseInt(this.check.$el.css('width')) + 1
+      });
+      this.checked.hide();
+      this.$el.click(this.click);
+      return null;
+    };
+
+    CheckBox.prototype.click = function() {
+      this.trigger('toggled');
+      return null;
+    };
+
+    CheckBox.prototype.toggleCheck = function() {
+      if (this.check.visible) {
+        this.check.hide();
+      } else {
+        this.check.show();
+      }
+      if (this.checked.visible) {
+        this.checked.hide();
+      } else {
+        this.checked.show();
+      }
+      return null;
+    };
+
+    CheckBox.prototype.val = function() {
+      return this.checked.visible;
+    };
+
+    return CheckBox;
+
+  })(Abstract);
+
+  Instructions = (function(superClass) {
+    extend(Instructions, superClass);
+
+    function Instructions() {
+      this.dispose = bind1(this.dispose, this);
+      this.hide = bind1(this.hide, this);
+      this.show = bind1(this.show, this);
+      this.initialize = bind1(this.initialize, this);
+      return Instructions.__super__.constructor.apply(this, arguments);
+    }
+
+    Instructions.prototype.className = "instructionsContainer";
+
+    Instructions.prototype.active = false;
+
+    Instructions.prototype.initialize = function(ids) {
+      var box, divider, image, sentence;
+      Instructions.__super__.initialize.call(this);
+      box = $("<div class='box'> <div id='r1' class='row'> <div id='c11' class='cell'></div> <div id='c12' class='cell'></div> <div id='c13' class='cell'></div> </div> <div id='r2' class='row'> <div id='c21' class='cell'></div> <div id='c22' class='cell'></div> <div id='c23' class='cell'></div> </div> <div id='r3' class='row'> <div id='c31' class='cell'></div> <div id='c32' class='cell'></div> <div id='c33' class='cell'></div> </div> </div>");
+      this.addChild(box);
+      image = new SSAsset("interface", ids.assetID);
+      image.css({
+        "margin": "0 auto"
+      });
+      box.find("#c22").append(image.$el);
+      sentence = $("<p>" + (this.oz().locale.get(ids.localeID)) + "</p>");
+      box.find("#c22").append(sentence);
+      divider = new SSAsset("interface", "instructions_flourish");
+      divider.css({
+        "margin": "0 auto"
+      });
+      box.find("#c22").append(divider.$el);
+      return null;
+    };
+
+    Instructions.prototype.show = function(animated, callback) {
+      this.active = true;
+      Instructions.__super__.show.call(this, animated, callback);
+      return null;
+    };
+
+    Instructions.prototype.hide = function(animated, callback) {
+      Instructions.__super__.hide.call(this, animated, (function(_this) {
+        return function() {
+          if (typeof callback === "function") {
+            callback();
+          }
+          return _this.active = false;
+        };
+      })(this));
+      return null;
+    };
+
+    Instructions.prototype.dispose = function() {
+      return null;
+    };
+
+    return Instructions;
+
+  })(Abstract);
+
+  InstructionsChapter = (function(superClass) {
+    extend(InstructionsChapter, superClass);
+
+    function InstructionsChapter() {
+      this.dispose = bind1(this.dispose, this);
+      this.close = bind1(this.close, this);
+      this.onMouseMove = bind1(this.onMouseMove, this);
+      this.addMouseListener = bind1(this.addMouseListener, this);
+      this.activate = bind1(this.activate, this);
+      this.initialize = bind1(this.initialize, this);
+      return InstructionsChapter.__super__.constructor.apply(this, arguments);
+    }
+
+    InstructionsChapter.prototype.className = "instructionsChapterContainer";
+
+    InstructionsChapter.prototype.timeoutToMouseMove = null;
+
+    InstructionsChapter.prototype.activated = false;
+
+    InstructionsChapter.prototype.initialize = function() {
+      InstructionsChapter.__super__.initialize.call(this);
+      this.instructions = new Instructions({
+        "assetID": "instructions_music",
+        "localeID": "landingInstructions"
+      });
+      this.addChild(this.instructions);
+      this.instructions.$el.css({
+        display: 'table-cell',
+        'vertical-align': 'middle'
+      });
+      this.instructions.$el.find('#c22 p').css({
+        'text-transform': 'uppercase'
+      });
+      this.instructions.$el.find('#c22 p').append("<br>" + (this.oz().locale.get('landing_instructions_small')));
+      this.hide();
+      return null;
+    };
+
+    InstructionsChapter.prototype.activate = function() {
+      if (this.oz().router.showInstructions === false) {
+        return;
+      }
+      if (!this.activated) {
+        this.activated = true;
+        this.show(true);
+        this.instructions.show(true);
+        this.$el.bind("mousedown", this.close);
+        this.timeoutToMouseMove = setTimeout(this.addMouseListener, 4000);
+      }
+      return null;
+    };
+
+    InstructionsChapter.prototype.addMouseListener = function() {
+      document.addEventListener("mousemove", this.onMouseMove, false);
+      return null;
+    };
+
+    InstructionsChapter.prototype.onMouseMove = function() {
+      this.close();
+      return null;
+    };
+
+    InstructionsChapter.prototype.close = function() {
+      clearTimeout(this.timeoutToMouseMove);
+      this.$el.unbind("mousedown");
+      document.removeEventListener("mousemove", this.onMouseMove, false);
+      this.hide(true, (function(_this) {
+        return function() {
+          _this.oz().appView.area.remove(_this.oz().appView.area.chapterInstructions);
+          return _this.oz().appView.area.chapterInstructions = null;
+        };
+      })(this));
+      return null;
+    };
+
+    InstructionsChapter.prototype.dispose = function() {
+      return null;
+    };
+
+    return InstructionsChapter;
+
+  })(Abstract);
+
+  LocalisedTexture = (function() {
+    LocalisedTexture.prototype.title = null;
+
+    LocalisedTexture.prototype.canvas = null;
+
+    LocalisedTexture.prototype.ctx = null;
+
+    LocalisedTexture.prototype.flourish = null;
+
+    LocalisedTexture.prototype.diamond = null;
+
+    LocalisedTexture.prototype.wHalf = null;
+
+    LocalisedTexture.prototype.icon = null;
+
+
+    /*
+    Usage: 
+        @oz().localeTexture.get 'section'
+     */
+
+    function LocalisedTexture() {
+      this.trim = bind1(this.trim, this);
+      this.wrapText = bind1(this.wrapText, this);
+      this.get = bind1(this.get, this);
+      this.diamond = window.oz.baseAssets.get("diamond").result;
+      $('<p style="font-family: \"TradeGothic\"" />');
+      null;
+    }
+
+    LocalisedTexture.prototype.get = function(section) {
+      var headerCopy, subCopy, textSize;
+      this.icon = window.oz.baseAssets.get("section_icon_" + section).result;
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = 1000;
+      this.canvas.height = 1000;
+      this.ctx = this.canvas.getContext('2d', {
+        willReadFrequently: true
+      });
+      this.wHalf = parseInt(this.canvas.width) / 2;
+      this.ctx.drawImage(this.diamond, this.wHalf - 4, 0);
+      this.ctx.drawImage(this.icon, this.wHalf - 30, 15);
+      headerCopy = window.oz.locale.get(section + "Title");
+      this.ctx.font = '46px TradeGothic';
+      this.ctx.save();
+      this.ctx.fillStyle = '#FFF';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'top';
+      textSize = this.wrapText(this.ctx, headerCopy, this.wHalf, 88, 400, 46);
+      subCopy = "";
+      if (subCopy.length > 0) {
+        this.ctx.font = '14px TradeGothic';
+        this.ctx.save();
+        this.ctx.fillStyle = '#FFF';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+        textSize = this.wrapText(this.ctx, subCopy, this.wHalf, textSize, 400, 14);
+      }
+      this.ctx.drawImage(this.diamond, this.wHalf - 4, textSize + 5);
+      return this.trim();
+    };
+
+    LocalisedTexture.prototype.wrapText = function(context, text, x, y, maxWidth, lineHeight) {
+      var br, line, metrics, n, nextLine, o, ref, testLine, testWidth, word, words;
+      words = text.split(' ');
+      line = '';
+      nextLine = false;
+      for (n = o = 0, ref = words.length; 0 <= ref ? o < ref : o > ref; n = 0 <= ref ? ++o : --o) {
+        word = words[n];
+        br = false;
+        if (word.indexOf("<br>") > -1) {
+          word = word.replace('<br>', ' ');
+          br = true;
+          testLine = line;
+        }
+        testLine = line + word + ' ';
+        metrics = context.measureText(testLine);
+        testWidth = metrics.width;
+        if (testWidth > maxWidth || br) {
+          context.fillText(line, x, y);
+          line = word + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      context.fillText(line, x, y);
+      return y + lineHeight;
+    };
+
+    LocalisedTexture.prototype.trim = function() {
+      var bound, c, copy, i, l, o, pixels, ref, trimHeight, trimWidth, trimmed, x, y;
+      c = this.canvas;
+      copy = document.createElement('canvas').getContext('2d', {
+        willReadFrequently: true
+      });
+      pixels = this.ctx.getImageData(0, 0, c.width, c.height);
+      l = pixels.data.length;
+      bound = {
+        top: null,
+        left: null,
+        right: null,
+        bottom: null
+      };
+      for (i = o = 0, ref = l - 1; o <= ref; i = o += 4) {
+        if (pixels.data[i + 3] !== 0) {
+          x = (i / 4) % c.width;
+          y = ~~((i / 4) / c.width);
+          if (bound.top === null) {
+            bound.top = y;
+          }
+          if (bound.left === null) {
+            bound.left = x;
+          } else if (x < bound.left) {
+            bound.left = x;
+          }
+          if (bound.right === null) {
+            bound.right = x;
+          } else if (bound.right < x) {
+            bound.right = x;
+          }
+          if (bound.bottom === null) {
+            bound.bottom = y;
+          } else if (bound.bottom < y) {
+            bound.bottom = y;
+          }
+        }
+      }
+      bound.width = Math.max(bound.right - bound.left, 180);
+      bound.height = Math.max(bound.bottom - bound.top, 145);
+      trimWidth = 1024;
+      trimHeight = 1024;
+      trimmed = this.ctx.getImageData(bound.left, bound.top, trimWidth, trimHeight);
+      copy.canvas.width = trimWidth;
+      copy.canvas.height = trimHeight;
+      copy.putImageData(trimmed, trimWidth / 2 - (bound.right - bound.left) / 2, trimHeight / 2 - (bound.bottom - bound.top) / 2);
+      return {
+        canvas: copy.canvas,
+        bound: bound
+      };
+    };
+
+    return LocalisedTexture;
+
+  })();
+
+  Logo = (function(superClass) {
+    extend(Logo, superClass);
+
+    function Logo() {
+      this.dispose = bind1(this.dispose, this);
+      this.enable = bind1(this.enable, this);
+      this.disable = bind1(this.disable, this);
+      this.onClick = bind1(this.onClick, this);
+      this.logoRollOut = bind1(this.logoRollOut, this);
+      this.logoRollOver = bind1(this.logoRollOver, this);
+      this.showGoogleLogos = bind1(this.showGoogleLogos, this);
+      this.hideGoogleLogos = bind1(this.hideGoogleLogos, this);
+      this.init = bind1(this.init, this);
+      return Logo.__super__.constructor.apply(this, arguments);
+    }
+
+    Logo.prototype.id = 'logo';
+
+    Logo.prototype.obj = null;
+
+    Logo.prototype.chromeLogo = null;
+
+    Logo.prototype.googleLogo = null;
+
+    Logo.prototype.init = function() {
+      this.canvas = new LogoParticles(80, 80);
+      this.logoContainer = $("<div class='logo'/>");
+      this.assetLogo = new SSAsset('interface', 'logo_oz');
+      this.assetLogoOver = new SSAsset('interface', 'logo_oz_over');
+      this.assetLogoOver.hide(false);
+      this.logoContainer.append(this.assetLogo.$el);
+      this.logoContainer.append(this.assetLogoOver.$el);
+      this.addChild(this.logoContainer);
+      this.addChild(this.canvas);
+      this.canvas.init();
+      this.chromeLogo = new SSAsset('interface', 'logo_chrome');
+      this.chromeLogo.addClass('chrome');
+      this.chromeLogo.addClass('button_alpha_enabled');
+      this.chromeLogo.$el.bind('click', (function(_this) {
+        return function() {
+          Analytics.track('click_chrome_logo');
+          return window.open('http://www.chromeexperiments.com/');
+        };
+      })(this));
+      this.addChild(this.chromeLogo);
+      this.googleLogo = new SSAsset('interface', 'logo_google');
+      this.googleLogo.addClass('google');
+      this.googleLogo.addClass('button_alpha_enabled');
+      this.googleLogo.$el.bind('click', (function(_this) {
+        return function() {
+          Analytics.track('click_friends_google');
+          return window.open('http://google.com/');
+        };
+      })(this));
+      this.addChild(this.googleLogo);
+      this.logoContainer.bind("click", this.onClick);
+      this.logoContainer.css({
+        "cursor": "pointer"
+      });
+      this.logoContainer.bind("mouseover", this.logoRollOver);
+      this.logoContainer.bind("mouseout", this.logoRollOut);
+      return null;
+    };
+
+    Logo.prototype.hideGoogleLogos = function() {
+      this.googleLogo.$el.removeClass('button_alpha_enabled');
+      this.chromeLogo.$el.removeClass('button_alpha_enabled');
+      this.chromeLogo.hide(true, null, 400, "linear", true);
+      this.googleLogo.hide(true, null, 400, "linear", true);
+      return null;
+    };
+
+    Logo.prototype.showGoogleLogos = function() {
+      this.chromeLogo.show(true, null, 400, "linear");
+      this.googleLogo.show(true, (function(_this) {
+        return function() {
+          if (_this.googleLogo.$el.hasClass('button_alpha_enabled')) {
+            _this.googleLogo.$el.removeClass('button_alpha_enabled');
+            _this.chromeLogo.$el.removeClass('button_alpha_enabled');
+          }
+          _this.googleLogo.$el.addClass('button_alpha_enabled');
+          return _this.chromeLogo.$el.addClass('button_alpha_enabled');
+        };
+      })(this), 400, "linear");
+      return null;
+    };
+
+    Logo.prototype.logoRollOver = function() {
+      this.canvas.show();
+      this.assetLogoOver.show(true, null, 200);
+      this.assetLogo.hide(true, null, 200);
+      return null;
+    };
+
+    Logo.prototype.logoRollOut = function() {
+      this.canvas.hide();
+      this.assetLogoOver.hide(true, null, 200);
+      this.assetLogo.show(true, null, 200);
+      return null;
+    };
+
+    Logo.prototype.onClick = function() {
+      this.canvas.hide();
+      this.assetLogoOver.hide(true, null, 200);
+      this.assetLogo.show(true, null, 200);
+      Analytics.track('menu_click_official');
+      window.open('/official.html');
+      return null;
+    };
+
+    Logo.prototype.disable = function() {
+      return;
+      this.logoContainer.unbind("click");
+      this.logoContainer.css({
+        "cursor": "default"
+      });
+      this.logoContainer.unbind("mouseover");
+      this.logoContainer.unbind("mouseout");
+      return null;
+    };
+
+    Logo.prototype.enable = function() {
+      return;
+      this.disable();
+      this.logoContainer.bind("click", this.onClick);
+      this.logoContainer.css({
+        "cursor": "pointer"
+      });
+      this.logoContainer.bind("mouseover", this.logoRollOver);
+      this.logoContainer.bind("mouseout", this.logoRollOut);
+      return null;
+    };
+
+    Logo.prototype.dispose = function() {
+      this.logoContainer.unbind("mouseover");
+      this.logoContainer.unbind("mouseout");
+      this.logoContainer.unbind("click");
+      return null;
+    };
+
+    return Logo;
+
+  })(Abstract);
+
+  LogoParticles = (function(superClass) {
+    extend(LogoParticles, superClass);
+
+    function LogoParticles() {
+      this.hide = bind1(this.hide, this);
+      this.show = bind1(this.show, this);
+      this.onEnterFrame = bind1(this.onEnterFrame, this);
+      this.init = bind1(this.init, this);
+      return LogoParticles.__super__.constructor.apply(this, arguments);
+    }
+
+    LogoParticles.prototype.className = 'logoParticles';
+
+    LogoParticles.prototype.particles = null;
+
+    LogoParticles.prototype.speed = .6;
+
+    LogoParticles.prototype.paused = true;
+
+    LogoParticles.prototype.init = function() {
+      var i, o, p;
+      LogoParticles.__super__.init.call(this);
+      this.mouseEnabled(false);
+      this.particles = [];
+      this.paused = true;
+      this.$el.css({
+        opacity: 0
+      });
+      for (i = o = 0; o <= 20; i = ++o) {
+        p = new Particle({
+          _canvas: this.context,
+          _w: this.$el[0].width,
+          _h: this.$el[0].height,
+          _maxSize: 3,
+          _speed: .6,
+          _type: 0,
+          _rect: {
+            x: 0,
+            y: 0,
+            w: 80,
+            h: 80
+          }
+        });
+        this.particles.push(p);
+      }
+      return;
+      return null;
+    };
+
+    LogoParticles.prototype.onEnterFrame = function() {
+      var len, o, p, ref;
+      if (this.paused) {
+        return;
+      }
+      this.clear();
+      ref = this.particles;
+      for (o = 0, len = ref.length; o < len; o++) {
+        p = ref[o];
+        p.move();
+        p.draw();
+      }
+      return;
+      return null;
+    };
+
+    LogoParticles.prototype.show = function() {
+      this.resume();
+      this.$el.stop().animate({
+        opacity: 1
+      });
+      return null;
+    };
+
+    LogoParticles.prototype.hide = function() {
+      this.$el.stop().animate({
+        opacity: 0
+      }, this.pause);
+      return null;
+    };
+
+    LogoParticles.prototype.clear = function() {
+      this.context.clearRect(0, 0, this.$el[0].width, this.$el[0].height);
+      return null;
+    };
+
+    LogoParticles.prototype.rand = function(low, high) {
+      if (low == null) {
+        low = 0;
+      }
+      if (high == null) {
+        high = 1;
+      }
+      return ((Math.random() * (high - low)) + low) % high;
+    };
+
+    return LogoParticles;
+
+  })(Canvas);
+
+  OpeningTitles = (function(superClass) {
+    extend(OpeningTitles, superClass);
+
+    function OpeningTitles() {
+      this.dispose = bind1(this.dispose, this);
+      this.render = bind1(this.render, this);
+      this.init = bind1(this.init, this);
+      this.initialize = bind1(this.initialize, this);
+      return OpeningTitles.__super__.constructor.apply(this, arguments);
+    }
+
+    OpeningTitles.prototype.template = 'openingTitles';
+
+    OpeningTitles.prototype.fluorish = null;
+
+    OpeningTitles.prototype.diamond = null;
+
+    OpeningTitles.prototype.className = 'openingTitles';
+
+    OpeningTitles.prototype.divider = null;
+
+    OpeningTitles.prototype.cta = null;
+
+    OpeningTitles.prototype.header = null;
+
+    OpeningTitles.prototype.pauseState = false;
+
+    OpeningTitles.prototype.initialize = function(title, cta, divider, pauseState) {
+      if (divider == null) {
+        divider = true;
+      }
+      if (pauseState == null) {
+        pauseState = false;
+      }
+      this.templateVars = {
+        title: title,
+        cta: cta
+      };
+      this.pauseState = pauseState;
+      this.divider = divider;
+      OpeningTitles.__super__.initialize.call(this);
+      return null;
+    };
+
+    OpeningTitles.prototype.init = function() {
+      var left, leftSpan, right, rightSpan;
+      this.fluorish = new SSAsset('interface', 'pause_top');
+      this.addChild(this.fluorish, 1);
+      this.fluorish.center();
+      this.diamond = new SSAsset('interface', 'pause_bottom');
+      this.addChild(this.diamond);
+      this.diamond.center();
+      if (this.divider) {
+        this.cta = this.$el.find('.openingTitlesCTA');
+        left = new SSAsset('interface', 'pause_left');
+        right = new SSAsset('interface', 'pause_right');
+        leftSpan = $("<span class='left'>");
+        leftSpan.append(left.$el);
+        rightSpan = $("<span class='right'>");
+        rightSpan.append(right.$el);
+        this.cta.prepend(leftSpan);
+        this.cta.append(rightSpan);
+      }
+      this.header = this.$el.find('.openingTitlesHeader');
+      return null;
+    };
+
+    OpeningTitles.prototype.render = function(callback, timed) {
+      if (timed == null) {
+        timed = false;
+      }
+      setTimeout((function(_this) {
+        return function() {
+          var fontSize;
+          fontSize = parseInt(window.getComputedStyle(_this.header[0], null).fontSize);
+          while (parseInt(_this.header.find('span').width()) > 725) {
+            fontSize--;
+            _this.header.css({
+              'font-size': fontSize
+            });
+          }
+          return callback();
+        };
+      })(this), (timed ? 200 : 100));
+      return null;
+    };
+
+    OpeningTitles.prototype.dispose = function() {
+      return null;
+    };
+
+    return OpeningTitles;
+
+  })(Abstract);
+
+  Particle = (function() {
+    Particle.prototype.dx = 0;
+
+    Particle.prototype.dy = 0;
+
+    Particle.prototype.x = 0;
+
+    Particle.prototype.y = 0;
+
+    Particle.prototype.r = 0;
+
+    Particle.prototype.canvas = null;
+
+    Particle.prototype.w = 0;
+
+    Particle.prototype.h = 0;
+
+    Particle.prototype.image = null;
+
+    Particle.prototype.alpha = 0;
+
+    Particle.prototype.rColour = 0;
+
+    Particle.prototype.mult = 1;
+
+    Particle.prototype.minSize = 0.8;
+
+    Particle.prototype.maxSize = 0;
+
+    Particle.prototype.type = null;
+
+    Particle.prototype.rect = null;
+
+    Particle.prototype.fading = false;
+
+    Particle.prototype.gradient = null;
+
+    function Particle(args) {
+      this.fadeOut = bind1(this.fadeOut, this);
+      this.reset = bind1(this.reset, this);
+      this.move = bind1(this.move, this);
+      this.rand = bind1(this.rand, this);
+      this.drawParticle = bind1(this.drawParticle, this);
+      this.draw = bind1(this.draw, this);
+      this.speed = args._speed;
+      this.maxSize = args._maxSize;
+      this.canvas = args._canvas;
+      this.w = args._w;
+      this.h = args._h;
+      this.type = args._type;
+      this.rect = args._rect;
+      this.r = this.rand(this.minSize, this.maxSize);
+      this.dx = this.rand(-this.speed, this.speed);
+      this.dy = this.rand(-this.speed, this.speed);
+      null;
+    }
+
+    Particle.prototype.draw = function() {
+      switch (this.type) {
+        case -1:
+          this.canvas.beginPath();
+          this.canvas.fillStyle = 'rgba(255,255,255,' + this.rColour + ')';
+          this.canvas.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+          this.canvas.closePath();
+          this.canvas.fill();
+          break;
+        case 0:
+        case 1:
+          this.drawParticle(this.x, this.y, this.r, 'rgba(247,234,155,' + this.rColour.toFixed(2) + ')', 'rgba(255,204,0,0)');
+      }
+      if (!this.fading) {
+        this.rColour -= .005 * this.mult;
+      }
+      return null;
+    };
+
+    Particle.prototype.drawParticle = function(x, y, radius, color1, color2) {
+      this.gradient = this.canvas.createRadialGradient(x, y, 0, x, y, radius);
+      this.gradient.addColorStop(0, color1);
+      this.gradient.addColorStop(1, color2);
+      this.canvas.fillStyle = this.gradient;
+      this.canvas.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      return null;
+    };
+
+    Particle.prototype.rand = function(low, high) {
+      if (low == null) {
+        low = 0;
+      }
+      if (high == null) {
+        high = 1;
+      }
+      return ((Math.random() * (high - low)) + low) % high;
+    };
+
+    Particle.prototype.move = function() {
+      this.x += this.dx;
+      this.y -= this.dy;
+      if (this.rColour < 0 || this.rColour > this.alpha) {
+        this.mult *= -1;
+      }
+      if ((this.x > this.rect.w + this.rect.x) || (this.x < this.rect.x) || (this.y > this.rect.h + this.rect.y) || (this.y < this.rect.y)) {
+        this.fadeOut();
+      }
+      return null;
+    };
+
+    Particle.prototype.reset = function() {
+      this.x = this.rand(this.rect.x, this.rect.w + this.rect.x);
+      this.y = this.rand(this.rect.y, this.rect.h + this.rect.y);
+      this.dx = this.rand(-this.speed, this.speed);
+      this.dy = this.rand(-this.speed, this.speed);
+      this.alpha = 1 - MathUtils.map(this.r, this.minSize, this.maxSize, 0, 1);
+      this.rColour = this.alpha;
+      this.r = this.rand(this.minSize, this.maxSize);
+      return null;
+    };
+
+    Particle.prototype.fadeOut = function() {
+      this.fading = true;
+      this.rColour -= 0.005;
+      if (this.rColour <= 0) {
+        this.fading = false;
+        this.reset();
+      }
+      return null;
+    };
+
+    return Particle;
+
+  })();
+
+  ParticleCard = (function() {
+    ParticleCard.prototype.dx = 0;
+
+    ParticleCard.prototype.dy = 0;
+
+    ParticleCard.prototype.x = 0;
+
+    ParticleCard.prototype.y = 0;
+
+    ParticleCard.prototype.r = 0;
+
+    ParticleCard.prototype.canvas = null;
+
+    ParticleCard.prototype.w = 0;
+
+    ParticleCard.prototype.h = 0;
+
+    ParticleCard.prototype.image = null;
+
+    ParticleCard.prototype.alpha = 0;
+
+    ParticleCard.prototype.rColour = 1;
+
+    ParticleCard.prototype.mult = 1;
+
+    ParticleCard.prototype.minSize = 0.8;
+
+    ParticleCard.prototype.maxSize = 0;
+
+    ParticleCard.prototype.type = null;
+
+    ParticleCard.prototype.rect = null;
+
+    ParticleCard.prototype.fading = false;
+
+    ParticleCard.prototype.gradient = null;
+
+    function ParticleCard(args) {
+      this.fadeOut = bind1(this.fadeOut, this);
+      this.reset = bind1(this.reset, this);
+      this.move = bind1(this.move, this);
+      this.rand = bind1(this.rand, this);
+      this.drawParticle = bind1(this.drawParticle, this);
+      this.draw = bind1(this.draw, this);
+      this.speed = args._speed;
+      this.maxSize = args._maxSize;
+      this.canvas = args._canvas;
+      this.w = args._w;
+      this.h = args._h;
+      this.type = args._type;
+      this.rect = args._rect;
+      this.r = this.rand(this.minSize, this.maxSize);
+      this.dx = this.rand(-this.speed, this.speed);
+      this.dy = this.rand(-this.speed, this.speed);
+      null;
+    }
+
+    ParticleCard.prototype.draw = function() {
+      switch (this.type) {
+        case 0:
+          this.canvas.beginPath();
+          this.canvas.fillStyle = 'rgba(255,255,255,' + this.rColour + ')';
+          this.canvas.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+          this.canvas.closePath();
+          this.canvas.fill();
+          break;
+        case 1:
+          this.drawParticle(this.x, this.y, this.r, 'rgba(247,234,155,' + this.rColour.toFixed(2) + ')', 'rgba(255,204,0,0)');
+      }
+      if (!this.fading) {
+        this.rColour -= .005 * this.mult;
+      }
+      return null;
+    };
+
+    ParticleCard.prototype.drawParticle = function(x, y, radius, color1, color2) {
+      this.gradient = this.canvas.createRadialGradient(x, y, 0, x, y, radius);
+      this.gradient.addColorStop(0, color1);
+      this.gradient.addColorStop(1, color2);
+      this.canvas.fillStyle = this.gradient;
+      this.canvas.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      return null;
+    };
+
+    ParticleCard.prototype.rand = function(low, high) {
+      if (low == null) {
+        low = 0;
+      }
+      if (high == null) {
+        high = 1;
+      }
+      return ((Math.random() * (high - low)) + low) % high;
+    };
+
+    ParticleCard.prototype.move = function() {
+      this.x += this.dx;
+      this.y -= this.dy;
+      if (this.rColour < 0 || this.rColour > this.alpha) {
+        this.mult *= -1;
+      }
+      if ((this.x > this.rect.w + this.rect.x) || (this.x < this.rect.x) || (this.y > this.rect.h + this.rect.y) || (this.y < this.rect.y)) {
+        this.fadeOut();
+      }
+      return null;
+    };
+
+    ParticleCard.prototype.reset = function() {
+      this.x = this.rand((this.rect.w / 2 + this.rect.x) - 150, (this.rect.w / 2 + this.rect.x) + 150);
+      this.y = this.rand((this.rect.h / 2 + this.rect.y) - 250, (this.rect.h / 2 + this.rect.y) + 250);
+      this.dx = this.rand(-this.speed, this.speed);
+      this.dy = this.rand(-this.speed, this.speed);
+      this.r = this.rand(this.minSize, this.maxSize);
+      this.alpha = 1 - MathUtils.map(this.r, this.minSize, this.maxSize, 0, 1);
+      this.rColour = this.alpha;
+      return null;
+    };
+
+    ParticleCard.prototype.fadeOut = function() {
+      this.fading = true;
+      this.rColour -= 0.005;
+      if (this.rColour <= 0) {
+        this.fading = false;
+        this.reset();
+      }
+      return null;
+    };
+
+    return ParticleCard;
+
+  })();
+
+  Particles = (function(superClass) {
+    extend(Particles, superClass);
+
+    function Particles() {
+      this.onResize = bind1(this.onResize, this);
+      this.dispose = bind1(this.dispose, this);
+      this.onEnterFrame = bind1(this.onEnterFrame, this);
+      this.init = bind1(this.init, this);
+      this.initialize = bind1(this.initialize, this);
+      return Particles.__super__.constructor.apply(this, arguments);
+    }
+
+    Particles.prototype.tagName = 'canvas';
+
+    Particles.prototype.className = 'particles';
+
+    Particles.prototype.particles = null;
+
+    Particles.prototype.paused = true;
+
+    Particles.prototype.speed = .6;
+
+    Particles.prototype.pType = 0;
+
+    Particles.prototype.pMaxSize = 2;
+
+    Particles.prototype.rectangle = null;
+
+    Particles.prototype.nParticles = 150;
+
+    Particles.prototype.initialize = function(pType, pMaxSize, nParticles, rectangle) {
+      if (pType != null) {
+        this.pType = pType;
+      }
+      if (pMaxSize != null) {
+        this.pMaxSize = pMaxSize;
+      }
+      if (nParticles != null) {
+        this.nParticles = nParticles;
+      }
+      if (rectangle != null) {
+        this.rectangle = rectangle;
+      } else {
+        this.rectangle = {
+          x: 0,
+          y: $(window).innerHeight() / 3,
+          w: $(window).innerWidth(),
+          h: $(window).innerHeight() / 3
+        };
+      }
+      Particles.__super__.initialize.call(this);
+      return null;
+    };
+
+    Particles.prototype.init = function() {
+      var i, o, p, ref;
+      if (!Modernizr.canvas) {
+        return;
+      }
+      this.$el[0].width = $(window).innerWidth();
+      this.$el[0].height = $(window).innerHeight();
+      this.ctx = this.$el[0].getContext('2d');
+      this.particles = [];
+      for (i = o = 0, ref = this.nParticles; 0 <= ref ? o <= ref : o >= ref; i = 0 <= ref ? ++o : --o) {
+        if (this.pType === 0) {
+          p = new Particle({
+            _canvas: this.ctx,
+            _w: this.$el[0].width,
+            _h: this.$el[0].height,
+            _maxSize: this.pMaxSize,
+            _speed: this.speed,
+            _type: this.pType,
+            _rect: this.rectangle
+          });
+          p.reset();
+        } else if (this.pType === 1) {
+          p = new ParticleCard({
+            _canvas: this.ctx,
+            _w: this.$el[0].width,
+            _h: this.$el[0].height,
+            _maxSize: this.pMaxSize,
+            _speed: this.speed,
+            _type: this.pType,
+            _rect: this.rectangle
+          });
+          p.reset();
+        }
+        this.particles.push(p);
+      }
+      this.paused = false;
+      return null;
+    };
+
+    Particles.prototype.onEnterFrame = function() {
+      var len, o, p, ref;
+      if (!Modernizr.canvas) {
+        return;
+      }
+      this.clear();
+      ref = this.particles;
+      for (o = 0, len = ref.length; o < len; o++) {
+        p = ref[o];
+        p.move();
+        p.draw();
+      }
+      return null;
+    };
+
+    Particles.prototype.dispose = function() {
+      return null;
+    };
+
+    Particles.prototype.clear = function() {
+      this.ctx.clearRect(0, 0, this.$el[0].width, this.$el[0].height);
+      return null;
+    };
+
+    Particles.prototype.rand = function(low, high) {
+      if (low == null) {
+        low = 0;
+      }
+      if (high == null) {
+        high = 1;
+      }
+      return ((Math.random() * (high - low)) + low) % high;
+    };
+
+    Particles.prototype.onResize = function() {
+      if (!Modernizr.canvas) {
+        return;
+      }
+      this.$el[0].width = $(window).innerWidth();
+      this.$el[0].height = $(window).innerHeight();
+      return null;
+    };
+
+    return Particles;
+
+  })(Abstract);
+
+  RainDrops = (function(superClass) {
+    extend(RainDrops, superClass);
+
+    function RainDrops() {
+      return RainDrops.__super__.constructor.apply(this, arguments);
+    }
+
+    RainDrops.prototype.id = "raindrops";
+
+    RainDrops.prototype.tagName = 'div';
+
+    RainDrops.prototype.container = null;
+
+    RainDrops.prototype.topLeft = null;
+
+    RainDrops.prototype.topRight = null;
+
+    RainDrops.prototype.bottomLeft = null;
+
+    RainDrops.prototype.bottomRight = null;
+
+    RainDrops.prototype.init = function() {
+      this.container = $(this.el);
+      this.container.css({
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0
+      });
+      this.topLeft = $("<div id='drops_overlay1'></div>");
+      this.topLeft.css({
+        position: "absolute",
+        width: 792,
+        height: 392,
+        top: 0,
+        left: 0,
+        background: "url('/models/textures/drops_tl.png')"
+      });
+      this.topRight = $("<div id='drops_overlay2'></div>");
+      this.topRight.css({
+        position: "absolute",
+        width: 491,
+        height: 492,
+        top: 0,
+        right: 0,
+        background: "url('/models/textures/drops_tr.png')"
+      });
+      this.bottomLeft = $("<div id='drops_overlay3'></div>");
+      this.bottomLeft.css({
+        position: "absolute",
+        width: 697,
+        height: 543,
+        bottom: 0,
+        left: 0,
+        background: "url('/models/textures/drops_bl.png')"
+      });
+      this.bottomRight = $("<div id='drops_overlay4'></div>");
+      this.bottomRight.css({
+        position: "absolute",
+        width: 291,
+        height: 286,
+        bottom: 0,
+        right: 0,
+        background: "url('/models/textures/drops_br.png')"
+      });
+      this.container.append(this.topLeft);
+      this.container.append(this.topRight);
+      this.container.append(this.bottomLeft);
+      this.container.append(this.bottomRight);
+      return null;
+    };
+
+    return RainDrops;
+
+  })(Abstract);
+
+  SSAsset = (function(superClass) {
+    extend(SSAsset, superClass);
+
+    function SSAsset() {
+      this.dispose = bind1(this.dispose, this);
+      this.center = bind1(this.center, this);
+      this.changeState = bind1(this.changeState, this);
+      this.removeClass = bind1(this.removeClass, this);
+      this.addClass = bind1(this.addClass, this);
+      this.css = bind1(this.css, this);
+      this.out = bind1(this.out, this);
+      this.over = bind1(this.over, this);
+      this.init = bind1(this.init, this);
+      return SSAsset.__super__.constructor.apply(this, arguments);
+    }
+
+    SSAsset.prototype.ss = null;
+
+    SSAsset.prototype.from = null;
+
+    SSAsset.prototype.asset = null;
+
+    SSAsset.prototype.initialize = function(from, asset) {
+      this.from = from;
+      this.asset = asset;
+      return SSAsset.__super__.initialize.call(this);
+    };
+
+    SSAsset.prototype.init = function() {
+      var css, h, w, x, y;
+      this.ss = this.oz().ss.get(this.from, this.asset);
+      x = Math.round(this.ss.x / 2) - 1;
+      y = Math.round(this.ss.y / 2);
+      w = Math.round(this.ss.width / 2);
+      h = Math.round(this.ss.height / 2);
+      css = {
+        width: w,
+        height: h,
+        'background-image': "url(" + this.ss.image + ")",
+        'background-size': this.ss.fullSize[0] + "px " + this.ss.fullSize[1] + "px",
+        'background-position': "-" + x + "px -" + y + "px"
+      };
+      if (window.devicePixelRatio === 2) {
+        css['background-image'] = "-webkit-image-set(url(" + this.ss.image + ") 1x, url(" + this.ss.image2x + ") 2x)";
+      }
+      this.$el.css(css);
+      this.render();
+      return null;
+    };
+
+    SSAsset.prototype.over = function(over) {
+      this.changeState(over);
+      return null;
+    };
+
+    SSAsset.prototype.out = function() {
+      var x, y;
+      x = Math.round(this.ss.x / 2) - 1;
+      y = Math.round(this.ss.y / 2);
+
+      /*x = @ss.x
+      y = @ss.y
+       */
+      this.$el.css({
+        'background-position': (-x) + "px " + (-y) + "px"
+      });
+      return null;
+    };
+
+    SSAsset.prototype.css = function(params) {
+      this.$el.css(params);
+      return null;
+    };
+
+    SSAsset.prototype.addClass = function(clazz) {
+      this.$el.addClass(clazz);
+      return null;
+    };
+
+    SSAsset.prototype.removeClass = function(clazz) {
+      this.$el.removeClass(clazz);
+      return null;
+    };
+
+    SSAsset.prototype.changeState = function(state) {
+      var params, x, y;
+      params = this.oz().ss.get(this.from, state);
+      x = Math.round(params.x / 2) - 1;
+      y = Math.round(params.y / 2);
+
+      /*x = params.x
+      y = params.y
+       */
+      this.$el.css({
+        'background-position': (-x) + "px " + (-y) + "px"
+      });
+      return null;
+    };
+
+    SSAsset.prototype.center = function() {
+      var x;
+      x = Math.round(this.ss.width / 4);
+      this.$el.css({
+        'position': 'absolute',
+        'left': '50%',
+        'margin-left': (-x) + "px"
+      });
+      return null;
+    };
+
+    SSAsset.prototype.dispose = function() {
+      return null;
+    };
+
+    return SSAsset;
+
+  })(Abstract);
+
+  ShareBox = (function(superClass) {
+    extend(ShareBox, superClass);
+
+    function ShareBox() {
+      this.dispose = bind1(this.dispose, this);
+      this.getFloodlight = bind1(this.getFloodlight, this);
+      this.onShare = bind1(this.onShare, this);
+      this.onBackClick = bind1(this.onBackClick, this);
+      this.onLinkClick = bind1(this.onLinkClick, this);
+      this.init = bind1(this.init, this);
+      this.initialize = bind1(this.initialize, this);
+      return ShareBox.__super__.constructor.apply(this, arguments);
+    }
+
+    ShareBox.prototype.className = "shareContainer";
+
+    ShareBox.prototype.template = "sharebox";
+
+    ShareBox.prototype.iconsContainer = null;
+
+    ShareBox.prototype.shareLinkCont = null;
+
+    ShareBox.prototype.linkIcon = null;
+
+    ShareBox.prototype.callback = null;
+
+    ShareBox.prototype.shareType = null;
+
+    ShareBox.prototype.initialize = function(title, sub, back, backCall, link, type) {
+      this.templateVars = {
+        title: title,
+        sub: sub,
+        link: link,
+        shareBack: back,
+        shareLegal: this.oz().locale.get('shareBoxExpiry')
+      };
+      this.shareType = type;
+      this.callback = backCall;
+      ShareBox.__super__.initialize.call(this);
+      return null;
+    };
+
+    ShareBox.prototype.init = function() {
+      var shareBackBtn;
+      this.iconsContainer = this.$el.find('.shareIconsRow');
+      if ((this.oz().locale.lang).indexOf("zh-") === 0) {
+        this.iconsContainer.append("<button_renren /><button_weibo />");
+      } else {
+        this.iconsContainer.append("<button_google /><button_facebook /><button_twitter />");
+      }
+      this.iconsContainer.children().each((function(_this) {
+        return function(index, value) {
+          var shareButton;
+          shareButton = new SSAsset('interface', $(value)[0].tagName.toLowerCase());
+          shareButton.addClass('shareIcon');
+          shareButton.$el.attr("id", $(value)[0].tagName.toLowerCase());
+          _this.iconsContainer.append(shareButton.$el);
+          shareButton.$el.css({
+            width: (parseInt(shareButton.$el.css('width')) + 2) + "px"
+          });
+          shareButton.$el.bind("click", _this.onShare);
+          return $(value).remove();
+        };
+      })(this));
+      this.shareLinkCont = this.$el.find('.shareLinkContainer').find('.abstractbutton');
+      this.linkIcon = new SSAsset('interface', 'link_icon');
+      this.linkIcon.$el.bind('click', this.onLinkClick);
+      this.linkIcon.$el.addClass('shareLinkIcon');
+      this.shareLinkCont.prepend(this.linkIcon.$el);
+      shareBackBtn = this.$el.find('.shareBack');
+      shareBackBtn.bind('click', this.onBackClick);
+      if (navigator.appVersion.indexOf("Win") !== -1) {
+        shareBackBtn.css({
+          "padding": "7px 20px 8px 20px"
+        });
+        this.shareLinkCont.css({
+          "padding": "3px 12px 7px 12px"
+        });
+      }
+      return null;
+    };
+
+    ShareBox.prototype.onLinkClick = function() {
+      Analytics.track(this.shareType + '_open_preview');
+      window.open(this.shareLinkCont.find('input').val());
+      return null;
+    };
+
+    ShareBox.prototype.onBackClick = function() {
+      Analytics.track('cutout_take_another');
+      if (typeof this.callback === "function") {
+        this.callback();
+      }
+      this.trigger('removeShareBox');
+      return null;
+    };
+
+    ShareBox.prototype.onShare = function(item) {
+      switch (item.currentTarget.id) {
+        case "button_facebook":
+          Analytics.track(this.shareType + "_share_fb", this.getFloodlight("Facebook"));
+          Share.facebook(this.templateVars.link, this.oz().locale.get("share_" + this.shareType + "_facebook_default_message"));
+          break;
+        case "button_google":
+          Analytics.track(this.shareType + "_share_gplus", this.getFloodlight("Google"));
+          Share.plus(this.templateVars.link);
+          break;
+        case "button_twitter":
+          Analytics.track(this.shareType + "_share_twitter", this.getFloodlight("Twitter"));
+          Share.twitter(this.templateVars.link, this.oz().locale.get("share_" + this.shareType + "_facebook_default_message"));
+          break;
+        case "button_renren":
+          Analytics.track(this.shareType + "_share_renren");
+          Share.renren(this.templateVars.link);
+          break;
+        case "button_weibo":
+          Analytics.track(this.shareType + "_share_weibo");
+          Share.weibo(this.templateVars.link);
+      }
+      return null;
+    };
+
+    ShareBox.prototype.getFloodlight = function(vendor) {
+      switch (this.shareType) {
+        case 'zoe':
+          return "Google_OZ_Zeotrope_SocialClick_" + vendor;
+        case 'cutout':
+          return "Google_OZ_HoleInFace_SocialClick_" + vendor;
+      }
+      return null;
+    };
+
+    ShareBox.prototype.dispose = function() {
+      return null;
+    };
+
+    return ShareBox;
+
+  })(Abstract);
+
+  SubLoader = (function(superClass) {
+    extend(SubLoader, superClass);
+
+    function SubLoader() {
+      this.dispose = bind1(this.dispose, this);
+      this.activateMouseInteraction = bind1(this.activateMouseInteraction, this);
+      this.hideCard = bind1(this.hideCard, this);
+      this.hide = bind1(this.hide, this);
+      this.show = bind1(this.show, this);
+      this.onClick = bind1(this.onClick, this);
+      this.onMouseMove = bind1(this.onMouseMove, this);
+      this.update = bind1(this.update, this);
+      this.showError = bind1(this.showError, this);
+      this.addSpinner = bind1(this.addSpinner, this);
+      this.init = bind1(this.init, this);
+      return SubLoader.__super__.constructor.apply(this, arguments);
+    }
+
+    SubLoader.prototype.className = "subLoader";
+
+    SubLoader.prototype.container = null;
+
+    SubLoader.prototype.square = null;
+
+    SubLoader.prototype.visible = false;
+
+    SubLoader.prototype.angleX = 0;
+
+    SubLoader.prototype.angleY = 0;
+
+    SubLoader.prototype.error = null;
+
+    SubLoader.prototype.init = function() {
+      this.container = new Abstract().setElement("<div class='subLoaderContainer'></div>");
+      this.container.dispose = function() {
+        return null;
+      };
+      this.addChild(this.container);
+      this.card = new LoadingCard;
+      this.addChild(this.card);
+      this.addSpinner();
+      this.hide(false);
+      return null;
+    };
+
+    SubLoader.prototype.addSpinner = function() {
+      this.spinner = new Sonic({
+        width: 50,
+        height: 50,
+        stepsPerFrame: 1,
+        trailLength: 1,
+        pointDistance: .02,
+        fps: 30,
+        fillColor: '#FFFFFF',
+        step: function(point, index) {
+          this._.beginPath();
+          this._.moveTo(point.x, point.y);
+          this._.arc(point.x, point.y, index * 3, 0, Math.PI * 2, false);
+          this._.closePath();
+          return this._.fill();
+        },
+        path: [['arc', 25, 25, 10, 0, 360]]
+      });
+      this.container.addChild(this.spinner.canvas);
+      this.container.$el.css({
+        "display": "none"
+      });
+      return null;
+    };
+
+    SubLoader.prototype.showError = function() {
+      var bottom, header;
+      this.container.$el.css({
+        "display": "none"
+      });
+      header = new SSAsset('interface', 'pause_top');
+      header.$el.css({
+        'margin': '0 auto 15px auto'
+      });
+      this.error = $("<div class='subLoaderError'><div class='shareErrorCopy'>" + (this.oz().locale.get("share_error_message")) + "</div></div>");
+      this.error.prepend(header.$el);
+      this.addChild(this.error);
+      bottom = new SSAsset('interface', 'pause_bottom');
+      this.error.append(bottom.$el);
+      bottom.$el.css({
+        'margin': '20px auto'
+      });
+      return this.$el.bind('click', this.hide);
+    };
+
+    SubLoader.prototype.update = function(perc) {
+      this.card.update(perc);
+      return null;
+    };
+
+    SubLoader.prototype.onMouseMove = function(event) {
+      var x, y;
+      if (this.paused) {
+        return;
+      }
+      x = (event.clientX - ($(window).innerWidth() / 2)) / 40;
+      y = (event.clientY - ($(window).innerHeight() / 2)) / 35;
+      this.angleX += (x - this.angleX) * .075;
+      this.angleY += (y - this.angleY) * .075;
+      this.angleX = this.angleX % 360;
+      this.angleY = this.angleY % 360;
+      this.card.transform(this.angleX, this.angleY);
+      return null;
+    };
+
+    SubLoader.prototype.onClick = function(event) {
+      this.card.toggleTopple();
+      return null;
+    };
+
+    SubLoader.prototype.show = function(spin) {
+      if (spin == null) {
+        spin = false;
+      }
+      SubLoader.__super__.show.call(this, true, null, 400, "linear");
+      this.paused = false;
+      $(".scene3d").css({
+        "-webkit-filter": "blur(10px)"
+      });
+      if (!spin) {
+        this.spinner.stop();
+        this.card.$el.css({
+          "display": ""
+        });
+        this.container.$el.css({
+          "display": "none"
+        });
+        this.card.animateIn(this.activateMouseInteraction);
+      } else {
+        this.spinner.play();
+        this.card.$el.css({
+          "display": "none"
+        });
+        this.container.$el.css({
+          "display": ""
+        });
+      }
+      this.oz().appView.logo.disable();
+      this.oz().appView.showMap(false);
+      this.oz().appView.footer.mainMenu.hide(true);
+      this.visible = true;
+      return null;
+    };
+
+    SubLoader.prototype.hide = function(anim, callback, time, ease, hide) {
+      var ref;
+      if (anim == null) {
+        anim = true;
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (time == null) {
+        time = 400;
+      }
+      if (ease == null) {
+        ease = "linear";
+      }
+      if (hide == null) {
+        hide = true;
+      }
+      this.$el.unbind('click', this.hide);
+      if ((ref = this.error) != null) {
+        ref.remove();
+      }
+      SubLoader.__super__.hide.call(this, anim, callback, time, ease, hide);
+      $(".scene3d").css({
+        "-webkit-filter": ""
+      });
+      this.$el.css({
+        "background-color": "rgba(0,0,0,0.6)"
+      });
+      this.visible = false;
+      return null;
+    };
+
+    SubLoader.prototype.hideCard = function() {
+      var d, delay;
+      this.card.animateOut(null);
+      $(window).unbind('mousemove', this.onMouseMove);
+      $(window).unbind('click', this.onClick);
+      this.paused = true;
+      this.$el.css({
+        "background-color": "rgba(0,0,0,1)"
+      });
+      delay = function(ms, func) {
+        return setTimeout(func, ms);
+      };
+      d = Number(this.$el.css("opacity")) * 1000;
+      delay(d, (function(_this) {
+        return function() {
+          return _this.trigger("END_LOADING");
+        };
+      })(this));
+      return null;
+    };
+
+    SubLoader.prototype.activateMouseInteraction = function() {
+      $(window).bind('mousemove', this.onMouseMove);
+      $(window).bind('click', this.onClick);
+      return null;
+    };
+
+    SubLoader.prototype.dispose = function() {
+      return null;
+    };
+
+    return SubLoader;
+
+  })(Abstract);
+
+  WebCam = (function() {
+    WebCam.prototype.stream = null;
+
+    WebCam.prototype.videoDom = null;
+
+    WebCam.prototype.canvas = null;
+
+    WebCam.prototype.ctx = null;
+
+    function WebCam() {
+      this.dispose = bind1(this.dispose, this);
+      this.flipImage = bind1(this.flipImage, this);
+      this.dom = bind1(this.dom, this);
+      this.get = bind1(this.get, this);
+      this.onUserMediaError = bind1(this.onUserMediaError, this);
+      this.onUserMediaSuccess = bind1(this.onUserMediaSuccess, this);
+      this.init = bind1(this.init, this);
+      _.extend(this, Backbone.Events);
+      null;
+    }
+
+    WebCam.prototype.init = function() {
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = 512;
+      this.canvas.height = this.canvas.width / 1.333333333;
+      this.ctx = this.canvas.getContext('2d');
+      this.ctx.scale(-1, 1);
+      this.videoDom = $('<video style="display:none;" autoplay="true"/>');
+      $('body').prepend(this.videoDom);
+      if (!navigator.getUserMedia) {
+        this.onUserMediaError();
+        return;
+      }
+      if (this.stream == null) {
+        navigator.getUserMedia({
+          video: true,
+          audio: false
+        }, this.onUserMediaSuccess, this.onUserMediaError);
+      } else {
+        this.onUserMediaSuccess();
+      }
+      return null;
+    };
+
+    WebCam.prototype.onUserMediaSuccess = function(s) {
+      if (s == null) {
+        s = null;
+      }
+      this.stream = s || this.stream;
+      this.trigger('CAM_READY');
+      return null;
+    };
+
+    WebCam.prototype.onUserMediaError = function() {
+      this.trigger('CAM_FAIL');
+      this.dispose();
+      return null;
+    };
+
+    WebCam.prototype.get = function() {
+      var error, ref, src, video;
+      if (this.stream == null) {
+        this.init();
+        return;
+      }
+      video = this.dom();
+      if (video == null) {
+        return;
+      }
+      if ("srcObject" in video) {
+        video.srcObject = this.stream;
+        return this.stream;
+      }
+      src = null;
+      if (((ref = window.URL) != null ? ref.createObjectURL : void 0) != null) {
+        try {
+          src = window.URL.createObjectURL(this.stream);
+        } catch (error1) {
+          error = error1;
+          src = null;
+        }
+      }
+      if (src != null) {
+        video.src = src;
+      }
+      return src;
+    };
+
+    WebCam.prototype.dom = function() {
+      return this.videoDom.get()[0];
+    };
+
+    WebCam.prototype.flipImage = function() {
+      if (!this.canvas) {
+        return;
+      }
+      this.ctx.drawImage(this.dom(), -this.canvas.width, 0);
+      return this.canvas;
+    };
+
+    WebCam.prototype.dispose = function() {
+      if (this.stream) {
+        if (this.stream.getTracks != null) {
+          this.stream.getTracks().forEach(function(track) {
+            return track.stop();
+          });
+        } else if (this.stream.stop != null) {
+          this.stream.stop();
+        }
+      }
+      this.stream = null;
+      this.canvas = null;
+      return null;
+    };
+
+    return WebCam;
+
+  })();
+
+  Map = (function(superClass) {
+    extend(Map, superClass);
+
+    function Map() {
+      this.changeMenuArea = bind1(this.changeMenuArea, this);
+      this.show = bind1(this.show, this);
+      this.hide = bind1(this.hide, this);
+      this.init = bind1(this.init, this);
+      return Map.__super__.constructor.apply(this, arguments);
+    }
+
+    Map.prototype.base = null;
+
+    Map.prototype.buttonsCoord = null;
+
+    Map.prototype.className = 'map';
+
+    Map.prototype.currentIndex = -1;
+
+    Map.prototype.buttons = null;
+
+    Map.prototype.view = null;
+
+    Map.prototype.init = function() {
+      this.view = new MapMenu;
+      this.addChild(this.view);
+      return null;
+    };
+
+    Map.prototype.hide = function(anim, callback, time, ease) {
+      if (anim == null) {
+        anim = false;
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (time == null) {
+        time = 400;
+      }
+      if (ease == null) {
+        ease = "linear";
+      }
+      this.visible = false;
+      this.mouseEnabled(false);
+      if (!anim) {
+        if (typeof callback === "function") {
+          callback();
+        }
+      } else {
+        this.view.animateOut(callback);
+      }
+      return null;
+    };
+
+    Map.prototype.show = function(anim, callback, time, ease) {
+      if (anim == null) {
+        anim = false;
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (time == null) {
+        time = 400;
+      }
+      if (ease == null) {
+        ease = "linear";
+      }
+      this.visible = true;
+      this.mouseEnabled(true);
+      if (!anim) {
+        this.view.animateIn();
+        if (typeof callback === "function") {
+          callback();
+        }
+      } else {
+        this.view.animateIn();
+        if (typeof callback === "function") {
+          callback();
+        }
+      }
+      return null;
+    };
+
+    Map.prototype.showMenu = function() {
+      return null;
+    };
+
+    Map.prototype.changeMenuArea = function(area) {
+      this.view.changeMenuArea(area);
+      return null;
+    };
+
+    return Map;
+
+  })(Abstract);
+
+  MapMenu = (function(superClass) {
+    extend(MapMenu, superClass);
+
+    function MapMenu() {
+      this.createSequence = bind1(this.createSequence, this);
+      this.onEnterFrame = bind1(this.onEnterFrame, this);
+      this.changeMenuArea = bind1(this.changeMenuArea, this);
+      this.menuEvents = bind1(this.menuEvents, this);
+      this.menuClick = bind1(this.menuClick, this);
+      this.animateOut = bind1(this.animateOut, this);
+      this.animateIn = bind1(this.animateIn, this);
+      this.render = bind1(this.render, this);
+      this.init = bind1(this.init, this);
+      return MapMenu.__super__.constructor.apply(this, arguments);
+    }
+
+    MapMenu.prototype.tagName = 'div';
+
+    MapMenu.prototype.stage = null;
+
+    MapMenu.prototype.canvas = null;
+
+    MapMenu.prototype.fill = null;
+
+    MapMenu.prototype.buttons = null;
+
+    MapMenu.prototype.seq = null;
+
+    MapMenu.prototype.paused = true;
+
+    MapMenu.prototype.container = null;
+
+    MapMenu.prototype.animateSequence = null;
+
+    MapMenu.prototype.timeout = 0;
+
+    MapMenu.prototype.scale = 0;
+
+    MapMenu.prototype.totalW = 0;
+
+    MapMenu.prototype.center = 0;
+
+    MapMenu.prototype.init = function() {
+      this.scale = .7;
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = 800;
+      this.canvas.height = 160;
+      this.$el.append(this.canvas);
+      this.stage = new createjs.Stage(this.canvas);
+      this.stage.mouseEventsEnabled = true;
+      this.stage.enableMouseOver(10);
+      this.container = new createjs.Container;
+      this.stage.addChild(this.container);
+      this.fill = this.oz().baseAssets.get('buttonpattern').result;
+      this.render();
+      return null;
+    };
+
+    MapMenu.prototype.render = function() {
+      var i, item, menuItem, o, ref;
+      this.createSequence();
+      this.animateSequence = [];
+      this.buttons = [];
+      this.totalW = 35;
+      this.center = 75;
+      for (i = o = 0, ref = this.seq.length; 0 <= ref ? o < ref : o > ref; i = 0 <= ref ? ++o : --o) {
+        item = this.seq[i];
+        switch (item.type) {
+          case 'scene':
+            menuItem = new MenuFilledCircle(this.totalW, this.center, 30 * this.scale, this.scale, this.oz().baseAssets.get("menu_" + item.id).result, this.oz().baseAssets.get("menu_on").result);
+            this.buttons.push(menuItem);
+            menuItem.id = item.id;
+            this.totalW += i < this.seq.length - 1 ? 43 : 35;
+            break;
+          case 'sep':
+            menuItem = new MenuSeparator(this.totalW, this.center);
+            this.totalW += item.space;
+        }
+        this.animateSequence.push(menuItem);
+        this.container.addChild(menuItem.view);
+        if (menuItem.on) {
+          menuItem.on('click', this.menuClick);
+          menuItem.on('rollover', this.menuEvents);
+          menuItem.on('rollout', this.menuEvents);
+        }
+      }
+      this.container.x = this.canvas.width / 2 - this.totalW / 2;
+      this.paused = false;
+      return null;
+    };
+
+    MapMenu.prototype.animateIn = function() {
+      var i, o, ref;
+      clearTimeout(this.timeout);
+      for (i = o = 0, ref = this.animateSequence.length; 0 <= ref ? o < ref : o > ref; i = 0 <= ref ? ++o : --o) {
+        this.animateSequence[i].animateIn(25 * i);
+      }
+      return null;
+    };
+
+    MapMenu.prototype.animateOut = function(callback) {
+      var i, o, ref;
+      for (i = o = ref = this.animateSequence.length - 1; ref <= 0 ? o <= 0 : o >= 0; i = ref <= 0 ? ++o : --o) {
+        this.animateSequence[i].animateOut(25 * i);
+      }
+      this.timeout = setTimeout(callback, this.animateSequence.length * 25 + 500);
+      return null;
+    };
+
+    MapMenu.prototype.menuClick = function(e) {
+      Analytics.track("menu_click_" + e.id);
+      $(this.canvas).css({
+        cursor: ''
+      });
+      this.oz().router.navigateTo(e.id, false);
+      return null;
+    };
+
+    MapMenu.prototype.menuEvents = function(e) {
+      var cursor;
+      cursor = e === 'rollover' ? 'pointer' : '';
+      $(this.canvas).css({
+        cursor: cursor
+      });
+      return null;
+    };
+
+    MapMenu.prototype.changeMenuArea = function(area) {
+      var b, len, o, ref;
+      ref = this.buttons;
+      for (o = 0, len = ref.length; o < len; o++) {
+        b = ref[o];
+        b.menuState(b.id === area);
+      }
+      return null;
+    };
+
+    MapMenu.prototype.onEnterFrame = function() {
+      this.stage.update();
+      TWEEN.update();
+      return null;
+    };
+
+    MapMenu.prototype.createSequence = function() {
+      this.seq = [
+        {
+          type: 'scene',
+          id: 'carnival'
+        }, {
+          type: 'sep',
+          space: 16
+        }, {
+          type: 'sep',
+          space: 16
+        }, {
+          type: 'sep',
+          space: 48
+        }, {
+          type: 'scene',
+          id: 'carnival2'
+        }, {
+          type: 'sep',
+          space: 16
+        }, {
+          type: 'sep',
+          space: 16
+        }, {
+          type: 'sep',
+          space: 48
+        }, {
+          type: 'scene',
+          id: 'carnival3'
+        }
+      ];
+      return null;
+    };
+
+    return MapMenu;
+
+  })(Abstract);
+
+  MenuFilledCircle = (function() {
+    MenuFilledCircle.prototype.view = null;
+
+    MenuFilledCircle.prototype.circle = null;
+
+    MenuFilledCircle.prototype.radius = null;
+
+    MenuFilledCircle.prototype.currentState = null;
+
+    MenuFilledCircle.prototype.tween = null;
+
+    MenuFilledCircle.prototype.targetY = null;
+
+    MenuFilledCircle.prototype.current = null;
+
+    MenuFilledCircle.prototype.id = null;
+
+    MenuFilledCircle.prototype.arrow = null;
+
+    MenuFilledCircle.prototype.icon = null;
+
+    MenuFilledCircle.prototype.iconAsset = null;
+
+    MenuFilledCircle.prototype.glowAsset = null;
+
+    MenuFilledCircle.prototype.glow = null;
+
+    function MenuFilledCircle(x, y, r, scale, icon, glow) {
+      this.menuState = bind1(this.menuState, this);
+      this.animateOut = bind1(this.animateOut, this);
+      this.animateIn = bind1(this.animateIn, this);
+      this.animateCircle = bind1(this.animateCircle, this);
+      this.draw = bind1(this.draw, this);
+      this.disable = bind1(this.disable, this);
+      _.extend(this, Backbone.Events);
+      this.radius = r;
+      this.iconAsset = icon;
+      this.glowAsset = glow;
+      this.targetY = y;
+      this.current = {
+        y: 400
+      };
+      this.currentState = {
+        radius: this.radius,
+        stroke: 4,
+        alpha: 0,
+        rotation: 0
+      };
+      this.view = new createjs.Container;
+      this.view.x = x;
+      this.view.y = this.current.y;
+      this.view.onMouseOver = (function(_this) {
+        return function(e) {
+          if (_this.clicked) {
+            return;
+          }
+          _this.animateCircle(r + (_this.radius * .25));
+          return _this.trigger('rollover', 'rollover');
+        };
+      })(this);
+      this.view.onMouseOut = (function(_this) {
+        return function(e) {
+          if (_this.clicked) {
+            return;
+          }
+          _this.animateCircle(_this.radius);
+          return _this.trigger('rollout', 'rollout');
+        };
+      })(this);
+      this.view.onClick = (function(_this) {
+        return function(e) {
+          _this.animateCircle(_this.radius);
+          return _this.trigger('click', _this);
+        };
+      })(this);
+      this.circle = new createjs.Shape();
+      this.draw(this.radius, this.currentState.stroke);
+      this.icon = new createjs.Bitmap(this.iconAsset);
+      this.icon.regX = this.icon.regY = 17;
+      this.icon.scaleX = this.icon.scaleY = scale;
+      this.glow = new createjs.Bitmap(this.glowAsset);
+      this.glow.regX = 149 / 2;
+      this.glow.regY = 149 / 2;
+      this.glow.scaleX = this.glow.scaleY = scale;
+      this.glow.alpha = 0;
+      this.view.addChild(this.circle);
+      this.view.addChild(this.icon);
+      this.view.addChild(this.glow);
+      null;
+    }
+
+    MenuFilledCircle.prototype.disable = function() {
+      return null;
+    };
+
+    MenuFilledCircle.prototype.draw = function(r, stroke) {
+      this.circle.graphics.clear();
+      this.circle.graphics.setStrokeStyle(stroke);
+      this.circle.graphics.beginFill('rgba(255, 255, 255, 0.39)');
+      this.circle.graphics.beginStroke('#FFFFFF');
+      this.circle.graphics.drawCircle(0, 0, this.currentState.radius);
+      this.circle.graphics.endFill();
+      return null;
+    };
+
+    MenuFilledCircle.prototype.animateCircle = function(radius, alpha, rotation) {
+      if (alpha == null) {
+        alpha = 0;
+      }
+      this.tween = new TWEEN.Tween(this.currentState).to({
+        radius: radius
+      }, 200).easing(TWEEN.Easing.Quadratic.Out);
+      this.tween.onUpdate((function(_this) {
+        return function(e) {
+          return _this.draw(_this.currentState.radius, _this.currentState.stroke);
+        };
+      })(this));
+      this.tween.start();
+      return null;
+    };
+
+    MenuFilledCircle.prototype.animateIn = function(delay) {
+      this.tween = new TWEEN.Tween(this.current).to({
+        y: this.targetY
+      }, 600).easing(TWEEN.Easing.Back.Out).delay(delay);
+      this.tween.onUpdate((function(_this) {
+        return function(e) {
+          return _this.view.y = _this.current.y;
+        };
+      })(this));
+      this.tween.start();
+      return null;
+    };
+
+    MenuFilledCircle.prototype.animateOut = function(delay) {
+      this.tween = new TWEEN.Tween(this.current).to({
+        y: 400
+      }, 600).easing(TWEEN.Easing.Back.In).delay(delay);
+      this.tween.onUpdate((function(_this) {
+        return function(e) {
+          return _this.view.y = _this.current.y;
+        };
+      })(this));
+      this.tween.start();
+      return null;
+    };
+
+    MenuFilledCircle.prototype.menuState = function(enabled) {
+      var tween;
+      if (enabled == null) {
+        enabled = true;
+      }
+      this.clicked = enabled;
+      tween = new TWEEN.Tween(this.glow).to({
+        alpha: (enabled ? 1 : 0)
+      }, 400);
+      tween.start();
+      return null;
+    };
+
+    return MenuFilledCircle;
+
+  })();
+
+  MenuSeparator = (function() {
+    MenuSeparator.prototype.view = null;
+
+    MenuSeparator.prototype.shape = null;
+
+    MenuSeparator.prototype.targetY = null;
+
+    MenuSeparator.prototype.current = null;
+
+    MenuSeparator.prototype.tween = null;
+
+    function MenuSeparator(x, y) {
+      this.menuState = bind1(this.menuState, this);
+      this.animateOut = bind1(this.animateOut, this);
+      this.animateIn = bind1(this.animateIn, this);
+      this.current = {
+        y: 200
+      };
+      this.view = new createjs.Container;
+      this.view.x = x;
+      this.view.y = this.current.y;
+      this.targetY = y;
+      this.shape = new createjs.Shape;
+      this.shape.graphics.beginFill('#FFF');
+      this.shape.graphics.drawCircle(0, 0, 3.5);
+      this.shape.graphics.endFill();
+      this.view.addChild(this.shape);
+      null;
+    }
+
+    MenuSeparator.prototype.animateIn = function(delay) {
+      this.tween = new TWEEN.Tween(this.current).to({
+        y: this.targetY
+      }, 600).easing(TWEEN.Easing.Back.Out).delay(delay);
+      this.tween.onUpdate((function(_this) {
+        return function(e) {
+          return _this.view.y = _this.current.y;
+        };
+      })(this));
+      this.tween.start();
+      return null;
+    };
+
+    MenuSeparator.prototype.animateOut = function(delay) {
+      this.tween = new TWEEN.Tween(this.current).to({
+        y: 200
+      }, 600).easing(TWEEN.Easing.Back.In).delay(delay);
+      this.tween.onUpdate((function(_this) {
+        return function(e) {
+          return _this.view.y = _this.current.y;
+        };
+      })(this));
+      this.tween.start();
+      return null;
+    };
+
+    MenuSeparator.prototype.menuState = function(enabled) {
+      if (enabled == null) {
+        enabled = true;
+      }
+      return null;
+    };
+
+    return MenuSeparator;
+
+  })();
+
+  Controller = (function(superClass) {
+    extend(Controller, superClass);
+
+    function Controller() {
+      this.pauseState = bind1(this.pauseState, this);
+      this.playState = bind1(this.playState, this);
+      this.progress = bind1(this.progress, this);
+      this.toggleVideo = bind1(this.toggleVideo, this);
+      this.init = bind1(this.init, this);
+      return Controller.__super__.constructor.apply(this, arguments);
+    }
+
+    Controller.prototype.className = 'controller';
+
+    Controller.prototype.progressBar = null;
+
+    Controller.prototype.scruber = null;
+
+    Controller.prototype.bg = null;
+
+    Controller.prototype.border = null;
+
+    Controller.prototype.pausePlayButton = null;
+
+    Controller.prototype.init = function() {
+      this.pausePlayButton = new PlayPause;
+      this.pausePlayButton.on('clicked', this.toggleVideo);
+      this.addChild(this.pausePlayButton);
+      this.progressBar = new Abstract;
+      this.progressBar.dispose - (function(_this) {
+        return function() {
+          return null;
+        };
+      })(this);
+      this.addChild(this.progressBar);
+      this.progressBar.$el.addClass('progressBar');
+      this.border = new SSAsset('interface', 'video_progress_border');
+      this.progressBar.addChild(this.border);
+      this.bg = new SSAsset('interface', 'video_progress_background');
+      this.progressBar.addChild(this.bg);
+      this.scruber = new SSAsset('interface', 'video_progress_scrubber');
+      this.progressBar.addChild(this.scruber);
+      this.width = parseInt(this.scruber.$el.css('width'));
+      return null;
+    };
+
+    Controller.prototype.toggleVideo = function() {
+      this.trigger('toggleVideo');
+      return null;
+    };
+
+    Controller.prototype.progress = function(val) {
+      this.scruber.$el.css({
+        width: this.width * val
+      });
+      return null;
+    };
+
+    Controller.prototype.playState = function() {
+      this.pausePlayButton.playState();
+      return null;
+    };
+
+    Controller.prototype.pauseState = function() {
+      this.pausePlayButton.pauseState();
+      return null;
+    };
+
+    return Controller;
+
+  })(Abstract);
+
+  PlayPause = (function(superClass) {
+    extend(PlayPause, superClass);
+
+    function PlayPause() {
+      this.playState = bind1(this.playState, this);
+      this.pauseState = bind1(this.pauseState, this);
+      this.dispose = bind1(this.dispose, this);
+      this.toggle = bind1(this.toggle, this);
+      this.init = bind1(this.init, this);
+      return PlayPause.__super__.constructor.apply(this, arguments);
+    }
+
+    PlayPause.prototype.className = 'playPauseButton';
+
+    PlayPause.prototype.asset = null;
+
+    PlayPause.prototype.playing = true;
+
+    PlayPause.prototype.init = function() {
+      this.asset = new SSAsset('interface', 'button_play');
+      this.addChild(this.asset);
+      this.$el.addClass('btanimated');
+      this.$el.bind('click', this.toggle);
+      return null;
+    };
+
+    PlayPause.prototype.toggle = function() {
+      if (this.playing) {
+        this.pauseState();
+      } else {
+        this.playState();
+      }
+      this.trigger('clicked');
+      return null;
+    };
+
+    PlayPause.prototype.dispose = function() {
+      return null;
+    };
+
+    PlayPause.prototype.pauseState = function() {
+      this.asset.changeState('button_pause');
+      this.playing = false;
+      return null;
+    };
+
+    PlayPause.prototype.playState = function() {
+      this.asset.changeState('button_play');
+      this.playing = true;
+      return null;
+    };
+
+    return PlayPause;
+
+  })(Abstract);
+
+  VideoPlayer = (function(superClass) {
+    extend(VideoPlayer, superClass);
+
+    function VideoPlayer() {
+      this.dispose = bind1(this.dispose, this);
+      this.onClose = bind1(this.onClose, this);
+      this.onEnterFrame = bind1(this.onEnterFrame, this);
+      this.show = bind1(this.show, this);
+      this.videoEnded = bind1(this.videoEnded, this);
+      this.resume = bind1(this.resume, this);
+      this.pause = bind1(this.pause, this);
+      this.toggleVideo = bind1(this.toggleVideo, this);
+      this.getLocalisedVideo = bind1(this.getLocalisedVideo, this);
+      this.init = bind1(this.init, this);
+      this.changeView = bind1(this.changeView, this);
+      return VideoPlayer.__super__.constructor.apply(this, arguments);
+    }
+
+    VideoPlayer.prototype.className = 'videoPlayer';
+
+    VideoPlayer.prototype.videoElement = null;
+
+    VideoPlayer.prototype.controller = null;
+
+    VideoPlayer.prototype.videoPaused = true;
+
+    VideoPlayer.prototype.changeView = function() {
+      return null;
+    };
+
+    VideoPlayer.prototype.init = function() {
+      this.videoElement = $('<video/>');
+      this.videoElement.attr({
+        'src': this.getLocalisedVideo()
+      });
+      this.addChild(this.videoElement);
+      this.addChild($('<img src="/img/home/pix.gif" style="position:absolute;top:0;left:0;width:100%;height:100%;"/>'));
+      this.controller = new Controller;
+      this.controller.on('toggleVideo', this.toggleVideo);
+      this.addChild(this.controller);
+      this.controller.$el.find(".playPauseButton").css({
+        "-webkit-transform": "scale(0.6,0.6)"
+      });
+      this.$el.css({
+        opacity: 0
+      });
+      this.addCloseButton();
+      this.closeBtn.$el.bind("click", this.onClose);
+      return null;
+    };
+
+    VideoPlayer.prototype.getLocalisedVideo = function() {
+      return '/videos/bubbles_en.webm';
+
+      /*
+      locale = (navigator.language || navigator.userLanguage).toLowerCase()
+      
+      country = geoip_country_code().toLowerCase()
+      
+      switch(country)
+          when 'gb'
+              locale = 'gb'
+      
+          when 'au', 'nz'
+              locale = 'au'
+      
+          when 'es'
+              locale = 'us'
+      
+      
+      switch(locale)
+          
+          when 'pt'
+              return '/videos/bubbles_pt.webm'
+      
+          when 'es'
+              return '/videos/bubbles_es.webm'
+      
+          when 'de'
+              return '/videos/bubbles_de.webm'
+      
+          when 'dk'
+              return '/videos/bubbles_dk.webm'
+      
+          when 'fr'
+              return '/videos/bubbles_fr.webm'
+      
+          when 'it'
+              return '/videos/bubbles_it.webm'
+      
+          when 'nl'
+              return '/videos/bubbles_nl.webm'
+      
+          when 'no'
+              return '/videos/bubbles_no.webm'
+      
+          when 'gb'
+              return '/videos/bubbles_en-gb.webm'
+      
+          when 'au'
+              return '/videos/bubbles_au.webm'
+      
+          else 
+              return '/videos/bubbles_en.webm'
+       */
+    };
+
+    VideoPlayer.prototype.toggleVideo = function() {
+      if (this.videoPaused) {
+        this.videoPaused = false;
+        this.videoElement[0].play();
+      } else {
+        this.videoPaused = true;
+        this.videoElement[0].pause();
+      }
+      return null;
+    };
+
+    VideoPlayer.prototype.pause = function() {
+      this.videoElement[0].removeEventListener("ended", this.videoEnded, false);
+      this.videoPaused = true;
+      this.videoElement[0].pause();
+      this.controller.playState();
+      VideoPlayer.__super__.pause.call(this);
+      return null;
+    };
+
+    VideoPlayer.prototype.resume = function() {
+      this.videoPaused = false;
+      this.videoElement[0].play();
+      this.controller.pauseState();
+      this.videoElement[0].addEventListener("ended", this.videoEnded, false);
+      VideoPlayer.__super__.resume.call(this);
+      return null;
+    };
+
+    VideoPlayer.prototype.videoEnded = function(e) {
+      this.videoElement[0].src = "";
+      this.onClose();
+      return null;
+    };
+
+    VideoPlayer.prototype.show = function(anim, callback, time, ease) {
+      if (anim == null) {
+        anim = false;
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (time == null) {
+        time = 400;
+      }
+      if (ease == null) {
+        ease = "linear";
+      }
+      this.$el.css({
+        display: "block"
+      });
+      VideoPlayer.__super__.show.call(this, anim, callback, time, ease);
+      this.resume();
+      return null;
+    };
+
+    VideoPlayer.prototype.onEnterFrame = function() {
+      this.controller.progress(this.videoElement[0].currentTime / this.videoElement[0].duration);
+      return null;
+    };
+
+    VideoPlayer.prototype.onClose = function() {
+      SoundController.send("trailer_end");
+      this.oz().appView.area.content.$el.css({
+        display: "inline"
+      });
+      this.oz().appView.area.content.show(true);
+      this.oz().appView.logo.showGoogleLogos();
+      this.oz().appView.footer.mainMenu.show(true);
+      this.oz().appView.footer.showShare();
+      this.pause();
+      this.hide(true, (function(_this) {
+        return function() {
+          return _this.oz().appView.wrapper.remove(_this);
+        };
+      })(this));
+      return null;
+    };
+
+    VideoPlayer.prototype.dispose = function() {
+      this.closeBtn.$el.unbind("click", this.onClose);
+      this.controller.off('toggleVideo', this.toggleVideo);
+      return null;
+    };
+
+    return VideoPlayer;
+
+  })(AbstractScene);
 
   Base3DChapter = (function(superClass) {
     extend(Base3DChapter, superClass);
@@ -15413,2643 +18015,6 @@
 
   })(Abstract);
 
-  Canvas = (function(superClass) {
-    extend(Canvas, superClass);
-
-    function Canvas() {
-      this.initialize = bind1(this.initialize, this);
-      return Canvas.__super__.constructor.apply(this, arguments);
-    }
-
-    Canvas.prototype.tagName = 'canvas';
-
-    Canvas.prototype.context = null;
-
-    Canvas.prototype.attr = null;
-
-    Canvas.prototype.paused = true;
-
-    Canvas.prototype.initialize = function(w, h) {
-      if (w == null) {
-        w = 1024;
-      }
-      if (h == null) {
-        h = 768;
-      }
-      this.attr = {
-        width: w,
-        height: h
-      };
-      Canvas.__super__.initialize.call(this);
-      return null;
-    };
-
-    Canvas.prototype.init = function() {
-      this.$el.attr(this.attr);
-      this.context = this.el.getContext('2d');
-      return null;
-    };
-
-    return Canvas;
-
-  })(Abstract);
-
-  CheckBox = (function(superClass) {
-    extend(CheckBox, superClass);
-
-    function CheckBox() {
-      this.val = bind1(this.val, this);
-      this.toggleCheck = bind1(this.toggleCheck, this);
-      this.click = bind1(this.click, this);
-      this.init = bind1(this.init, this);
-      return CheckBox.__super__.constructor.apply(this, arguments);
-    }
-
-    CheckBox.prototype.check = null;
-
-    CheckBox.prototype.checked = null;
-
-    CheckBox.prototype.className = 'openingCheckBox';
-
-    CheckBox.prototype.init = function() {
-      this.$el.addClass('btanimated');
-      this.check = new SSAsset('interface', 'checkbox');
-      this.check.mouseEnabled(false);
-      this.addChild(this.check);
-      this.check.$el.addClass('openingCheckBox');
-      this.check.$el.css({
-        'background-position-y': parseInt(this.check.$el.css('background-position-y')) + 1,
-        'height': parseInt(this.check.$el.css('height')) + 1,
-        'width': parseInt(this.check.$el.css('width')) + 1
-      });
-      this.checked = new SSAsset('interface', 'checkbox_checked');
-      this.checked.mouseEnabled(false);
-      this.addChild(this.checked);
-      this.checked.$el.addClass('openingCheckBox');
-      this.checked.$el.css({
-        'background-position-y': parseInt(this.checked.$el.css('background-position-y')) + 1,
-        'height': parseInt(this.checked.$el.css('height')) + 1,
-        'width': parseInt(this.check.$el.css('width')) + 1
-      });
-      this.checked.hide();
-      this.$el.click(this.click);
-      return null;
-    };
-
-    CheckBox.prototype.click = function() {
-      this.trigger('toggled');
-      return null;
-    };
-
-    CheckBox.prototype.toggleCheck = function() {
-      if (this.check.visible) {
-        this.check.hide();
-      } else {
-        this.check.show();
-      }
-      if (this.checked.visible) {
-        this.checked.hide();
-      } else {
-        this.checked.show();
-      }
-      return null;
-    };
-
-    CheckBox.prototype.val = function() {
-      return this.checked.visible;
-    };
-
-    return CheckBox;
-
-  })(Abstract);
-
-  Instructions = (function(superClass) {
-    extend(Instructions, superClass);
-
-    function Instructions() {
-      this.dispose = bind1(this.dispose, this);
-      this.hide = bind1(this.hide, this);
-      this.show = bind1(this.show, this);
-      this.initialize = bind1(this.initialize, this);
-      return Instructions.__super__.constructor.apply(this, arguments);
-    }
-
-    Instructions.prototype.className = "instructionsContainer";
-
-    Instructions.prototype.active = false;
-
-    Instructions.prototype.initialize = function(ids) {
-      var box, divider, image, sentence;
-      Instructions.__super__.initialize.call(this);
-      box = $("<div class='box'> <div id='r1' class='row'> <div id='c11' class='cell'></div> <div id='c12' class='cell'></div> <div id='c13' class='cell'></div> </div> <div id='r2' class='row'> <div id='c21' class='cell'></div> <div id='c22' class='cell'></div> <div id='c23' class='cell'></div> </div> <div id='r3' class='row'> <div id='c31' class='cell'></div> <div id='c32' class='cell'></div> <div id='c33' class='cell'></div> </div> </div>");
-      this.addChild(box);
-      image = new SSAsset("interface", ids.assetID);
-      image.css({
-        "margin": "0 auto"
-      });
-      box.find("#c22").append(image.$el);
-      sentence = $("<p>" + (this.oz().locale.get(ids.localeID)) + "</p>");
-      box.find("#c22").append(sentence);
-      divider = new SSAsset("interface", "instructions_flourish");
-      divider.css({
-        "margin": "0 auto"
-      });
-      box.find("#c22").append(divider.$el);
-      return null;
-    };
-
-    Instructions.prototype.show = function(animated, callback) {
-      this.active = true;
-      Instructions.__super__.show.call(this, animated, callback);
-      return null;
-    };
-
-    Instructions.prototype.hide = function(animated, callback) {
-      Instructions.__super__.hide.call(this, animated, (function(_this) {
-        return function() {
-          if (typeof callback === "function") {
-            callback();
-          }
-          return _this.active = false;
-        };
-      })(this));
-      return null;
-    };
-
-    Instructions.prototype.dispose = function() {
-      return null;
-    };
-
-    return Instructions;
-
-  })(Abstract);
-
-  InstructionsChapter = (function(superClass) {
-    extend(InstructionsChapter, superClass);
-
-    function InstructionsChapter() {
-      this.dispose = bind1(this.dispose, this);
-      this.close = bind1(this.close, this);
-      this.onMouseMove = bind1(this.onMouseMove, this);
-      this.addMouseListener = bind1(this.addMouseListener, this);
-      this.activate = bind1(this.activate, this);
-      this.initialize = bind1(this.initialize, this);
-      return InstructionsChapter.__super__.constructor.apply(this, arguments);
-    }
-
-    InstructionsChapter.prototype.className = "instructionsChapterContainer";
-
-    InstructionsChapter.prototype.timeoutToMouseMove = null;
-
-    InstructionsChapter.prototype.activated = false;
-
-    InstructionsChapter.prototype.initialize = function() {
-      InstructionsChapter.__super__.initialize.call(this);
-      this.instructions = new Instructions({
-        "assetID": "instructions_music",
-        "localeID": "landingInstructions"
-      });
-      this.addChild(this.instructions);
-      this.instructions.$el.css({
-        display: 'table-cell',
-        'vertical-align': 'middle'
-      });
-      this.instructions.$el.find('#c22 p').css({
-        'text-transform': 'uppercase'
-      });
-      this.instructions.$el.find('#c22 p').append("<br>" + (this.oz().locale.get('landing_instructions_small')));
-      this.hide();
-      return null;
-    };
-
-    InstructionsChapter.prototype.activate = function() {
-      if (this.oz().router.showInstructions === false) {
-        return;
-      }
-      if (!this.activated) {
-        this.activated = true;
-        this.show(true);
-        this.instructions.show(true);
-        this.$el.bind("mousedown", this.close);
-        this.timeoutToMouseMove = setTimeout(this.addMouseListener, 4000);
-      }
-      return null;
-    };
-
-    InstructionsChapter.prototype.addMouseListener = function() {
-      document.addEventListener("mousemove", this.onMouseMove, false);
-      return null;
-    };
-
-    InstructionsChapter.prototype.onMouseMove = function() {
-      this.close();
-      return null;
-    };
-
-    InstructionsChapter.prototype.close = function() {
-      clearTimeout(this.timeoutToMouseMove);
-      this.$el.unbind("mousedown");
-      document.removeEventListener("mousemove", this.onMouseMove, false);
-      this.hide(true, (function(_this) {
-        return function() {
-          _this.oz().appView.area.remove(_this.oz().appView.area.chapterInstructions);
-          return _this.oz().appView.area.chapterInstructions = null;
-        };
-      })(this));
-      return null;
-    };
-
-    InstructionsChapter.prototype.dispose = function() {
-      return null;
-    };
-
-    return InstructionsChapter;
-
-  })(Abstract);
-
-  LocalisedTexture = (function() {
-    LocalisedTexture.prototype.title = null;
-
-    LocalisedTexture.prototype.canvas = null;
-
-    LocalisedTexture.prototype.ctx = null;
-
-    LocalisedTexture.prototype.flourish = null;
-
-    LocalisedTexture.prototype.diamond = null;
-
-    LocalisedTexture.prototype.wHalf = null;
-
-    LocalisedTexture.prototype.icon = null;
-
-
-    /*
-    Usage: 
-        @oz().localeTexture.get 'section'
-     */
-
-    function LocalisedTexture() {
-      this.trim = bind1(this.trim, this);
-      this.wrapText = bind1(this.wrapText, this);
-      this.get = bind1(this.get, this);
-      this.diamond = window.oz.baseAssets.get("diamond").result;
-      $('<p style="font-family: \"TradeGothic\"" />');
-      null;
-    }
-
-    LocalisedTexture.prototype.get = function(section) {
-      var headerCopy, subCopy, textSize;
-      this.icon = window.oz.baseAssets.get("section_icon_" + section).result;
-      this.canvas = document.createElement('canvas');
-      this.canvas.width = 1000;
-      this.canvas.height = 1000;
-      this.ctx = this.canvas.getContext('2d', {
-        willReadFrequently: true
-      });
-      this.wHalf = parseInt(this.canvas.width) / 2;
-      this.ctx.drawImage(this.diamond, this.wHalf - 4, 0);
-      this.ctx.drawImage(this.icon, this.wHalf - 30, 15);
-      headerCopy = window.oz.locale.get(section + "Title");
-      this.ctx.font = '46px TradeGothic';
-      this.ctx.save();
-      this.ctx.fillStyle = '#FFF';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'top';
-      textSize = this.wrapText(this.ctx, headerCopy, this.wHalf, 88, 400, 46);
-      subCopy = "";
-      if (subCopy.length > 0) {
-        this.ctx.font = '14px TradeGothic';
-        this.ctx.save();
-        this.ctx.fillStyle = '#FFF';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        textSize = this.wrapText(this.ctx, subCopy, this.wHalf, textSize, 400, 14);
-      }
-      this.ctx.drawImage(this.diamond, this.wHalf - 4, textSize + 5);
-      return this.trim();
-    };
-
-    LocalisedTexture.prototype.wrapText = function(context, text, x, y, maxWidth, lineHeight) {
-      var br, line, metrics, n, nextLine, o, ref, testLine, testWidth, word, words;
-      words = text.split(' ');
-      line = '';
-      nextLine = false;
-      for (n = o = 0, ref = words.length; 0 <= ref ? o < ref : o > ref; n = 0 <= ref ? ++o : --o) {
-        word = words[n];
-        br = false;
-        if (word.indexOf("<br>") > -1) {
-          word = word.replace('<br>', ' ');
-          br = true;
-          testLine = line;
-        }
-        testLine = line + word + ' ';
-        metrics = context.measureText(testLine);
-        testWidth = metrics.width;
-        if (testWidth > maxWidth || br) {
-          context.fillText(line, x, y);
-          line = word + ' ';
-          y += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      context.fillText(line, x, y);
-      return y + lineHeight;
-    };
-
-    LocalisedTexture.prototype.trim = function() {
-      var bound, c, copy, i, l, o, pixels, ref, trimHeight, trimWidth, trimmed, x, y;
-      c = this.canvas;
-      copy = document.createElement('canvas').getContext('2d', {
-        willReadFrequently: true
-      });
-      pixels = this.ctx.getImageData(0, 0, c.width, c.height);
-      l = pixels.data.length;
-      bound = {
-        top: null,
-        left: null,
-        right: null,
-        bottom: null
-      };
-      for (i = o = 0, ref = l - 1; o <= ref; i = o += 4) {
-        if (pixels.data[i + 3] !== 0) {
-          x = (i / 4) % c.width;
-          y = ~~((i / 4) / c.width);
-          if (bound.top === null) {
-            bound.top = y;
-          }
-          if (bound.left === null) {
-            bound.left = x;
-          } else if (x < bound.left) {
-            bound.left = x;
-          }
-          if (bound.right === null) {
-            bound.right = x;
-          } else if (bound.right < x) {
-            bound.right = x;
-          }
-          if (bound.bottom === null) {
-            bound.bottom = y;
-          } else if (bound.bottom < y) {
-            bound.bottom = y;
-          }
-        }
-      }
-      bound.width = Math.max(bound.right - bound.left, 180);
-      bound.height = Math.max(bound.bottom - bound.top, 145);
-      trimWidth = 1024;
-      trimHeight = 1024;
-      trimmed = this.ctx.getImageData(bound.left, bound.top, trimWidth, trimHeight);
-      copy.canvas.width = trimWidth;
-      copy.canvas.height = trimHeight;
-      copy.putImageData(trimmed, trimWidth / 2 - (bound.right - bound.left) / 2, trimHeight / 2 - (bound.bottom - bound.top) / 2);
-      return {
-        canvas: copy.canvas,
-        bound: bound
-      };
-    };
-
-    return LocalisedTexture;
-
-  })();
-
-  Logo = (function(superClass) {
-    extend(Logo, superClass);
-
-    function Logo() {
-      this.dispose = bind1(this.dispose, this);
-      this.enable = bind1(this.enable, this);
-      this.disable = bind1(this.disable, this);
-      this.onClick = bind1(this.onClick, this);
-      this.logoRollOut = bind1(this.logoRollOut, this);
-      this.logoRollOver = bind1(this.logoRollOver, this);
-      this.showGoogleLogos = bind1(this.showGoogleLogos, this);
-      this.hideGoogleLogos = bind1(this.hideGoogleLogos, this);
-      this.init = bind1(this.init, this);
-      return Logo.__super__.constructor.apply(this, arguments);
-    }
-
-    Logo.prototype.id = 'logo';
-
-    Logo.prototype.obj = null;
-
-    Logo.prototype.chromeLogo = null;
-
-    Logo.prototype.googleLogo = null;
-
-    Logo.prototype.init = function() {
-      this.canvas = new LogoParticles(80, 80);
-      this.logoContainer = $("<div class='logo'/>");
-      this.assetLogo = new SSAsset('interface', 'logo_oz');
-      this.assetLogoOver = new SSAsset('interface', 'logo_oz_over');
-      this.assetLogoOver.hide(false);
-      this.logoContainer.append(this.assetLogo.$el);
-      this.logoContainer.append(this.assetLogoOver.$el);
-      this.addChild(this.logoContainer);
-      this.addChild(this.canvas);
-      this.canvas.init();
-      this.chromeLogo = new SSAsset('interface', 'logo_chrome');
-      this.chromeLogo.addClass('chrome');
-      this.chromeLogo.addClass('button_alpha_enabled');
-      this.chromeLogo.$el.bind('click', (function(_this) {
-        return function() {
-          Analytics.track('click_chrome_logo');
-          return window.open('http://www.chromeexperiments.com/');
-        };
-      })(this));
-      this.addChild(this.chromeLogo);
-      this.googleLogo = new SSAsset('interface', 'logo_google');
-      this.googleLogo.addClass('google');
-      this.googleLogo.addClass('button_alpha_enabled');
-      this.googleLogo.$el.bind('click', (function(_this) {
-        return function() {
-          Analytics.track('click_friends_google');
-          return window.open('http://google.com/');
-        };
-      })(this));
-      this.addChild(this.googleLogo);
-      this.logoContainer.bind("click", this.onClick);
-      this.logoContainer.css({
-        "cursor": "pointer"
-      });
-      this.logoContainer.bind("mouseover", this.logoRollOver);
-      this.logoContainer.bind("mouseout", this.logoRollOut);
-      return null;
-    };
-
-    Logo.prototype.hideGoogleLogos = function() {
-      this.googleLogo.$el.removeClass('button_alpha_enabled');
-      this.chromeLogo.$el.removeClass('button_alpha_enabled');
-      this.chromeLogo.hide(true, null, 400, "linear", true);
-      this.googleLogo.hide(true, null, 400, "linear", true);
-      return null;
-    };
-
-    Logo.prototype.showGoogleLogos = function() {
-      this.chromeLogo.show(true, null, 400, "linear");
-      this.googleLogo.show(true, (function(_this) {
-        return function() {
-          if (_this.googleLogo.$el.hasClass('button_alpha_enabled')) {
-            _this.googleLogo.$el.removeClass('button_alpha_enabled');
-            _this.chromeLogo.$el.removeClass('button_alpha_enabled');
-          }
-          _this.googleLogo.$el.addClass('button_alpha_enabled');
-          return _this.chromeLogo.$el.addClass('button_alpha_enabled');
-        };
-      })(this), 400, "linear");
-      return null;
-    };
-
-    Logo.prototype.logoRollOver = function() {
-      this.canvas.show();
-      this.assetLogoOver.show(true, null, 200);
-      this.assetLogo.hide(true, null, 200);
-      return null;
-    };
-
-    Logo.prototype.logoRollOut = function() {
-      this.canvas.hide();
-      this.assetLogoOver.hide(true, null, 200);
-      this.assetLogo.show(true, null, 200);
-      return null;
-    };
-
-    Logo.prototype.onClick = function() {
-      this.canvas.hide();
-      this.assetLogoOver.hide(true, null, 200);
-      this.assetLogo.show(true, null, 200);
-      Analytics.track('menu_click_official');
-      window.open('/official.html');
-      return null;
-    };
-
-    Logo.prototype.disable = function() {
-      return;
-      this.logoContainer.unbind("click");
-      this.logoContainer.css({
-        "cursor": "default"
-      });
-      this.logoContainer.unbind("mouseover");
-      this.logoContainer.unbind("mouseout");
-      return null;
-    };
-
-    Logo.prototype.enable = function() {
-      return;
-      this.disable();
-      this.logoContainer.bind("click", this.onClick);
-      this.logoContainer.css({
-        "cursor": "pointer"
-      });
-      this.logoContainer.bind("mouseover", this.logoRollOver);
-      this.logoContainer.bind("mouseout", this.logoRollOut);
-      return null;
-    };
-
-    Logo.prototype.dispose = function() {
-      this.logoContainer.unbind("mouseover");
-      this.logoContainer.unbind("mouseout");
-      this.logoContainer.unbind("click");
-      return null;
-    };
-
-    return Logo;
-
-  })(Abstract);
-
-  LogoParticles = (function(superClass) {
-    extend(LogoParticles, superClass);
-
-    function LogoParticles() {
-      this.hide = bind1(this.hide, this);
-      this.show = bind1(this.show, this);
-      this.onEnterFrame = bind1(this.onEnterFrame, this);
-      this.init = bind1(this.init, this);
-      return LogoParticles.__super__.constructor.apply(this, arguments);
-    }
-
-    LogoParticles.prototype.className = 'logoParticles';
-
-    LogoParticles.prototype.particles = null;
-
-    LogoParticles.prototype.speed = .6;
-
-    LogoParticles.prototype.paused = true;
-
-    LogoParticles.prototype.init = function() {
-      var i, o, p;
-      LogoParticles.__super__.init.call(this);
-      this.mouseEnabled(false);
-      this.particles = [];
-      this.paused = true;
-      this.$el.css({
-        opacity: 0
-      });
-      for (i = o = 0; o <= 20; i = ++o) {
-        p = new Particle({
-          _canvas: this.context,
-          _w: this.$el[0].width,
-          _h: this.$el[0].height,
-          _maxSize: 3,
-          _speed: .6,
-          _type: 0,
-          _rect: {
-            x: 0,
-            y: 0,
-            w: 80,
-            h: 80
-          }
-        });
-        this.particles.push(p);
-      }
-      return;
-      return null;
-    };
-
-    LogoParticles.prototype.onEnterFrame = function() {
-      var len, o, p, ref;
-      if (this.paused) {
-        return;
-      }
-      this.clear();
-      ref = this.particles;
-      for (o = 0, len = ref.length; o < len; o++) {
-        p = ref[o];
-        p.move();
-        p.draw();
-      }
-      return;
-      return null;
-    };
-
-    LogoParticles.prototype.show = function() {
-      this.resume();
-      this.$el.stop().animate({
-        opacity: 1
-      });
-      return null;
-    };
-
-    LogoParticles.prototype.hide = function() {
-      this.$el.stop().animate({
-        opacity: 0
-      }, this.pause);
-      return null;
-    };
-
-    LogoParticles.prototype.clear = function() {
-      this.context.clearRect(0, 0, this.$el[0].width, this.$el[0].height);
-      return null;
-    };
-
-    LogoParticles.prototype.rand = function(low, high) {
-      if (low == null) {
-        low = 0;
-      }
-      if (high == null) {
-        high = 1;
-      }
-      return ((Math.random() * (high - low)) + low) % high;
-    };
-
-    return LogoParticles;
-
-  })(Canvas);
-
-  OpeningTitles = (function(superClass) {
-    extend(OpeningTitles, superClass);
-
-    function OpeningTitles() {
-      this.dispose = bind1(this.dispose, this);
-      this.render = bind1(this.render, this);
-      this.init = bind1(this.init, this);
-      this.initialize = bind1(this.initialize, this);
-      return OpeningTitles.__super__.constructor.apply(this, arguments);
-    }
-
-    OpeningTitles.prototype.template = 'openingTitles';
-
-    OpeningTitles.prototype.fluorish = null;
-
-    OpeningTitles.prototype.diamond = null;
-
-    OpeningTitles.prototype.className = 'openingTitles';
-
-    OpeningTitles.prototype.divider = null;
-
-    OpeningTitles.prototype.cta = null;
-
-    OpeningTitles.prototype.header = null;
-
-    OpeningTitles.prototype.pauseState = false;
-
-    OpeningTitles.prototype.initialize = function(title, cta, divider, pauseState) {
-      if (divider == null) {
-        divider = true;
-      }
-      if (pauseState == null) {
-        pauseState = false;
-      }
-      this.templateVars = {
-        title: title,
-        cta: cta
-      };
-      this.pauseState = pauseState;
-      this.divider = divider;
-      OpeningTitles.__super__.initialize.call(this);
-      return null;
-    };
-
-    OpeningTitles.prototype.init = function() {
-      var left, leftSpan, right, rightSpan;
-      this.fluorish = new SSAsset('interface', 'pause_top');
-      this.addChild(this.fluorish, 1);
-      this.fluorish.center();
-      this.diamond = new SSAsset('interface', 'pause_bottom');
-      this.addChild(this.diamond);
-      this.diamond.center();
-      if (this.divider) {
-        this.cta = this.$el.find('.openingTitlesCTA');
-        left = new SSAsset('interface', 'pause_left');
-        right = new SSAsset('interface', 'pause_right');
-        leftSpan = $("<span class='left'>");
-        leftSpan.append(left.$el);
-        rightSpan = $("<span class='right'>");
-        rightSpan.append(right.$el);
-        this.cta.prepend(leftSpan);
-        this.cta.append(rightSpan);
-      }
-      this.header = this.$el.find('.openingTitlesHeader');
-      return null;
-    };
-
-    OpeningTitles.prototype.render = function(callback, timed) {
-      if (timed == null) {
-        timed = false;
-      }
-      setTimeout((function(_this) {
-        return function() {
-          var fontSize;
-          fontSize = parseInt(window.getComputedStyle(_this.header[0], null).fontSize);
-          while (parseInt(_this.header.find('span').width()) > 725) {
-            fontSize--;
-            _this.header.css({
-              'font-size': fontSize
-            });
-          }
-          return callback();
-        };
-      })(this), (timed ? 200 : 100));
-      return null;
-    };
-
-    OpeningTitles.prototype.dispose = function() {
-      return null;
-    };
-
-    return OpeningTitles;
-
-  })(Abstract);
-
-  Particle = (function() {
-    Particle.prototype.dx = 0;
-
-    Particle.prototype.dy = 0;
-
-    Particle.prototype.x = 0;
-
-    Particle.prototype.y = 0;
-
-    Particle.prototype.r = 0;
-
-    Particle.prototype.canvas = null;
-
-    Particle.prototype.w = 0;
-
-    Particle.prototype.h = 0;
-
-    Particle.prototype.image = null;
-
-    Particle.prototype.alpha = 0;
-
-    Particle.prototype.rColour = 0;
-
-    Particle.prototype.mult = 1;
-
-    Particle.prototype.minSize = 0.8;
-
-    Particle.prototype.maxSize = 0;
-
-    Particle.prototype.type = null;
-
-    Particle.prototype.rect = null;
-
-    Particle.prototype.fading = false;
-
-    Particle.prototype.gradient = null;
-
-    function Particle(args) {
-      this.fadeOut = bind1(this.fadeOut, this);
-      this.reset = bind1(this.reset, this);
-      this.move = bind1(this.move, this);
-      this.rand = bind1(this.rand, this);
-      this.drawParticle = bind1(this.drawParticle, this);
-      this.draw = bind1(this.draw, this);
-      this.speed = args._speed;
-      this.maxSize = args._maxSize;
-      this.canvas = args._canvas;
-      this.w = args._w;
-      this.h = args._h;
-      this.type = args._type;
-      this.rect = args._rect;
-      this.r = this.rand(this.minSize, this.maxSize);
-      this.dx = this.rand(-this.speed, this.speed);
-      this.dy = this.rand(-this.speed, this.speed);
-      null;
-    }
-
-    Particle.prototype.draw = function() {
-      switch (this.type) {
-        case -1:
-          this.canvas.beginPath();
-          this.canvas.fillStyle = 'rgba(255,255,255,' + this.rColour + ')';
-          this.canvas.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-          this.canvas.closePath();
-          this.canvas.fill();
-          break;
-        case 0:
-        case 1:
-          this.drawParticle(this.x, this.y, this.r, 'rgba(247,234,155,' + this.rColour.toFixed(2) + ')', 'rgba(255,204,0,0)');
-      }
-      if (!this.fading) {
-        this.rColour -= .005 * this.mult;
-      }
-      return null;
-    };
-
-    Particle.prototype.drawParticle = function(x, y, radius, color1, color2) {
-      this.gradient = this.canvas.createRadialGradient(x, y, 0, x, y, radius);
-      this.gradient.addColorStop(0, color1);
-      this.gradient.addColorStop(1, color2);
-      this.canvas.fillStyle = this.gradient;
-      this.canvas.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-      return null;
-    };
-
-    Particle.prototype.rand = function(low, high) {
-      if (low == null) {
-        low = 0;
-      }
-      if (high == null) {
-        high = 1;
-      }
-      return ((Math.random() * (high - low)) + low) % high;
-    };
-
-    Particle.prototype.move = function() {
-      this.x += this.dx;
-      this.y -= this.dy;
-      if (this.rColour < 0 || this.rColour > this.alpha) {
-        this.mult *= -1;
-      }
-      if ((this.x > this.rect.w + this.rect.x) || (this.x < this.rect.x) || (this.y > this.rect.h + this.rect.y) || (this.y < this.rect.y)) {
-        this.fadeOut();
-      }
-      return null;
-    };
-
-    Particle.prototype.reset = function() {
-      this.x = this.rand(this.rect.x, this.rect.w + this.rect.x);
-      this.y = this.rand(this.rect.y, this.rect.h + this.rect.y);
-      this.dx = this.rand(-this.speed, this.speed);
-      this.dy = this.rand(-this.speed, this.speed);
-      this.alpha = 1 - MathUtils.map(this.r, this.minSize, this.maxSize, 0, 1);
-      this.rColour = this.alpha;
-      this.r = this.rand(this.minSize, this.maxSize);
-      return null;
-    };
-
-    Particle.prototype.fadeOut = function() {
-      this.fading = true;
-      this.rColour -= 0.005;
-      if (this.rColour <= 0) {
-        this.fading = false;
-        this.reset();
-      }
-      return null;
-    };
-
-    return Particle;
-
-  })();
-
-  ParticleCard = (function() {
-    ParticleCard.prototype.dx = 0;
-
-    ParticleCard.prototype.dy = 0;
-
-    ParticleCard.prototype.x = 0;
-
-    ParticleCard.prototype.y = 0;
-
-    ParticleCard.prototype.r = 0;
-
-    ParticleCard.prototype.canvas = null;
-
-    ParticleCard.prototype.w = 0;
-
-    ParticleCard.prototype.h = 0;
-
-    ParticleCard.prototype.image = null;
-
-    ParticleCard.prototype.alpha = 0;
-
-    ParticleCard.prototype.rColour = 1;
-
-    ParticleCard.prototype.mult = 1;
-
-    ParticleCard.prototype.minSize = 0.8;
-
-    ParticleCard.prototype.maxSize = 0;
-
-    ParticleCard.prototype.type = null;
-
-    ParticleCard.prototype.rect = null;
-
-    ParticleCard.prototype.fading = false;
-
-    ParticleCard.prototype.gradient = null;
-
-    function ParticleCard(args) {
-      this.fadeOut = bind1(this.fadeOut, this);
-      this.reset = bind1(this.reset, this);
-      this.move = bind1(this.move, this);
-      this.rand = bind1(this.rand, this);
-      this.drawParticle = bind1(this.drawParticle, this);
-      this.draw = bind1(this.draw, this);
-      this.speed = args._speed;
-      this.maxSize = args._maxSize;
-      this.canvas = args._canvas;
-      this.w = args._w;
-      this.h = args._h;
-      this.type = args._type;
-      this.rect = args._rect;
-      this.r = this.rand(this.minSize, this.maxSize);
-      this.dx = this.rand(-this.speed, this.speed);
-      this.dy = this.rand(-this.speed, this.speed);
-      null;
-    }
-
-    ParticleCard.prototype.draw = function() {
-      switch (this.type) {
-        case 0:
-          this.canvas.beginPath();
-          this.canvas.fillStyle = 'rgba(255,255,255,' + this.rColour + ')';
-          this.canvas.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-          this.canvas.closePath();
-          this.canvas.fill();
-          break;
-        case 1:
-          this.drawParticle(this.x, this.y, this.r, 'rgba(247,234,155,' + this.rColour.toFixed(2) + ')', 'rgba(255,204,0,0)');
-      }
-      if (!this.fading) {
-        this.rColour -= .005 * this.mult;
-      }
-      return null;
-    };
-
-    ParticleCard.prototype.drawParticle = function(x, y, radius, color1, color2) {
-      this.gradient = this.canvas.createRadialGradient(x, y, 0, x, y, radius);
-      this.gradient.addColorStop(0, color1);
-      this.gradient.addColorStop(1, color2);
-      this.canvas.fillStyle = this.gradient;
-      this.canvas.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-      return null;
-    };
-
-    ParticleCard.prototype.rand = function(low, high) {
-      if (low == null) {
-        low = 0;
-      }
-      if (high == null) {
-        high = 1;
-      }
-      return ((Math.random() * (high - low)) + low) % high;
-    };
-
-    ParticleCard.prototype.move = function() {
-      this.x += this.dx;
-      this.y -= this.dy;
-      if (this.rColour < 0 || this.rColour > this.alpha) {
-        this.mult *= -1;
-      }
-      if ((this.x > this.rect.w + this.rect.x) || (this.x < this.rect.x) || (this.y > this.rect.h + this.rect.y) || (this.y < this.rect.y)) {
-        this.fadeOut();
-      }
-      return null;
-    };
-
-    ParticleCard.prototype.reset = function() {
-      this.x = this.rand((this.rect.w / 2 + this.rect.x) - 150, (this.rect.w / 2 + this.rect.x) + 150);
-      this.y = this.rand((this.rect.h / 2 + this.rect.y) - 250, (this.rect.h / 2 + this.rect.y) + 250);
-      this.dx = this.rand(-this.speed, this.speed);
-      this.dy = this.rand(-this.speed, this.speed);
-      this.r = this.rand(this.minSize, this.maxSize);
-      this.alpha = 1 - MathUtils.map(this.r, this.minSize, this.maxSize, 0, 1);
-      this.rColour = this.alpha;
-      return null;
-    };
-
-    ParticleCard.prototype.fadeOut = function() {
-      this.fading = true;
-      this.rColour -= 0.005;
-      if (this.rColour <= 0) {
-        this.fading = false;
-        this.reset();
-      }
-      return null;
-    };
-
-    return ParticleCard;
-
-  })();
-
-  Particles = (function(superClass) {
-    extend(Particles, superClass);
-
-    function Particles() {
-      this.onResize = bind1(this.onResize, this);
-      this.dispose = bind1(this.dispose, this);
-      this.onEnterFrame = bind1(this.onEnterFrame, this);
-      this.init = bind1(this.init, this);
-      this.initialize = bind1(this.initialize, this);
-      return Particles.__super__.constructor.apply(this, arguments);
-    }
-
-    Particles.prototype.tagName = 'canvas';
-
-    Particles.prototype.className = 'particles';
-
-    Particles.prototype.particles = null;
-
-    Particles.prototype.paused = true;
-
-    Particles.prototype.speed = .6;
-
-    Particles.prototype.pType = 0;
-
-    Particles.prototype.pMaxSize = 2;
-
-    Particles.prototype.rectangle = null;
-
-    Particles.prototype.nParticles = 150;
-
-    Particles.prototype.initialize = function(pType, pMaxSize, nParticles, rectangle) {
-      if (pType != null) {
-        this.pType = pType;
-      }
-      if (pMaxSize != null) {
-        this.pMaxSize = pMaxSize;
-      }
-      if (nParticles != null) {
-        this.nParticles = nParticles;
-      }
-      if (rectangle != null) {
-        this.rectangle = rectangle;
-      } else {
-        this.rectangle = {
-          x: 0,
-          y: $(window).innerHeight() / 3,
-          w: $(window).innerWidth(),
-          h: $(window).innerHeight() / 3
-        };
-      }
-      Particles.__super__.initialize.call(this);
-      return null;
-    };
-
-    Particles.prototype.init = function() {
-      var i, o, p, ref;
-      if (!Modernizr.canvas) {
-        return;
-      }
-      this.$el[0].width = $(window).innerWidth();
-      this.$el[0].height = $(window).innerHeight();
-      this.ctx = this.$el[0].getContext('2d');
-      this.particles = [];
-      for (i = o = 0, ref = this.nParticles; 0 <= ref ? o <= ref : o >= ref; i = 0 <= ref ? ++o : --o) {
-        if (this.pType === 0) {
-          p = new Particle({
-            _canvas: this.ctx,
-            _w: this.$el[0].width,
-            _h: this.$el[0].height,
-            _maxSize: this.pMaxSize,
-            _speed: this.speed,
-            _type: this.pType,
-            _rect: this.rectangle
-          });
-          p.reset();
-        } else if (this.pType === 1) {
-          p = new ParticleCard({
-            _canvas: this.ctx,
-            _w: this.$el[0].width,
-            _h: this.$el[0].height,
-            _maxSize: this.pMaxSize,
-            _speed: this.speed,
-            _type: this.pType,
-            _rect: this.rectangle
-          });
-          p.reset();
-        }
-        this.particles.push(p);
-      }
-      this.paused = false;
-      return null;
-    };
-
-    Particles.prototype.onEnterFrame = function() {
-      var len, o, p, ref;
-      if (!Modernizr.canvas) {
-        return;
-      }
-      this.clear();
-      ref = this.particles;
-      for (o = 0, len = ref.length; o < len; o++) {
-        p = ref[o];
-        p.move();
-        p.draw();
-      }
-      return null;
-    };
-
-    Particles.prototype.dispose = function() {
-      return null;
-    };
-
-    Particles.prototype.clear = function() {
-      this.ctx.clearRect(0, 0, this.$el[0].width, this.$el[0].height);
-      return null;
-    };
-
-    Particles.prototype.rand = function(low, high) {
-      if (low == null) {
-        low = 0;
-      }
-      if (high == null) {
-        high = 1;
-      }
-      return ((Math.random() * (high - low)) + low) % high;
-    };
-
-    Particles.prototype.onResize = function() {
-      if (!Modernizr.canvas) {
-        return;
-      }
-      this.$el[0].width = $(window).innerWidth();
-      this.$el[0].height = $(window).innerHeight();
-      return null;
-    };
-
-    return Particles;
-
-  })(Abstract);
-
-  RainDrops = (function(superClass) {
-    extend(RainDrops, superClass);
-
-    function RainDrops() {
-      return RainDrops.__super__.constructor.apply(this, arguments);
-    }
-
-    RainDrops.prototype.id = "raindrops";
-
-    RainDrops.prototype.tagName = 'div';
-
-    RainDrops.prototype.container = null;
-
-    RainDrops.prototype.topLeft = null;
-
-    RainDrops.prototype.topRight = null;
-
-    RainDrops.prototype.bottomLeft = null;
-
-    RainDrops.prototype.bottomRight = null;
-
-    RainDrops.prototype.init = function() {
-      this.container = $(this.el);
-      this.container.css({
-        width: "100%",
-        height: "100%",
-        position: "absolute",
-        top: 0,
-        left: 0
-      });
-      this.topLeft = $("<div id='drops_overlay1'></div>");
-      this.topLeft.css({
-        position: "absolute",
-        width: 792,
-        height: 392,
-        top: 0,
-        left: 0,
-        background: "url('/models/textures/drops_tl.png')"
-      });
-      this.topRight = $("<div id='drops_overlay2'></div>");
-      this.topRight.css({
-        position: "absolute",
-        width: 491,
-        height: 492,
-        top: 0,
-        right: 0,
-        background: "url('/models/textures/drops_tr.png')"
-      });
-      this.bottomLeft = $("<div id='drops_overlay3'></div>");
-      this.bottomLeft.css({
-        position: "absolute",
-        width: 697,
-        height: 543,
-        bottom: 0,
-        left: 0,
-        background: "url('/models/textures/drops_bl.png')"
-      });
-      this.bottomRight = $("<div id='drops_overlay4'></div>");
-      this.bottomRight.css({
-        position: "absolute",
-        width: 291,
-        height: 286,
-        bottom: 0,
-        right: 0,
-        background: "url('/models/textures/drops_br.png')"
-      });
-      this.container.append(this.topLeft);
-      this.container.append(this.topRight);
-      this.container.append(this.bottomLeft);
-      this.container.append(this.bottomRight);
-      return null;
-    };
-
-    return RainDrops;
-
-  })(Abstract);
-
-  SSAsset = (function(superClass) {
-    extend(SSAsset, superClass);
-
-    function SSAsset() {
-      this.dispose = bind1(this.dispose, this);
-      this.center = bind1(this.center, this);
-      this.changeState = bind1(this.changeState, this);
-      this.removeClass = bind1(this.removeClass, this);
-      this.addClass = bind1(this.addClass, this);
-      this.css = bind1(this.css, this);
-      this.out = bind1(this.out, this);
-      this.over = bind1(this.over, this);
-      this.init = bind1(this.init, this);
-      return SSAsset.__super__.constructor.apply(this, arguments);
-    }
-
-    SSAsset.prototype.ss = null;
-
-    SSAsset.prototype.from = null;
-
-    SSAsset.prototype.asset = null;
-
-    SSAsset.prototype.initialize = function(from, asset) {
-      this.from = from;
-      this.asset = asset;
-      return SSAsset.__super__.initialize.call(this);
-    };
-
-    SSAsset.prototype.init = function() {
-      var css, h, w, x, y;
-      this.ss = this.oz().ss.get(this.from, this.asset);
-      x = Math.round(this.ss.x / 2) - 1;
-      y = Math.round(this.ss.y / 2);
-      w = Math.round(this.ss.width / 2);
-      h = Math.round(this.ss.height / 2);
-      css = {
-        width: w,
-        height: h,
-        'background-image': "url(" + this.ss.image + ")",
-        'background-size': this.ss.fullSize[0] + "px " + this.ss.fullSize[1] + "px",
-        'background-position': "-" + x + "px -" + y + "px"
-      };
-      if (window.devicePixelRatio === 2) {
-        css['background-image'] = "-webkit-image-set(url(" + this.ss.image + ") 1x, url(" + this.ss.image2x + ") 2x)";
-      }
-      this.$el.css(css);
-      this.render();
-      return null;
-    };
-
-    SSAsset.prototype.over = function(over) {
-      this.changeState(over);
-      return null;
-    };
-
-    SSAsset.prototype.out = function() {
-      var x, y;
-      x = Math.round(this.ss.x / 2) - 1;
-      y = Math.round(this.ss.y / 2);
-
-      /*x = @ss.x
-      y = @ss.y
-       */
-      this.$el.css({
-        'background-position': (-x) + "px " + (-y) + "px"
-      });
-      return null;
-    };
-
-    SSAsset.prototype.css = function(params) {
-      this.$el.css(params);
-      return null;
-    };
-
-    SSAsset.prototype.addClass = function(clazz) {
-      this.$el.addClass(clazz);
-      return null;
-    };
-
-    SSAsset.prototype.removeClass = function(clazz) {
-      this.$el.removeClass(clazz);
-      return null;
-    };
-
-    SSAsset.prototype.changeState = function(state) {
-      var params, x, y;
-      params = this.oz().ss.get(this.from, state);
-      x = Math.round(params.x / 2) - 1;
-      y = Math.round(params.y / 2);
-
-      /*x = params.x
-      y = params.y
-       */
-      this.$el.css({
-        'background-position': (-x) + "px " + (-y) + "px"
-      });
-      return null;
-    };
-
-    SSAsset.prototype.center = function() {
-      var x;
-      x = Math.round(this.ss.width / 4);
-      this.$el.css({
-        'position': 'absolute',
-        'left': '50%',
-        'margin-left': (-x) + "px"
-      });
-      return null;
-    };
-
-    SSAsset.prototype.dispose = function() {
-      return null;
-    };
-
-    return SSAsset;
-
-  })(Abstract);
-
-  ShareBox = (function(superClass) {
-    extend(ShareBox, superClass);
-
-    function ShareBox() {
-      this.dispose = bind1(this.dispose, this);
-      this.getFloodlight = bind1(this.getFloodlight, this);
-      this.onShare = bind1(this.onShare, this);
-      this.onBackClick = bind1(this.onBackClick, this);
-      this.onLinkClick = bind1(this.onLinkClick, this);
-      this.init = bind1(this.init, this);
-      this.initialize = bind1(this.initialize, this);
-      return ShareBox.__super__.constructor.apply(this, arguments);
-    }
-
-    ShareBox.prototype.className = "shareContainer";
-
-    ShareBox.prototype.template = "sharebox";
-
-    ShareBox.prototype.iconsContainer = null;
-
-    ShareBox.prototype.shareLinkCont = null;
-
-    ShareBox.prototype.linkIcon = null;
-
-    ShareBox.prototype.callback = null;
-
-    ShareBox.prototype.shareType = null;
-
-    ShareBox.prototype.initialize = function(title, sub, back, backCall, link, type) {
-      this.templateVars = {
-        title: title,
-        sub: sub,
-        link: link,
-        shareBack: back,
-        shareLegal: this.oz().locale.get('shareBoxExpiry')
-      };
-      this.shareType = type;
-      this.callback = backCall;
-      ShareBox.__super__.initialize.call(this);
-      return null;
-    };
-
-    ShareBox.prototype.init = function() {
-      var shareBackBtn;
-      this.iconsContainer = this.$el.find('.shareIconsRow');
-      if ((this.oz().locale.lang).indexOf("zh-") === 0) {
-        this.iconsContainer.append("<button_renren /><button_weibo />");
-      } else {
-        this.iconsContainer.append("<button_google /><button_facebook /><button_twitter />");
-      }
-      this.iconsContainer.children().each((function(_this) {
-        return function(index, value) {
-          var shareButton;
-          shareButton = new SSAsset('interface', $(value)[0].tagName.toLowerCase());
-          shareButton.addClass('shareIcon');
-          shareButton.$el.attr("id", $(value)[0].tagName.toLowerCase());
-          _this.iconsContainer.append(shareButton.$el);
-          shareButton.$el.css({
-            width: (parseInt(shareButton.$el.css('width')) + 2) + "px"
-          });
-          shareButton.$el.bind("click", _this.onShare);
-          return $(value).remove();
-        };
-      })(this));
-      this.shareLinkCont = this.$el.find('.shareLinkContainer').find('.abstractbutton');
-      this.linkIcon = new SSAsset('interface', 'link_icon');
-      this.linkIcon.$el.bind('click', this.onLinkClick);
-      this.linkIcon.$el.addClass('shareLinkIcon');
-      this.shareLinkCont.prepend(this.linkIcon.$el);
-      shareBackBtn = this.$el.find('.shareBack');
-      shareBackBtn.bind('click', this.onBackClick);
-      if (navigator.appVersion.indexOf("Win") !== -1) {
-        shareBackBtn.css({
-          "padding": "7px 20px 8px 20px"
-        });
-        this.shareLinkCont.css({
-          "padding": "3px 12px 7px 12px"
-        });
-      }
-      return null;
-    };
-
-    ShareBox.prototype.onLinkClick = function() {
-      Analytics.track(this.shareType + '_open_preview');
-      window.open(this.shareLinkCont.find('input').val());
-      return null;
-    };
-
-    ShareBox.prototype.onBackClick = function() {
-      Analytics.track('cutout_take_another');
-      if (typeof this.callback === "function") {
-        this.callback();
-      }
-      this.trigger('removeShareBox');
-      return null;
-    };
-
-    ShareBox.prototype.onShare = function(item) {
-      switch (item.currentTarget.id) {
-        case "button_facebook":
-          Analytics.track(this.shareType + "_share_fb", this.getFloodlight("Facebook"));
-          Share.facebook(this.templateVars.link, this.oz().locale.get("share_" + this.shareType + "_facebook_default_message"));
-          break;
-        case "button_google":
-          Analytics.track(this.shareType + "_share_gplus", this.getFloodlight("Google"));
-          Share.plus(this.templateVars.link);
-          break;
-        case "button_twitter":
-          Analytics.track(this.shareType + "_share_twitter", this.getFloodlight("Twitter"));
-          Share.twitter(this.templateVars.link, this.oz().locale.get("share_" + this.shareType + "_facebook_default_message"));
-          break;
-        case "button_renren":
-          Analytics.track(this.shareType + "_share_renren");
-          Share.renren(this.templateVars.link);
-          break;
-        case "button_weibo":
-          Analytics.track(this.shareType + "_share_weibo");
-          Share.weibo(this.templateVars.link);
-      }
-      return null;
-    };
-
-    ShareBox.prototype.getFloodlight = function(vendor) {
-      switch (this.shareType) {
-        case 'zoe':
-          return "Google_OZ_Zeotrope_SocialClick_" + vendor;
-        case 'cutout':
-          return "Google_OZ_HoleInFace_SocialClick_" + vendor;
-      }
-      return null;
-    };
-
-    ShareBox.prototype.dispose = function() {
-      return null;
-    };
-
-    return ShareBox;
-
-  })(Abstract);
-
-  SubLoader = (function(superClass) {
-    extend(SubLoader, superClass);
-
-    function SubLoader() {
-      this.dispose = bind1(this.dispose, this);
-      this.activateMouseInteraction = bind1(this.activateMouseInteraction, this);
-      this.hideCard = bind1(this.hideCard, this);
-      this.hide = bind1(this.hide, this);
-      this.show = bind1(this.show, this);
-      this.onClick = bind1(this.onClick, this);
-      this.onMouseMove = bind1(this.onMouseMove, this);
-      this.update = bind1(this.update, this);
-      this.showError = bind1(this.showError, this);
-      this.addSpinner = bind1(this.addSpinner, this);
-      this.init = bind1(this.init, this);
-      return SubLoader.__super__.constructor.apply(this, arguments);
-    }
-
-    SubLoader.prototype.className = "subLoader";
-
-    SubLoader.prototype.container = null;
-
-    SubLoader.prototype.square = null;
-
-    SubLoader.prototype.visible = false;
-
-    SubLoader.prototype.angleX = 0;
-
-    SubLoader.prototype.angleY = 0;
-
-    SubLoader.prototype.error = null;
-
-    SubLoader.prototype.init = function() {
-      this.container = new Abstract().setElement("<div class='subLoaderContainer'></div>");
-      this.container.dispose = function() {
-        return null;
-      };
-      this.addChild(this.container);
-      this.card = new LoadingCard;
-      this.addChild(this.card);
-      this.addSpinner();
-      this.hide(false);
-      return null;
-    };
-
-    SubLoader.prototype.addSpinner = function() {
-      this.spinner = new Sonic({
-        width: 50,
-        height: 50,
-        stepsPerFrame: 1,
-        trailLength: 1,
-        pointDistance: .02,
-        fps: 30,
-        fillColor: '#FFFFFF',
-        step: function(point, index) {
-          this._.beginPath();
-          this._.moveTo(point.x, point.y);
-          this._.arc(point.x, point.y, index * 3, 0, Math.PI * 2, false);
-          this._.closePath();
-          return this._.fill();
-        },
-        path: [['arc', 25, 25, 10, 0, 360]]
-      });
-      this.container.addChild(this.spinner.canvas);
-      this.container.$el.css({
-        "display": "none"
-      });
-      return null;
-    };
-
-    SubLoader.prototype.showError = function() {
-      var bottom, header;
-      this.container.$el.css({
-        "display": "none"
-      });
-      header = new SSAsset('interface', 'pause_top');
-      header.$el.css({
-        'margin': '0 auto 15px auto'
-      });
-      this.error = $("<div class='subLoaderError'><div class='shareErrorCopy'>" + (this.oz().locale.get("share_error_message")) + "</div></div>");
-      this.error.prepend(header.$el);
-      this.addChild(this.error);
-      bottom = new SSAsset('interface', 'pause_bottom');
-      this.error.append(bottom.$el);
-      bottom.$el.css({
-        'margin': '20px auto'
-      });
-      return this.$el.bind('click', this.hide);
-    };
-
-    SubLoader.prototype.update = function(perc) {
-      this.card.update(perc);
-      return null;
-    };
-
-    SubLoader.prototype.onMouseMove = function(event) {
-      var x, y;
-      if (this.paused) {
-        return;
-      }
-      x = (event.clientX - ($(window).innerWidth() / 2)) / 40;
-      y = (event.clientY - ($(window).innerHeight() / 2)) / 35;
-      this.angleX += (x - this.angleX) * .075;
-      this.angleY += (y - this.angleY) * .075;
-      this.angleX = this.angleX % 360;
-      this.angleY = this.angleY % 360;
-      this.card.transform(this.angleX, this.angleY);
-      return null;
-    };
-
-    SubLoader.prototype.onClick = function(event) {
-      this.card.toggleTopple();
-      return null;
-    };
-
-    SubLoader.prototype.show = function(spin) {
-      if (spin == null) {
-        spin = false;
-      }
-      SubLoader.__super__.show.call(this, true, null, 400, "linear");
-      this.paused = false;
-      $(".scene3d").css({
-        "-webkit-filter": "blur(10px)"
-      });
-      if (!spin) {
-        this.spinner.stop();
-        this.card.$el.css({
-          "display": ""
-        });
-        this.container.$el.css({
-          "display": "none"
-        });
-        this.card.animateIn(this.activateMouseInteraction);
-      } else {
-        this.spinner.play();
-        this.card.$el.css({
-          "display": "none"
-        });
-        this.container.$el.css({
-          "display": ""
-        });
-      }
-      this.oz().appView.logo.disable();
-      this.oz().appView.showMap(false);
-      this.oz().appView.footer.mainMenu.hide(true);
-      this.visible = true;
-      return null;
-    };
-
-    SubLoader.prototype.hide = function(anim, callback, time, ease, hide) {
-      var ref;
-      if (anim == null) {
-        anim = true;
-      }
-      if (callback == null) {
-        callback = null;
-      }
-      if (time == null) {
-        time = 400;
-      }
-      if (ease == null) {
-        ease = "linear";
-      }
-      if (hide == null) {
-        hide = true;
-      }
-      this.$el.unbind('click', this.hide);
-      if ((ref = this.error) != null) {
-        ref.remove();
-      }
-      SubLoader.__super__.hide.call(this, anim, callback, time, ease, hide);
-      $(".scene3d").css({
-        "-webkit-filter": ""
-      });
-      this.$el.css({
-        "background-color": "rgba(0,0,0,0.6)"
-      });
-      this.visible = false;
-      return null;
-    };
-
-    SubLoader.prototype.hideCard = function() {
-      var d, delay;
-      this.card.animateOut(null);
-      $(window).unbind('mousemove', this.onMouseMove);
-      $(window).unbind('click', this.onClick);
-      this.paused = true;
-      this.$el.css({
-        "background-color": "rgba(0,0,0,1)"
-      });
-      delay = function(ms, func) {
-        return setTimeout(func, ms);
-      };
-      d = Number(this.$el.css("opacity")) * 1000;
-      delay(d, (function(_this) {
-        return function() {
-          return _this.trigger("END_LOADING");
-        };
-      })(this));
-      return null;
-    };
-
-    SubLoader.prototype.activateMouseInteraction = function() {
-      $(window).bind('mousemove', this.onMouseMove);
-      $(window).bind('click', this.onClick);
-      return null;
-    };
-
-    SubLoader.prototype.dispose = function() {
-      return null;
-    };
-
-    return SubLoader;
-
-  })(Abstract);
-
-  WebCam = (function() {
-    WebCam.prototype.stream = null;
-
-    WebCam.prototype.videoDom = null;
-
-    WebCam.prototype.canvas = null;
-
-    WebCam.prototype.ctx = null;
-
-    function WebCam() {
-      this.dispose = bind1(this.dispose, this);
-      this.flipImage = bind1(this.flipImage, this);
-      this.dom = bind1(this.dom, this);
-      this.get = bind1(this.get, this);
-      this.onUserMediaError = bind1(this.onUserMediaError, this);
-      this.onUserMediaSuccess = bind1(this.onUserMediaSuccess, this);
-      this.init = bind1(this.init, this);
-      _.extend(this, Backbone.Events);
-      null;
-    }
-
-    WebCam.prototype.init = function() {
-      this.canvas = document.createElement('canvas');
-      this.canvas.width = 512;
-      this.canvas.height = this.canvas.width / 1.333333333;
-      this.ctx = this.canvas.getContext('2d');
-      this.ctx.scale(-1, 1);
-      this.videoDom = $('<video style="display:none;" autoplay="true"/>');
-      $('body').prepend(this.videoDom);
-      if (!navigator.getUserMedia) {
-        this.onUserMediaError();
-        return;
-      }
-      if (this.stream == null) {
-        navigator.getUserMedia({
-          video: true,
-          audio: false
-        }, this.onUserMediaSuccess, this.onUserMediaError);
-      } else {
-        this.onUserMediaSuccess();
-      }
-      return null;
-    };
-
-    WebCam.prototype.onUserMediaSuccess = function(s) {
-      if (s == null) {
-        s = null;
-      }
-      this.stream = s || this.stream;
-      this.trigger('CAM_READY');
-      return null;
-    };
-
-    WebCam.prototype.onUserMediaError = function() {
-      this.trigger('CAM_FAIL');
-      this.dispose();
-      return null;
-    };
-
-    WebCam.prototype.get = function() {
-      var error, ref, src, video;
-      if (this.stream == null) {
-        this.init();
-        return;
-      }
-      video = this.dom();
-      if (video == null) {
-        return;
-      }
-      if ("srcObject" in video) {
-        video.srcObject = this.stream;
-        return this.stream;
-      }
-      src = null;
-      if (((ref = window.URL) != null ? ref.createObjectURL : void 0) != null) {
-        try {
-          src = window.URL.createObjectURL(this.stream);
-        } catch (error1) {
-          error = error1;
-          src = null;
-        }
-      }
-      if (src != null) {
-        video.src = src;
-      }
-      return src;
-    };
-
-    WebCam.prototype.dom = function() {
-      return this.videoDom.get()[0];
-    };
-
-    WebCam.prototype.flipImage = function() {
-      if (!this.canvas) {
-        return;
-      }
-      this.ctx.drawImage(this.dom(), -this.canvas.width, 0);
-      return this.canvas;
-    };
-
-    WebCam.prototype.dispose = function() {
-      if (this.stream) {
-        this.stream.stop();
-      }
-      this.stream = null;
-      this.canvas = null;
-      return null;
-    };
-
-    return WebCam;
-
-  })();
-
-  Map = (function(superClass) {
-    extend(Map, superClass);
-
-    function Map() {
-      this.changeMenuArea = bind1(this.changeMenuArea, this);
-      this.show = bind1(this.show, this);
-      this.hide = bind1(this.hide, this);
-      this.init = bind1(this.init, this);
-      return Map.__super__.constructor.apply(this, arguments);
-    }
-
-    Map.prototype.base = null;
-
-    Map.prototype.buttonsCoord = null;
-
-    Map.prototype.className = 'map';
-
-    Map.prototype.currentIndex = -1;
-
-    Map.prototype.buttons = null;
-
-    Map.prototype.view = null;
-
-    Map.prototype.init = function() {
-      this.view = new MapMenu;
-      this.addChild(this.view);
-      return null;
-    };
-
-    Map.prototype.hide = function(anim, callback, time, ease) {
-      if (anim == null) {
-        anim = false;
-      }
-      if (callback == null) {
-        callback = null;
-      }
-      if (time == null) {
-        time = 400;
-      }
-      if (ease == null) {
-        ease = "linear";
-      }
-      this.visible = false;
-      this.mouseEnabled(false);
-      if (!anim) {
-        if (typeof callback === "function") {
-          callback();
-        }
-      } else {
-        this.view.animateOut(callback);
-      }
-      return null;
-    };
-
-    Map.prototype.show = function(anim, callback, time, ease) {
-      if (anim == null) {
-        anim = false;
-      }
-      if (callback == null) {
-        callback = null;
-      }
-      if (time == null) {
-        time = 400;
-      }
-      if (ease == null) {
-        ease = "linear";
-      }
-      this.visible = true;
-      this.mouseEnabled(true);
-      if (!anim) {
-        this.view.animateIn();
-        if (typeof callback === "function") {
-          callback();
-        }
-      } else {
-        this.view.animateIn();
-        if (typeof callback === "function") {
-          callback();
-        }
-      }
-      return null;
-    };
-
-    Map.prototype.showMenu = function() {
-      return null;
-    };
-
-    Map.prototype.changeMenuArea = function(area) {
-      this.view.changeMenuArea(area);
-      return null;
-    };
-
-    return Map;
-
-  })(Abstract);
-
-  MapMenu = (function(superClass) {
-    extend(MapMenu, superClass);
-
-    function MapMenu() {
-      this.createSequence = bind1(this.createSequence, this);
-      this.onEnterFrame = bind1(this.onEnterFrame, this);
-      this.changeMenuArea = bind1(this.changeMenuArea, this);
-      this.menuEvents = bind1(this.menuEvents, this);
-      this.menuClick = bind1(this.menuClick, this);
-      this.animateOut = bind1(this.animateOut, this);
-      this.animateIn = bind1(this.animateIn, this);
-      this.render = bind1(this.render, this);
-      this.init = bind1(this.init, this);
-      return MapMenu.__super__.constructor.apply(this, arguments);
-    }
-
-    MapMenu.prototype.tagName = 'div';
-
-    MapMenu.prototype.stage = null;
-
-    MapMenu.prototype.canvas = null;
-
-    MapMenu.prototype.fill = null;
-
-    MapMenu.prototype.buttons = null;
-
-    MapMenu.prototype.seq = null;
-
-    MapMenu.prototype.paused = true;
-
-    MapMenu.prototype.container = null;
-
-    MapMenu.prototype.animateSequence = null;
-
-    MapMenu.prototype.timeout = 0;
-
-    MapMenu.prototype.scale = 0;
-
-    MapMenu.prototype.totalW = 0;
-
-    MapMenu.prototype.center = 0;
-
-    MapMenu.prototype.init = function() {
-      this.scale = .7;
-      this.canvas = document.createElement('canvas');
-      this.canvas.width = 800;
-      this.canvas.height = 160;
-      this.$el.append(this.canvas);
-      this.stage = new createjs.Stage(this.canvas);
-      this.stage.mouseEventsEnabled = true;
-      this.stage.enableMouseOver(10);
-      this.container = new createjs.Container;
-      this.stage.addChild(this.container);
-      this.fill = this.oz().baseAssets.get('buttonpattern').result;
-      this.render();
-      return null;
-    };
-
-    MapMenu.prototype.render = function() {
-      var i, item, menuItem, o, ref;
-      this.createSequence();
-      this.animateSequence = [];
-      this.buttons = [];
-      this.totalW = 35;
-      this.center = 75;
-      for (i = o = 0, ref = this.seq.length; 0 <= ref ? o < ref : o > ref; i = 0 <= ref ? ++o : --o) {
-        item = this.seq[i];
-        switch (item.type) {
-          case 'scene':
-            menuItem = new MenuFilledCircle(this.totalW, this.center, 30 * this.scale, this.scale, this.oz().baseAssets.get("menu_" + item.id).result, this.oz().baseAssets.get("menu_on").result);
-            this.buttons.push(menuItem);
-            menuItem.id = item.id;
-            this.totalW += i < this.seq.length - 1 ? 43 : 35;
-            break;
-          case 'sep':
-            menuItem = new MenuSeparator(this.totalW, this.center);
-            this.totalW += item.space;
-        }
-        this.animateSequence.push(menuItem);
-        this.container.addChild(menuItem.view);
-        if (menuItem.on) {
-          menuItem.on('click', this.menuClick);
-          menuItem.on('rollover', this.menuEvents);
-          menuItem.on('rollout', this.menuEvents);
-        }
-      }
-      this.container.x = this.canvas.width / 2 - this.totalW / 2;
-      this.paused = false;
-      return null;
-    };
-
-    MapMenu.prototype.animateIn = function() {
-      var i, o, ref;
-      clearTimeout(this.timeout);
-      for (i = o = 0, ref = this.animateSequence.length; 0 <= ref ? o < ref : o > ref; i = 0 <= ref ? ++o : --o) {
-        this.animateSequence[i].animateIn(25 * i);
-      }
-      return null;
-    };
-
-    MapMenu.prototype.animateOut = function(callback) {
-      var i, o, ref;
-      for (i = o = ref = this.animateSequence.length - 1; ref <= 0 ? o <= 0 : o >= 0; i = ref <= 0 ? ++o : --o) {
-        this.animateSequence[i].animateOut(25 * i);
-      }
-      this.timeout = setTimeout(callback, this.animateSequence.length * 25 + 500);
-      return null;
-    };
-
-    MapMenu.prototype.menuClick = function(e) {
-      Analytics.track("menu_click_" + e.id);
-      $(this.canvas).css({
-        cursor: ''
-      });
-      this.oz().router.navigateTo(e.id, false);
-      return null;
-    };
-
-    MapMenu.prototype.menuEvents = function(e) {
-      var cursor;
-      cursor = e === 'rollover' ? 'pointer' : '';
-      $(this.canvas).css({
-        cursor: cursor
-      });
-      return null;
-    };
-
-    MapMenu.prototype.changeMenuArea = function(area) {
-      var b, len, o, ref;
-      ref = this.buttons;
-      for (o = 0, len = ref.length; o < len; o++) {
-        b = ref[o];
-        b.menuState(b.id === area);
-      }
-      return null;
-    };
-
-    MapMenu.prototype.onEnterFrame = function() {
-      this.stage.update();
-      TWEEN.update();
-      return null;
-    };
-
-    MapMenu.prototype.createSequence = function() {
-      this.seq = [
-        {
-          type: 'scene',
-          id: 'carnival'
-        }, {
-          type: 'sep',
-          space: 16
-        }, {
-          type: 'sep',
-          space: 16
-        }, {
-          type: 'sep',
-          space: 48
-        }, {
-          type: 'scene',
-          id: 'carnival2'
-        }, {
-          type: 'sep',
-          space: 16
-        }, {
-          type: 'sep',
-          space: 16
-        }, {
-          type: 'sep',
-          space: 48
-        }, {
-          type: 'scene',
-          id: 'carnival3'
-        }
-      ];
-      return null;
-    };
-
-    return MapMenu;
-
-  })(Abstract);
-
-  MenuFilledCircle = (function() {
-    MenuFilledCircle.prototype.view = null;
-
-    MenuFilledCircle.prototype.circle = null;
-
-    MenuFilledCircle.prototype.radius = null;
-
-    MenuFilledCircle.prototype.currentState = null;
-
-    MenuFilledCircle.prototype.tween = null;
-
-    MenuFilledCircle.prototype.targetY = null;
-
-    MenuFilledCircle.prototype.current = null;
-
-    MenuFilledCircle.prototype.id = null;
-
-    MenuFilledCircle.prototype.arrow = null;
-
-    MenuFilledCircle.prototype.icon = null;
-
-    MenuFilledCircle.prototype.iconAsset = null;
-
-    MenuFilledCircle.prototype.glowAsset = null;
-
-    MenuFilledCircle.prototype.glow = null;
-
-    function MenuFilledCircle(x, y, r, scale, icon, glow) {
-      this.menuState = bind1(this.menuState, this);
-      this.animateOut = bind1(this.animateOut, this);
-      this.animateIn = bind1(this.animateIn, this);
-      this.animateCircle = bind1(this.animateCircle, this);
-      this.draw = bind1(this.draw, this);
-      this.disable = bind1(this.disable, this);
-      _.extend(this, Backbone.Events);
-      this.radius = r;
-      this.iconAsset = icon;
-      this.glowAsset = glow;
-      this.targetY = y;
-      this.current = {
-        y: 400
-      };
-      this.currentState = {
-        radius: this.radius,
-        stroke: 4,
-        alpha: 0,
-        rotation: 0
-      };
-      this.view = new createjs.Container;
-      this.view.x = x;
-      this.view.y = this.current.y;
-      this.view.onMouseOver = (function(_this) {
-        return function(e) {
-          if (_this.clicked) {
-            return;
-          }
-          _this.animateCircle(r + (_this.radius * .25));
-          return _this.trigger('rollover', 'rollover');
-        };
-      })(this);
-      this.view.onMouseOut = (function(_this) {
-        return function(e) {
-          if (_this.clicked) {
-            return;
-          }
-          _this.animateCircle(_this.radius);
-          return _this.trigger('rollout', 'rollout');
-        };
-      })(this);
-      this.view.onClick = (function(_this) {
-        return function(e) {
-          _this.animateCircle(_this.radius);
-          return _this.trigger('click', _this);
-        };
-      })(this);
-      this.circle = new createjs.Shape();
-      this.draw(this.radius, this.currentState.stroke);
-      this.icon = new createjs.Bitmap(this.iconAsset);
-      this.icon.regX = this.icon.regY = 17;
-      this.icon.scaleX = this.icon.scaleY = scale;
-      this.glow = new createjs.Bitmap(this.glowAsset);
-      this.glow.regX = 149 / 2;
-      this.glow.regY = 149 / 2;
-      this.glow.scaleX = this.glow.scaleY = scale;
-      this.glow.alpha = 0;
-      this.view.addChild(this.circle);
-      this.view.addChild(this.icon);
-      this.view.addChild(this.glow);
-      null;
-    }
-
-    MenuFilledCircle.prototype.disable = function() {
-      return null;
-    };
-
-    MenuFilledCircle.prototype.draw = function(r, stroke) {
-      this.circle.graphics.clear();
-      this.circle.graphics.setStrokeStyle(stroke);
-      this.circle.graphics.beginFill('rgba(255, 255, 255, 0.39)');
-      this.circle.graphics.beginStroke('#FFFFFF');
-      this.circle.graphics.drawCircle(0, 0, this.currentState.radius);
-      this.circle.graphics.endFill();
-      return null;
-    };
-
-    MenuFilledCircle.prototype.animateCircle = function(radius, alpha, rotation) {
-      if (alpha == null) {
-        alpha = 0;
-      }
-      this.tween = new TWEEN.Tween(this.currentState).to({
-        radius: radius
-      }, 200).easing(TWEEN.Easing.Quadratic.Out);
-      this.tween.onUpdate((function(_this) {
-        return function(e) {
-          return _this.draw(_this.currentState.radius, _this.currentState.stroke);
-        };
-      })(this));
-      this.tween.start();
-      return null;
-    };
-
-    MenuFilledCircle.prototype.animateIn = function(delay) {
-      this.tween = new TWEEN.Tween(this.current).to({
-        y: this.targetY
-      }, 600).easing(TWEEN.Easing.Back.Out).delay(delay);
-      this.tween.onUpdate((function(_this) {
-        return function(e) {
-          return _this.view.y = _this.current.y;
-        };
-      })(this));
-      this.tween.start();
-      return null;
-    };
-
-    MenuFilledCircle.prototype.animateOut = function(delay) {
-      this.tween = new TWEEN.Tween(this.current).to({
-        y: 400
-      }, 600).easing(TWEEN.Easing.Back.In).delay(delay);
-      this.tween.onUpdate((function(_this) {
-        return function(e) {
-          return _this.view.y = _this.current.y;
-        };
-      })(this));
-      this.tween.start();
-      return null;
-    };
-
-    MenuFilledCircle.prototype.menuState = function(enabled) {
-      var tween;
-      if (enabled == null) {
-        enabled = true;
-      }
-      this.clicked = enabled;
-      tween = new TWEEN.Tween(this.glow).to({
-        alpha: (enabled ? 1 : 0)
-      }, 400);
-      tween.start();
-      return null;
-    };
-
-    return MenuFilledCircle;
-
-  })();
-
-  MenuSeparator = (function() {
-    MenuSeparator.prototype.view = null;
-
-    MenuSeparator.prototype.shape = null;
-
-    MenuSeparator.prototype.targetY = null;
-
-    MenuSeparator.prototype.current = null;
-
-    MenuSeparator.prototype.tween = null;
-
-    function MenuSeparator(x, y) {
-      this.menuState = bind1(this.menuState, this);
-      this.animateOut = bind1(this.animateOut, this);
-      this.animateIn = bind1(this.animateIn, this);
-      this.current = {
-        y: 200
-      };
-      this.view = new createjs.Container;
-      this.view.x = x;
-      this.view.y = this.current.y;
-      this.targetY = y;
-      this.shape = new createjs.Shape;
-      this.shape.graphics.beginFill('#FFF');
-      this.shape.graphics.drawCircle(0, 0, 3.5);
-      this.shape.graphics.endFill();
-      this.view.addChild(this.shape);
-      null;
-    }
-
-    MenuSeparator.prototype.animateIn = function(delay) {
-      this.tween = new TWEEN.Tween(this.current).to({
-        y: this.targetY
-      }, 600).easing(TWEEN.Easing.Back.Out).delay(delay);
-      this.tween.onUpdate((function(_this) {
-        return function(e) {
-          return _this.view.y = _this.current.y;
-        };
-      })(this));
-      this.tween.start();
-      return null;
-    };
-
-    MenuSeparator.prototype.animateOut = function(delay) {
-      this.tween = new TWEEN.Tween(this.current).to({
-        y: 200
-      }, 600).easing(TWEEN.Easing.Back.In).delay(delay);
-      this.tween.onUpdate((function(_this) {
-        return function(e) {
-          return _this.view.y = _this.current.y;
-        };
-      })(this));
-      this.tween.start();
-      return null;
-    };
-
-    MenuSeparator.prototype.menuState = function(enabled) {
-      if (enabled == null) {
-        enabled = true;
-      }
-      return null;
-    };
-
-    return MenuSeparator;
-
-  })();
-
-  Controller = (function(superClass) {
-    extend(Controller, superClass);
-
-    function Controller() {
-      this.pauseState = bind1(this.pauseState, this);
-      this.playState = bind1(this.playState, this);
-      this.progress = bind1(this.progress, this);
-      this.toggleVideo = bind1(this.toggleVideo, this);
-      this.init = bind1(this.init, this);
-      return Controller.__super__.constructor.apply(this, arguments);
-    }
-
-    Controller.prototype.className = 'controller';
-
-    Controller.prototype.progressBar = null;
-
-    Controller.prototype.scruber = null;
-
-    Controller.prototype.bg = null;
-
-    Controller.prototype.border = null;
-
-    Controller.prototype.pausePlayButton = null;
-
-    Controller.prototype.init = function() {
-      this.pausePlayButton = new PlayPause;
-      this.pausePlayButton.on('clicked', this.toggleVideo);
-      this.addChild(this.pausePlayButton);
-      this.progressBar = new Abstract;
-      this.progressBar.dispose - (function(_this) {
-        return function() {
-          return null;
-        };
-      })(this);
-      this.addChild(this.progressBar);
-      this.progressBar.$el.addClass('progressBar');
-      this.border = new SSAsset('interface', 'video_progress_border');
-      this.progressBar.addChild(this.border);
-      this.bg = new SSAsset('interface', 'video_progress_background');
-      this.progressBar.addChild(this.bg);
-      this.scruber = new SSAsset('interface', 'video_progress_scrubber');
-      this.progressBar.addChild(this.scruber);
-      this.width = parseInt(this.scruber.$el.css('width'));
-      return null;
-    };
-
-    Controller.prototype.toggleVideo = function() {
-      this.trigger('toggleVideo');
-      return null;
-    };
-
-    Controller.prototype.progress = function(val) {
-      this.scruber.$el.css({
-        width: this.width * val
-      });
-      return null;
-    };
-
-    Controller.prototype.playState = function() {
-      this.pausePlayButton.playState();
-      return null;
-    };
-
-    Controller.prototype.pauseState = function() {
-      this.pausePlayButton.pauseState();
-      return null;
-    };
-
-    return Controller;
-
-  })(Abstract);
-
-  PlayPause = (function(superClass) {
-    extend(PlayPause, superClass);
-
-    function PlayPause() {
-      this.playState = bind1(this.playState, this);
-      this.pauseState = bind1(this.pauseState, this);
-      this.dispose = bind1(this.dispose, this);
-      this.toggle = bind1(this.toggle, this);
-      this.init = bind1(this.init, this);
-      return PlayPause.__super__.constructor.apply(this, arguments);
-    }
-
-    PlayPause.prototype.className = 'playPauseButton';
-
-    PlayPause.prototype.asset = null;
-
-    PlayPause.prototype.playing = true;
-
-    PlayPause.prototype.init = function() {
-      this.asset = new SSAsset('interface', 'button_play');
-      this.addChild(this.asset);
-      this.$el.addClass('btanimated');
-      this.$el.bind('click', this.toggle);
-      return null;
-    };
-
-    PlayPause.prototype.toggle = function() {
-      if (this.playing) {
-        this.pauseState();
-      } else {
-        this.playState();
-      }
-      this.trigger('clicked');
-      return null;
-    };
-
-    PlayPause.prototype.dispose = function() {
-      return null;
-    };
-
-    PlayPause.prototype.pauseState = function() {
-      this.asset.changeState('button_pause');
-      this.playing = false;
-      return null;
-    };
-
-    PlayPause.prototype.playState = function() {
-      this.asset.changeState('button_play');
-      this.playing = true;
-      return null;
-    };
-
-    return PlayPause;
-
-  })(Abstract);
-
-  VideoPlayer = (function(superClass) {
-    extend(VideoPlayer, superClass);
-
-    function VideoPlayer() {
-      this.dispose = bind1(this.dispose, this);
-      this.onClose = bind1(this.onClose, this);
-      this.onEnterFrame = bind1(this.onEnterFrame, this);
-      this.show = bind1(this.show, this);
-      this.videoEnded = bind1(this.videoEnded, this);
-      this.resume = bind1(this.resume, this);
-      this.pause = bind1(this.pause, this);
-      this.toggleVideo = bind1(this.toggleVideo, this);
-      this.getLocalisedVideo = bind1(this.getLocalisedVideo, this);
-      this.init = bind1(this.init, this);
-      this.changeView = bind1(this.changeView, this);
-      return VideoPlayer.__super__.constructor.apply(this, arguments);
-    }
-
-    VideoPlayer.prototype.className = 'videoPlayer';
-
-    VideoPlayer.prototype.videoElement = null;
-
-    VideoPlayer.prototype.controller = null;
-
-    VideoPlayer.prototype.videoPaused = true;
-
-    VideoPlayer.prototype.changeView = function() {
-      return null;
-    };
-
-    VideoPlayer.prototype.init = function() {
-      this.videoElement = $('<video/>');
-      this.videoElement.attr({
-        'src': this.getLocalisedVideo()
-      });
-      this.addChild(this.videoElement);
-      this.addChild($('<img src="/img/home/pix.gif" style="position:absolute;top:0;left:0;width:100%;height:100%;"/>'));
-      this.controller = new Controller;
-      this.controller.on('toggleVideo', this.toggleVideo);
-      this.addChild(this.controller);
-      this.controller.$el.find(".playPauseButton").css({
-        "-webkit-transform": "scale(0.6,0.6)"
-      });
-      this.$el.css({
-        opacity: 0
-      });
-      this.addCloseButton();
-      this.closeBtn.$el.bind("click", this.onClose);
-      return null;
-    };
-
-    VideoPlayer.prototype.getLocalisedVideo = function() {
-      return '/videos/bubbles_en.webm';
-
-      /*
-      locale = (navigator.language || navigator.userLanguage).toLowerCase()
-      
-      country = geoip_country_code().toLowerCase()
-      
-      switch(country)
-          when 'gb'
-              locale = 'gb'
-      
-          when 'au', 'nz'
-              locale = 'au'
-      
-          when 'es'
-              locale = 'us'
-      
-      
-      switch(locale)
-          
-          when 'pt'
-              return '/videos/bubbles_pt.webm'
-      
-          when 'es'
-              return '/videos/bubbles_es.webm'
-      
-          when 'de'
-              return '/videos/bubbles_de.webm'
-      
-          when 'dk'
-              return '/videos/bubbles_dk.webm'
-      
-          when 'fr'
-              return '/videos/bubbles_fr.webm'
-      
-          when 'it'
-              return '/videos/bubbles_it.webm'
-      
-          when 'nl'
-              return '/videos/bubbles_nl.webm'
-      
-          when 'no'
-              return '/videos/bubbles_no.webm'
-      
-          when 'gb'
-              return '/videos/bubbles_en-gb.webm'
-      
-          when 'au'
-              return '/videos/bubbles_au.webm'
-      
-          else 
-              return '/videos/bubbles_en.webm'
-       */
-    };
-
-    VideoPlayer.prototype.toggleVideo = function() {
-      if (this.videoPaused) {
-        this.videoPaused = false;
-        this.videoElement[0].play();
-      } else {
-        this.videoPaused = true;
-        this.videoElement[0].pause();
-      }
-      return null;
-    };
-
-    VideoPlayer.prototype.pause = function() {
-      this.videoElement[0].removeEventListener("ended", this.videoEnded, false);
-      this.videoPaused = true;
-      this.videoElement[0].pause();
-      this.controller.playState();
-      VideoPlayer.__super__.pause.call(this);
-      return null;
-    };
-
-    VideoPlayer.prototype.resume = function() {
-      this.videoPaused = false;
-      this.videoElement[0].play();
-      this.controller.pauseState();
-      this.videoElement[0].addEventListener("ended", this.videoEnded, false);
-      VideoPlayer.__super__.resume.call(this);
-      return null;
-    };
-
-    VideoPlayer.prototype.videoEnded = function(e) {
-      this.videoElement[0].src = "";
-      this.onClose();
-      return null;
-    };
-
-    VideoPlayer.prototype.show = function(anim, callback, time, ease) {
-      if (anim == null) {
-        anim = false;
-      }
-      if (callback == null) {
-        callback = null;
-      }
-      if (time == null) {
-        time = 400;
-      }
-      if (ease == null) {
-        ease = "linear";
-      }
-      this.$el.css({
-        display: "block"
-      });
-      VideoPlayer.__super__.show.call(this, anim, callback, time, ease);
-      this.resume();
-      return null;
-    };
-
-    VideoPlayer.prototype.onEnterFrame = function() {
-      this.controller.progress(this.videoElement[0].currentTime / this.videoElement[0].duration);
-      return null;
-    };
-
-    VideoPlayer.prototype.onClose = function() {
-      SoundController.send("trailer_end");
-      this.oz().appView.area.content.$el.css({
-        display: "inline"
-      });
-      this.oz().appView.area.content.show(true);
-      this.oz().appView.logo.showGoogleLogos();
-      this.oz().appView.footer.mainMenu.show(true);
-      this.oz().appView.footer.showShare();
-      this.pause();
-      this.hide(true, (function(_this) {
-        return function() {
-          return _this.oz().appView.wrapper.remove(_this);
-        };
-      })(this));
-      return null;
-    };
-
-    VideoPlayer.prototype.dispose = function() {
-      this.closeBtn.$el.unbind("click", this.onClose);
-      this.controller.off('toggleVideo', this.toggleVideo);
-      return null;
-    };
-
-    return VideoPlayer;
-
-  })(AbstractScene);
-
   Copyright = (function(superClass) {
     extend(Copyright, superClass);
 
@@ -18265,7 +18230,7 @@
                 break;
               case "tech":
                 Analytics.track('menu_click_tech');
-                window.open('http://www.html5rocks.com/tutorials/casestudies/oz/');
+                window.open('https://github.com/silviopaganini/oz');
                 break;
               case 'official':
                 Analytics.track('menu_click_official');
@@ -18434,10 +18399,6 @@
       this.enableSound = bind1(this.enableSound, this);
       this.showSoundButton = bind1(this.showSoundButton, this);
       this.hideSoundButton = bind1(this.hideSoundButton, this);
-      this.addWeibo = bind1(this.addWeibo, this);
-      this.addRenRen = bind1(this.addRenRen, this);
-      this.onLibLoaded = bind1(this.onLibLoaded, this);
-      this.rerender = bind1(this.rerender, this);
       this.render = bind1(this.render, this);
       return ShareMenu.__super__.constructor.apply(this, arguments);
     }
@@ -18465,114 +18426,7 @@
       this.sound = $("<div class='sound'>" + this.sound_label + " <span>" + this.sound_label_on + "</span></div>");
       this.sound.bind("mousedown", this.toogleSound);
       this.disableSound();
-      this.$el.append(this.sound);
-      return require(["//platform.twitter.com/widgets.js", "//apis.google.com/js/plusone.js"], this.onLibLoaded);
-    };
-
-    ShareMenu.prototype.rerender = function() {
-      if (this.oz().locale.lang.indexOf("zh") === -1) {
-        this.$googleBtn = $('<div/>');
-        this.$googleBtn.attr({
-          "id": 'g-plusone',
-          'class': 'g-plusone',
-          'data-size': 'medium'
-        });
-        this.$facebookContainer = $("<div class='facebookShare'></div>");
-        this.$facebookBtn = $('<iframe/>');
-        this.$facebookBtn.attr({
-          'class': 'fb-like',
-          'src': "//www.facebook.com/plugins/like.php?send=false&layout=button_count&href=" + document.location.origin,
-          'scrolling': "no",
-          "frameborder": "0"
-        });
-        this.$facebookBtn.css({
-          'width': '100px'
-        });
-        this.$facebookContainer.css({
-          'margin-left': '20px'
-        });
-        this.$twitterContainer = $("<div class='twitterShare'></div>");
-        this.$twitterBtn = $('<a/>');
-        this.$twitterBtn.attr({
-          'class': 'twitter-share-button',
-          'href': 'https://twitter.com/share',
-          'data-lang': this.oz().locale.lang,
-          'data-size': 'small',
-          'data-hashtags': this.oz().locale.get('seo_twtter_hashtag'),
-          'data-text': this.oz().locale.get('seo_twtter_default_text'),
-          'data-via': this.oz().locale.get('seo_twitter_handle')
-        });
-        this.$el.prepend(this.$twitterContainer);
-        this.$twitterContainer.append(this.$twitterBtn);
-        this.$el.prepend(this.$facebookContainer);
-        this.$facebookContainer.append(this.$facebookBtn);
-        this.$el.prepend(this.$googleBtn);
-        twttr.widgets.load();
-        if (typeof gapi !== "undefined" && gapi !== null) {
-          gapi.plusone.render('g-plusone', {
-            size: "medium",
-            expandTo: 'top'
-          });
-        }
-        this.$googleBtn.css({
-          'width': '50px !important'
-        });
-      } else {
-        this.addWeibo();
-        this.addRenRen();
-      }
-      return this.$el.append($("<div class='clearfix'></div>"));
-    };
-
-    ShareMenu.prototype.onLibLoaded = function() {
-      return this.rerender();
-    };
-
-    ShareMenu.prototype.addRenRen = function() {
-      var h, k, lk, p, v, w;
-      p = [];
-      w = 130;
-      h = 20;
-      lk = {
-        url: '' || window.location.href,
-        title: '' || document.title,
-        description: '',
-        image: ''
-      };
-      for (k in lk) {
-        v = lk[k];
-        p.push(k + "=" + encodeURIComponent(v || ''));
-      }
-      this.renren = $("<iframe scrolling=\"no\" frameborder=\"0\" allowtransparency=\"true\" src=\"http://www.connect.renren.com/like/v2?" + (p.join("&")) + "\" style='width:" + w + "px; height:" + h + "px;'/>");
-      return this.$el.prepend(this.renren);
-    };
-
-    ShareMenu.prototype.addWeibo = function() {
-      var _h, _w, k, params, temp, v;
-      _w = 72;
-      _h = 24;
-      params = {
-        url: window.location.href,
-        type: '2',
-        count: '1',
-        appkey: '',
-        title: '',
-        pic: '',
-        ralateUid: '',
-        language: 'zh_cn',
-        rnd: new Date().valueOf()
-      };
-      temp = [];
-      for (k in params) {
-        v = params[k];
-        temp.push(k + '=' + encodeURIComponent(v || ''));
-      }
-      this.weibo = $('<iframe class="weibo_share" allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="' + _w + '" height="' + _h + '"/>');
-      this.weibo.css({
-        "-webkit-transform": "scale(.85)",
-        "margin-top": "-2px"
-      });
-      return this.$el.prepend(this.weibo);
+      return this.$el.append(this.sound);
     };
 
     ShareMenu.prototype.hideSoundButton = function() {
@@ -19314,6 +19168,21 @@
 
   })(Abstract);
 
+  Wrapper = (function(superClass) {
+    extend(Wrapper, superClass);
+
+    function Wrapper() {
+      return Wrapper.__super__.constructor.apply(this, arguments);
+    }
+
+    Wrapper.prototype.tagName = 'div';
+
+    Wrapper.prototype.id = 'wrapper';
+
+    return Wrapper;
+
+  })(Abstract);
+
   Circle = (function(superClass) {
     extend(Circle, superClass);
 
@@ -19767,9 +19636,9 @@
     };
 
     AppView.prototype.looseFocus = function() {
-      var ref;
+      var ref, ref1;
       Analytics.track('pause');
-      if (!((ref = this.subArea) != null ? ref.instructions.active : void 0) && this.pauseEnabled) {
+      if (!((ref = this.subArea) != null ? (ref1 = ref.instructions) != null ? ref1.active : void 0 : void 0) && this.pauseEnabled) {
         $(window).unbind('blur', this.looseFocus);
         $(window).bind('focus', this.startFocus);
         $(".scene3d").css({

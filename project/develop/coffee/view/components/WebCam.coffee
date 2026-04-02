@@ -82,7 +82,11 @@ class WebCam
         return @canvas
 
     dispose : =>
-        @stream.stop() if @stream
+        if @stream
+            if @stream.getTracks?
+                @stream.getTracks().forEach (track) -> track.stop()
+            else if @stream.stop?
+                @stream.stop()
         @stream = null
         @canvas = null
         null
