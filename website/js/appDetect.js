@@ -131,55 +131,20 @@
     };
 
     BrowserDetection.prototype.compare = function() {
-      if ((this.browser === 'Chrome' && (this.webGL && this.webGLAdvanced)) || (this.forcePass === true)) {
+      if (this.forcePass || (this.webGL && this.webGLAdvanced)) {
         return this.onSuccess();
-      } else if (this.browser === 'Chrome' && (this.webGL && !this.webGLAdvanced)) {
+      } else if (!window.WebGLRenderingContext) {
         return this.onError({
-          message: 'Chrome_NoWebGLAdvancedFeats_message',
-          buttons: ['Chrome_NoWebGL_button1', 'Chrome_NoWebGL_button2']
+          message: 'NoWebGLRenderingContext_message',
+          buttons: ['NoWebGLRenderingContext_button1', 'NoWebGLRenderingContext_button2']
         });
-      } else if (this.browser === 'Chrome' && !this.webGL) {
+      } else if (!this.webGLContext) {
         return this.onError({
-          message: 'Chrome_NoWebGL_message',
-          buttons: ['Chrome_NoWebGL_button1', 'Chrome_NoWebGL_button2']
-        });
-      } else if (this.browser === 'Firefox' && (this.webGL && this.webGLAdvanced)) {
-        return this.onError({
-          message: 'FF4_Safari_WebGLmessage',
-          buttons: ['FF4_Safari_WebGL_button1', 'FF4_Safari_WebGL_button2']
-        });
-      } else if (this.browser === 'Firefox' && (!this.webGL || !this.webGLAdvanced)) {
-        return this.onError({
-          message: 'FF4_noWebGL_message',
-          buttons: ['FF4_noWebGL_button1', 'FF4_noWebGL_button2']
-        });
-      } else if (this.browser === 'Explorer' && (this.browserVersion === 6 || this.browserVersion === 7 || this.browserVersion === 8 || this.browserVersion === 9)) {
-        return this.onError({
-          message: 'Explorer_OldVersion_message',
-          buttons: ['Explorer_OldVersion_button1']
-        });
-      } else if (this.browser === 'Safari' && (this.webGL && this.webGLAdvanced)) {
-        return this.onError({
-          message: 'FF4_Safari_WebGLmessage',
-          buttons: ['FF4_Safari_WebGL_button1', 'FF4_Safari_WebGL_button2']
-        });
-      } else if (this.browser === 'Safari' && (!this.webGL || !this.webGLAdvanced)) {
-        return this.onError({
-          message: 'FF4_noWebGL_message',
-          buttons: ['Safari_button1']
+          message: 'NoWebGL_message',
+          buttons: ['NoWebGL_button1', 'NoWebGL_button2']
         });
       } else {
-        if (!window.WebGLRenderingContext) {
-          return this.onError({
-            message: 'NoWebGLRenderingContext_message',
-            buttons: ['NoWebGLRenderingContext_button1', 'NoWebGLRenderingContext_button2']
-          });
-        } else if (!this.webGLContext) {
-          return this.onError({
-            message: 'NoWebGL_message',
-            buttons: ['NoWebGL_button1', 'NoWebGL_button2']
-          });
-        }
+        return this.onSuccess();
       }
     };
 

@@ -22,65 +22,20 @@ class BrowserDetection
         @compare()
 
     compare: =>
-        if ( @browser == 'Chrome' and ( @webGL && @webGLAdvanced ) ) || ( @forcePass == true )
-            # all good
+        # All modern browsers support WebGL — skip the 2013 Chrome-only gate.
+        if @forcePass or ( @webGL and @webGLAdvanced )
             @onSuccess()
-            # @onError
-            #     message : 'FF4_Safari_WebGLmessage'
-            #     buttons : ['FF4_Safari_WebGL_button1', 'FF4_Safari_WebGL_button2']            
-
-        else if @browser == 'Chrome' and ( @webGL && !@webGLAdvanced )
-            # chrome with webgl but no advanced feats (shitty chromebook) 
+        else if !window.WebGLRenderingContext
             @onError
-                message : 'Chrome_NoWebGLAdvancedFeats_message'
-                buttons : ['Chrome_NoWebGL_button1', 'Chrome_NoWebGL_button2']
-
-        else if @browser == 'Chrome' and !@webGL
-            # chrome with no webgl
+                message : 'NoWebGLRenderingContext_message'
+                buttons : ['NoWebGLRenderingContext_button1', 'NoWebGLRenderingContext_button2']
+        else if !@webGLContext
             @onError
-                message : 'Chrome_NoWebGL_message'
-                buttons : ['Chrome_NoWebGL_button1', 'Chrome_NoWebGL_button2']
-
-        else if @browser == 'Firefox' and ( @webGL && @webGLAdvanced )
-            # firefox with webgl AND advanced feats
-            @onError
-                message : 'FF4_Safari_WebGLmessage'
-                buttons : ['FF4_Safari_WebGL_button1', 'FF4_Safari_WebGL_button2']
-
-        else if @browser == 'Firefox' and ( !@webGL || !@webGLAdvanced )
-            # firefox with no webgl OR advanced feats
-            @onError
-                message : 'FF4_noWebGL_message'
-                buttons : ['FF4_noWebGL_button1', 'FF4_noWebGL_button2']
-
-        else if @browser == 'Explorer' and ( @browserVersion == 6 || @browserVersion == 7 || @browserVersion == 8 || @browserVersion == 9 )
-            # old explorer
-            @onError
-                message : 'Explorer_OldVersion_message'
-                buttons : ['Explorer_OldVersion_button1']
-
-        else if @browser == 'Safari' and ( @webGL && @webGLAdvanced )
-            # safari with webgl and advanced feats
-            @onError
-                message : 'FF4_Safari_WebGLmessage'
-                buttons : ['FF4_Safari_WebGL_button1', 'FF4_Safari_WebGL_button2']
-
-        else if @browser == 'Safari' and ( !@webGL || !@webGLAdvanced )
-            # safari with no webgl OR no advanced feats
-            @onError
-                message : 'FF4_noWebGL_message'
-                buttons : ['Safari_button1']
-
-        else 
-            if !window.WebGLRenderingContext
-                @onError
-                    message : 'NoWebGLRenderingContext_message'
-                    buttons : ['NoWebGLRenderingContext_button1', 'NoWebGLRenderingContext_button2']
-
-            else if !@webGLContext
-                @onError
-                    message : 'NoWebGL_message'
-                    buttons : ['NoWebGL_button1', 'NoWebGL_button2']
+                message : 'NoWebGL_message'
+                buttons : ['NoWebGL_button1', 'NoWebGL_button2']
+        else
+            # WebGL present but advanced features missing — let them in anyway.
+            @onSuccess()
 
     onSuccess: =>
         @onError

@@ -51,3 +51,6 @@ jobs:
             --exclude "npm-debug.log" \
             --exclude "*/jspm_packages/*" \
             --delete
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}" --paths "/*"
