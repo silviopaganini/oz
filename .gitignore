@@ -32,4 +32,6 @@ website/locale/en/!!strings.txt
 website/locale/en/!-strings.txt
 node_modules
 dist
+website/js/app.min.js
+website/js/appDetect.min.js
 *.log

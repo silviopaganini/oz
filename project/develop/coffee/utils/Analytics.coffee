@@ -6,6 +6,7 @@ class Analytics
     @GA_ACCOUNT : '37524215-3'
 
     @start : =>
+        return
         window._gaq = window._gaq or []
         window._gaq.push ['_setAccount',"UA-#{@GA_ACCOUNT}"]
         window._gaq.push ['_trackPageview']
@@ -15,6 +16,7 @@ class Analytics
         null
 
     @track : (param) =>
+        return
 
         if !@started
             @start()

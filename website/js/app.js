@@ -4231,6 +4231,7 @@
     Analytics.GA_ACCOUNT = '37524215-3';
 
     Analytics.start = function() {
+      return;
       window._gaq = window._gaq || [];
       window._gaq.push(['_setAccount', "UA-" + Analytics.GA_ACCOUNT]);
       window._gaq.push(['_trackPageview']);
@@ -4241,6 +4242,7 @@
 
     Analytics.track = function(param) {
       var i, o, ref, tag, v;
+      return;
       if (!Analytics.started) {
         Analytics.start();
       }
