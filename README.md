@@ -2,15 +2,11 @@
 
 **[Live demo → oz.fluuu.id](https://oz.fluuu.id)**
 
----
-
 Find Your Way to Oz is a Google Chrome Experiment brought to the web by Disney. It allows you to take an interactive journey through a Kansas circus, which leads you to the land of Oz after you are swept up by a massive storm.
 
 Our goal was to combine the richness of cinema with the technical capabilities of the browser to create a fun, immersive experience that users can form a strong connection with.
 
 The job is a bit too big to capture in its whole in this piece so we've dived in and pulled out some chapters to the technology story that we think are interesting. Many people worked hard to make this experience possible — please visit the site and check out the credits page for the full story.
-
----
 
 ## Gallery
 
@@ -19,8 +15,6 @@ The job is a bit too big to capture in its whole in this piece so we've dived in
 | ![](docs/img1_storm04.jpg) | ![](docs/oz5-950x534.jpg) |
 | ![](docs/oz6-950x534.jpg)  | ![](docs/oz7-950x534.jpg) |
 | ![](docs/oz8-950x534.jpg)  | ![](docs/camera_path.jpg) |
-
----
 
 ## The tornado shader origin story
 
@@ -31,8 +25,6 @@ The vortex at the heart of the storm scene is a volumetric GLSL shader — adapt
 The Disney scene graph and camera path data used to drive the balloon ride:
 
 ![Disney diagram](docs/disney_diagram_0006_labelled_markers.jpg)
-
----
 
 ## The tech, in 2013 terms
 
@@ -49,8 +41,6 @@ This was built when browser 3D was still considered a party trick — before Web
 - **Five distinct chapters** — Carnival, Zoetrope, Music Box, Cutout, and Storm — each with its own loading strategy, render loop and interaction model.
 - **`website/prototypes/`** — the most honest folder in the repo. Every prototype that led to the final result: storm performance tests, wind simulations, WebGL360 video, media source experiments.
 
----
-
 ## 2026 modernisation
 
 The original codebase was frozen in 2013. This fork brings it back to life:
@@ -62,8 +52,6 @@ The original codebase was frozen in 2013. This fork brings it back to life:
 - **Safari / Firefox unblocked** — the 2013 Chrome-only gate is gone
 - **`navigator.share`** — native sharing replaces the dead backend API endpoints
 - **StormInteractive** — the interactive balloon ride fully restored with mouse-driven camera orbit and vertical clamping so you're always looking up at the storm
-
----
 
 ## Run it
 
@@ -86,8 +74,6 @@ To build for deployment:
 npm run build   # output in /dist
 ```
 
----
-
 ## Structure
 
 ```
@@ -98,16 +84,12 @@ website/prototypes/       Every prototype built during production
 docs/                     Reference images and diagrams
 ```
 
----
-
 ## Awards
 
 - **Awwwards** — Site of the Day + Site of the Month
 - **FWA** — Site of the Day + Site of the Month
 - **Adobe Cutting Edge Award of the Year** 2013
 - **Adobe Cutting Edge Award**
-
----
 
 ## Publications
 
@@ -119,15 +101,11 @@ docs/                     Reference images and diagrams
 - [Google Blog](https://blog.google/products/chrome/a-chrome-experiment-made-with-some/)
 - [The Verge](https://www.theverge.com/2013/2/5/3955246/google-disney-find-your-way-to-oz-chrome-experiment)
 
----
-
 ## Credits
 
 Original experience built by **UNIT9** in collaboration with **Google Labs** and **Disney** (2013).
 
 Lead developer: **Silvio Paganini** — [github.com/silviopaganini](https://github.com/silviopaganini)
-
----
 
 ## License
 
