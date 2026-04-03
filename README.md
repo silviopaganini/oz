@@ -26,10 +26,7 @@ The job is a bit too big to capture in its whole in this piece so we've dived in
 
 The vortex at the heart of the storm scene is a volumetric GLSL shader — adapted from a mouse brain cell animation. That's real.
 
-|                                                                              |                                                                              |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| ![Neurite tornado comparison](docs/neurite_tornado_comparison.jpg)           | ![Neurite tornado comparison 2](<docs/neurite_tornado_comparison%20(1).jpg>) |
-| ![Neurite tornado comparison 3](<docs/neurite_tornado_comparison%20(2).jpg>) | ![Neurite tornado comparison 4](<docs/neurite_tornado_comparison%20(3).jpg>) |
+![Neurite tornado comparison](docs/neurite_tornado_comparison.jpg)
 
 The Disney scene graph and camera path data used to drive the balloon ride:
 
