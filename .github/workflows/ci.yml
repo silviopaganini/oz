@@ -52,8 +52,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
           aws-region: eu-central-1
 
-      - name: Sync dist to S3
+      - name: Sync dist to S3 and invalidate changed paths
         run: |
+          set -euo pipefail
+
+          DRYRUN_LOG="$(mktemp)"
+
+          aws s3 sync dist s3://fluuu.id/projects/oz \
+            --exclude "*.git/*" \
+            --exclude "*/node_modules/*" \
+            --exclude "npm-debug.log" \
+            --exclude "*/jspm_packages/*" \
+            --delete \
+            --dryrun | tee "$DRYRUN_LOG"
+
+          mapfile -t PATHS < <(
+            {
+              sed -nE 's#^\(dryrun\) (upload|copy): .+ to s3://[^/]+/(.+)$#/\2#p' "$DRYRUN_LOG"
+              sed -nE 's#^\(dryrun\) delete: s3://[^/]+/(.+)$#/\1#p' "$DRYRUN_LOG"
+            } | awk '
+              {
+                print $0;
+                if ($0 ~ /\/index\.html$/) {
+                  base = $0;
+                  sub(/\/index\.html$/, "", base);
+                  if (base == "") {
+                    print "/";
+                  } else {
+                    print base;
+                    print base "/";
+                  }
+                }
+              }
+            ' | sort -u
+          )
+
           aws s3 sync dist s3://fluuu.id/projects/oz \
             --exclude "*.git/*" \
             --exclude "*/node_modules/*" \
@@ -61,5 +94,17 @@ jobs:
             --exclude "*/jspm_packages/*" \
             --delete
 
-      - name: Invalidate CloudFront cache
-        run: aws cloudfront create-invalidation --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}" --paths "/*"
+          if [ "${#PATHS[@]}" -eq 0 ]; then
+            echo "No changed paths detected. Skipping CloudFront invalidation."
+            exit 0
+          fi
+
+          if [ "${#PATHS[@]}" -gt 500 ]; then
+            echo "Large invalidation set (${#PATHS[@]} paths). Falling back to /*"
+            PATHS=("/*")
+          fi
+
+          echo "Invalidating ${#PATHS[@]} path(s) in CloudFront."
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}" \
+            --paths "${PATHS[@]}"
