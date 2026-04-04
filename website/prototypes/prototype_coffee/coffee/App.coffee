@@ -151,7 +151,7 @@ class App
         # LOADING
         loader = new THREE.GeometryLoader
         loader.addEventListener( 'load', @initCreature)
-        loader.load("sophie/sophie_anim3.js")
+        loader.load("prototype_coffee/sophie/sophie_anim3.js")
 
         @
 

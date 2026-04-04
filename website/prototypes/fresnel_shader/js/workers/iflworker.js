@@ -31,49 +31,56 @@ ifl.IFLParser.setKnownInterface("com.iflash3d.library::IIFLContent",      true )
 
 this.onmessage = function(event) 
 {
-    switch(event.data.type)
-    {
-      case "inflate":
-        var uint8Bytes = new Uint8Array(event.data.data);
-        var decompressed = Inflate(uint8Bytes,
-          function(parsed,total)
+    try {
+      switch(event.data.type)
+      {
+        case "inflate":
+          var uint8Bytes = new Uint8Array(event.data.data);
+          var decompressed = Inflate(uint8Bytes,
+            function(parsed,total)
+            {
+              postMessage({type:"progress",subtype:"inflate",data:{progress:parsed,total:total}});
+            });
+          postMessage({type:"inflate",data:decompressed,callback:event.data.callback});
+          break;
+        case "convert_library":
+          var ba = new amf.ByteArray(event.data.data, amf.Endian.BIG);
+          ba.progressCallback = function(parsed,total)
           {
-            postMessage({type:"progress",subtype:"inflate",data:{progress:parsed,total:total}});
-          });
-        postMessage({type:"inflate",data:decompressed,callback:event.data.callback});
-        break;
-      case "convert_library":
-        var ba = new amf.ByteArray(event.data.data, amf.Endian.BIG);
-        ba.progressCallback = function(parsed,total)
-        {
-          postMessage({type:"progress",subtype:"convert_library",data:{progress:parsed,total:total}});
-        }
+            postMessage({type:"progress",subtype:"convert_library",data:{progress:parsed,total:total}});
+          }
 
-        ba.objectEncoding = amf.ObjectEncoding.AMF3;
-        var library = ba.readObject();
-        ba.dispose();
-        postMessage({type:"convert_library",data:library,callback:event.data.callback});
-        break;
-      case "parse_jpg":
-        var jpegParser = new JpegImage()
-        var converted = null;
-        try
-        {
-          jpegParser.parse(event.data.image)
-          converted = jpegParser.getData(event.data.w,event.data.h)
-        }
-        catch(error){}
-        postMessage({type:"parse_jpg",data:converted,callback:event.data.callback});
-        break;      
+          ba.objectEncoding = amf.ObjectEncoding.AMF3;
+          var library = ba.readObject();
+          ba.dispose();
+          postMessage({type:"convert_library",data:library,callback:event.data.callback});
+          break;
+        case "parse_jpg":
+          var jpegParser = new JpegImage()
+          var converted = null;
+          try
+          {
+            jpegParser.parse(event.data.image)
+            converted = jpegParser.getData(event.data.w,event.data.h)
+          }
+          catch(error){}
+          postMessage({type:"parse_jpg",data:converted,callback:event.data.callback});
+          break;      
 
-      case "convert_argb":
-        var converted = ConvertARGB(event.data.image)
-        postMessage({type:"convert_argb",data:converted,callback:event.data.callback});
-        break;
-        
-      case "kill":
-        close();
-        break;
+        case "convert_argb":
+          var converted = ConvertARGB(event.data.image)
+          postMessage({type:"convert_argb",data:converted,callback:event.data.callback});
+          break;
+          
+        case "kill":
+          close();
+          break;
+      }
+    } catch (error) {
+      postMessage({
+        type: "error",
+        message: (error && error.message) ? error.message : ("" + error)
+      });
     }
   };
 

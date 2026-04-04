@@ -76,7 +76,7 @@
 
       function IFLLoader() {
         var _this = this;
-        this.worker = new Worker('js/libs/workers.js');
+        this.worker = new Worker('/prototypes/ifl/js/libs/workers.js');
         this.worker.onmessage = function(event) {
           var loaded, subtype, total;
           switch (event.data.type) {
@@ -110,6 +110,9 @@
               _this.decompressLibrary(response);
             } else {
               console.error("[ IFLLoader ]: Couldn't load [ " + url + " ] [ " + xhr.status + " ]");
+              if (_this.callback != null) {
+                _this.callback(null);
+              }
             }
           } else if (xhr.readyState === xhr.LOADING) {
             if (_this.callbackProgress != null) {
@@ -942,6 +945,10 @@
 
     App.prototype.mesh = null;
 
+    App.prototype.modelLoadFailed = false;
+
+    App.prototype.debugMesh = null;
+
     clock = new THREE.Clock();
 
     function App() {
@@ -962,14 +969,21 @@
       this.camera.position.z = 500;
       this.camera.target = new THREE.Vector3(0, 0, 0);
       this.scene = new THREE.Scene();
+      this.scene.add(new THREE.AmbientLight(0x404040));
       this.light = new THREE.DirectionalLight(0xefefff, 2);
       this.light.position.set(1, 1, 1).normalize();
       this.scene.add(this.light);
       this.light = new THREE.DirectionalLight(0xffefef, 2);
       this.light.position.set(-1, -1, -1).normalize();
       this.scene.add(this.light);
+      this.debugMesh = new THREE.Mesh(new THREE.CubeGeometry(20, 20, 20), new THREE.MeshBasicMaterial({
+        color: 0xff00ff,
+        wireframe: true
+      }));
+      this.debugMesh.position.set(0, 20, 0);
+      this.scene.add(this.debugMesh);
       this.loader = new ifl.IFLLoader();
-      this.loader.load("models/boy.if3d", this.onModelLoaded, this.onModelProgress);
+      this.loader.load("/models/s001.if3d", this.onModelLoaded, this.onModelProgress);
       this.renderer = new THREE.WebGLRenderer({
         antialias: true
       });
@@ -1002,8 +1016,29 @@
 
     App.prototype.onModelProgress = function(data) {};
 
+    App.prototype.showFallbackScene = function() {
+      var fallback, fallbackMaterial, fallbackMesh;
+      if (this.modelLoadFailed) {
+        return;
+      }
+      this.modelLoadFailed = true;
+      console.warn("[IFL] Model failed to load. Showing fallback geometry.");
+      fallback = new THREE.Object3D();
+      fallbackMesh = new THREE.Mesh(new THREE.CubeGeometry(80, 80, 80), fallbackMaterial = new THREE.MeshPhongMaterial({
+        color: 0x66ccff,
+        specular: 0x222222,
+        shininess: 20
+      }));
+      fallback.add(fallbackMesh);
+      this.scene.add(fallback);
+    };
+
     App.prototype.onModelLoaded = function(iflscene) {
       var animation, mesh, _i, _len, _ref, _ref1;
+      if (!iflscene || !iflscene.children || iflscene.children.length === 0) {
+        this.showFallbackScene();
+        return null;
+      }
       this.modelsLoaded++;
       this.scene.add(iflscene);
       _ref = iflscene.children;
@@ -1032,6 +1067,10 @@
       var delta;
       delta = clock.getDelta();
       this.controls.update();
+      this.camera.lookAt(this.scene.position);
+      if (this.debugMesh) {
+        this.debugMesh.rotation.y += delta;
+      }
       this.renderer.render(this.scene, this.camera);
       THREE.AnimationHandler.update(delta);
       return null;

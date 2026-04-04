@@ -30,6 +30,8 @@
 
     IFLLoader.prototype.callbackProgress = null;
 
+    IFLLoader.prototype.callbackError = null;
+
     IFLLoader.prototype.worker = null;
 
     IFLLoader.prototype.convertTextureIndex = 0;
@@ -51,11 +53,16 @@
     function IFLLoader() {
       this.onXHRReadyStatusChange = __bind(this.onXHRReadyStatusChange, this);
 
+      this.onXHRError = __bind(this.onXHRError, this);
+
+      this.onWorkerError = __bind(this.onWorkerError, this);
+
       this.onXHRProgress = __bind(this.onXHRProgress, this);
 
       this.onWorkerMessage = __bind(this.onWorkerMessage, this);
-      this.worker = new Worker('js/workers/iflworker.js');
+      this.worker = new Worker('./fresnel_shader/js/workers/iflworker.js');
       this.worker.onmessage = this.onWorkerMessage;
+      this.worker.onerror = this.onWorkerError;
       this.texCache = {};
       this.matCache = {};
     }
@@ -65,6 +72,11 @@
       switch (event.data.type) {
         case "console":
           return console[event.data.action](event.data.msg);
+        case "error":
+          if (this.callbackError != null) {
+            return this.callbackError(event.data.message || "Worker failed while parsing model.");
+          }
+          return;
         case "progress":
           loaded = event.data.data.progress;
           total = event.data.data.total;
@@ -86,13 +98,15 @@
       }
     };
 
-    IFLLoader.prototype.load = function(url, callback, callbackProgress) {
+    IFLLoader.prototype.load = function(url, callback, callbackProgress, callbackError) {
       this.loadingPhase = 0;
       this.url = url;
       this.callback = callback;
       this.callbackProgress = callbackProgress;
+      this.callbackError = callbackError;
       this.xhr = new XMLHttpRequest();
       this.xhr.onreadystatechange = this.onXHRReadyStatusChange;
+      this.xhr.onerror = this.onXHRError;
       this.xhr.onprogress = this.onXHRProgress;
       this.xhr.open("GET", url, true);
       this.xhr.responseType = "arraybuffer";
@@ -103,15 +117,57 @@
       return this.handleProgress(event.loaded, event.total);
     };
 
+    IFLLoader.prototype.onXHRError = function() {
+      if (this.callbackError != null) {
+        return this.callbackError("Network error while loading " + this.url);
+      }
+    };
+
     IFLLoader.prototype.onXHRReadyStatusChange = function() {
-      var response, _ref;
+      var bytes, i, preview, response, _ref;
       if (this.xhr.readyState === this.xhr.DONE) {
         if (this.xhr.status === 200 || this.xhr.status === 0) {
           response = (_ref = this.xhr.response) != null ? _ref : this.xhr.mozResponseArrayBuffer;
+          if (!(response != null ? response.byteLength : void 0)) {
+            if (this.callbackError != null) {
+              this.callbackError("Model response is empty: " + this.url);
+            }
+            return;
+          }
+          bytes = new Uint8Array(response, 0, Math.min(32, response.byteLength));
+          preview = "";
+          for (i = 0; i < bytes.length; i++) {
+            preview += String.fromCharCode(bytes[i]);
+          }
+          if (preview.indexOf("<!DOCTYPE") === 0 || preview.indexOf("<html") === 0 || preview.indexOf("<?xml") === 0) {
+            if (this.callbackError != null) {
+              this.callbackError("Expected binary .if3d but received text/html from " + this.url);
+            }
+            return;
+          }
           this.decompressLibrary(response);
         } else {
-          console.error("[ IFLLoader ]: Couldn't load [ " + url + " ] [ " + this.xhr.status + " ]");
+          console.error("[ IFLLoader ]: Couldn't load [ " + this.url + " ] [ " + this.xhr.status + " ]");
+          if (this.callbackError != null) {
+            return this.callbackError("Couldn't load " + this.url + " (" + this.xhr.status + ")");
+          }
         }
+      }
+    };
+
+    IFLLoader.prototype.onWorkerError = function(error) {
+      var details;
+      details = "Worker failed while parsing model.";
+      if (error != null) {
+        if (error.message) {
+          details = error.message;
+        } else if (error.filename || error.lineno) {
+          details = "Worker error at " + (error.filename || "unknown file") + ":" + (error.lineno || 0);
+        }
+      }
+      console.error("[ IFLLoader ] worker error", error);
+      if (this.callbackError != null) {
+        return this.callbackError(details);
       }
     };
 
@@ -670,10 +726,10 @@
         color: 0xFFFFFF,
         ambient: 0xFFFFFF,
         specular: 0xFFFFFF,
-        map: THREE.ImageUtils.loadTexture("models/sphere_test_diff.jpg"),
-        normalMap: THREE.ImageUtils.loadTexture("models/sphere_test_nrml.png"),
+        map: THREE.ImageUtils.loadTexture("./fresnel_shader/models/sphere_test_diff.jpg"),
+        normalMap: THREE.ImageUtils.loadTexture("./fresnel_shader/models/sphere_test_nrml.png"),
         envMap: this.sky,
-        specularMap: THREE.ImageUtils.loadTexture("models/sphere_test_specular.jpg"),
+        specularMap: THREE.ImageUtils.loadTexture("./fresnel_shader/models/sphere_test_specular.jpg"),
         lightMap: null,
         bumpMap: null,
         reflectivity: 0,
@@ -725,7 +781,7 @@
       uniforms["normalMap"].value = params.normalMap;
       uniforms["specularMap"].value = params.specularMap;
       uniforms["bumpMap"].value = params.bumpMap;
-      uniforms["tAux"].value = THREE.ImageUtils.loadTexture("models/sphere_test_aux.jpg");
+      uniforms["tAux"].value = THREE.ImageUtils.loadTexture("./fresnel_shader/models/sphere_test_aux.jpg");
       material = new THREE.ShaderMaterial(params);
       material.reflectivity = params.reflectivity;
       material.shininess = params.shininess;
@@ -1050,6 +1106,20 @@
 
   })();
 
+  if (THREE && THREE.SpritePlugin) {
+    THREE.SpritePlugin = function() {
+      this.init = function() {};
+      this.render = function() {};
+    };
+  }
+
+  if (THREE && THREE.LensFlarePlugin) {
+    THREE.LensFlarePlugin = function() {
+      this.init = function() {};
+      this.render = function() {};
+    };
+  }
+
   App = (function() {
 
     App.prototype.container = null;
@@ -1093,6 +1163,8 @@
 
       this.animate = __bind(this.animate, this);
 
+      this.onTerrainError = __bind(this.onTerrainError, this);
+
       this.onTerrainLoaded = __bind(this.onTerrainLoaded, this);
 
       this.onTerrainProgress = __bind(this.onTerrainProgress, this);
@@ -1104,7 +1176,8 @@
       this.container = document.createElement('div');
       document.body.appendChild(this.container);
       this.renderer = new THREE.WebGLRenderer({
-        antialias: false
+        antialias: false,
+        precision: 'mediump'
       });
       this.renderer.autoClear = false;
       this.renderer.gammaOutput = false;
@@ -1122,7 +1195,7 @@
       this.initSky();
       this.terrainLoader = new IFLLoader();
       this.terrainLoader.sky = this.skyCubeTexture;
-      this.terrainLoader.load("models/scene.if3d", this.onTerrainLoaded, this.onTerrainProgress);
+      this.terrainLoader.load("./fresnel_shader/models/scene.if3d", this.onTerrainLoaded, this.onTerrainProgress, this.onTerrainError);
       this.container.appendChild(this.renderer.domElement);
       radius = this.camera.position.z;
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -1144,10 +1217,10 @@
     App.prototype.initSky = function(iflscene) {
       var cubeShader, format, geom, material, path, urls;
       geom = new THREE.CubeGeometry(2000, 2000, 2000);
-      path = "models/used/";
+      path = "./fresnel_shader/models/used/";
       format = '.jpg';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
-      this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, onload);
+      this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, function() {});
       this.skyCubeTexture.format = THREE.RGBFormat;
       cubeShader = THREE.ShaderUtils.lib["cube"];
       cubeShader.uniforms["tCube"].value = this.skyCubeTexture;
@@ -1190,6 +1263,12 @@
         width: 400,
         autoPlace: false
       });
+      return null;
+    };
+
+    App.prototype.onTerrainError = function(message) {
+      console.error("[fresnel_shader] load error:", message);
+      $("#loading").html("<div style='color:#fff;padding:12px;'>Model failed to load.</div>");
       return null;
     };
 

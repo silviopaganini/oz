@@ -154,7 +154,7 @@
       this.onXHRProgress = __bind(this.onXHRProgress, this);
 
       this.onWorkerMessage = __bind(this.onWorkerMessage, this);
-      this.worker = new Worker('js/workers/iflworker.js');
+      this.worker = new Worker('./wind/js/workers/iflworker.js');
       this.worker.onmessage = this.onWorkerMessage;
       this.texCache = {};
       this.matCache = {};
@@ -1153,7 +1153,7 @@
       this.noiseScene.add(this.noiseQuadTarget);
       this.initSky();
       this.terrainLoader = new IFLLoader();
-      this.terrainLoader.load("models/wind.if3d", this.onTerrainLoaded, this.onTerrainProgress);
+      this.terrainLoader.load("./wind/models/wind.if3d", this.onTerrainLoaded, this.onTerrainProgress);
       this.container.appendChild(this.renderer.domElement);
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enabled = true;
@@ -1175,7 +1175,7 @@
     App.prototype.initSky = function(iflscene) {
       var format, geom, material, path, urls;
       geom = new THREE.CubeGeometry(2000, 2000, 2000);
-      path = "models/";
+      path = "./wind/models/";
       format = '.png';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, onload);
@@ -1277,7 +1277,7 @@
       uniforms["diffuse"].value = new THREE.Color(0xFF0000);
       uniforms["ambient"].value = new THREE.Color(0x111111);
       uniforms["specular"].value = new THREE.Color(0x000000);
-      uniforms["map"].value = material.map = THREE.ImageUtils.loadTexture("models/posy.png");
+      uniforms["map"].value = material.map = THREE.ImageUtils.loadTexture("./wind/models/posy.png");
       uniforms["envMap"].value = material.envMap = this.skyCubeTexture;
       uniforms["tWindForce"].value = this.noiseMap;
       uniforms["windScale"].value = 1;

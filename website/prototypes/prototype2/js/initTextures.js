@@ -5,15 +5,15 @@ var textureOK = {};
 var numTexturesLoading = 0;
 
 function initTextures() {
-  loadTexture('creatureColor', 'images/creatureColor.jpg');
-  loadTexture('creatureAlpha', 'images/jellyfishAlpha.jpg');
-  loadTexture('creatureNormals', 'images/creatureNormals.jpg');
-  loadTexture('plankton', 'images/plankton.jpg');
-  loadTexture('blob', 'images/blob.jpg');
-  loadTexture('halfBlob', 'images/halfBlob.jpg');
-  loadTexture('wingAlpha', 'images/wingAlpha.jpg');
-  loadTexture('wingFull', 'images/wingFull.png');
-  loadTexture('panorama', 'images/panorama.jpg');
+  loadTexture('creatureColor', './prototype2/images/creatureColor.jpg');
+  loadTexture('creatureAlpha', './prototype2/images/jellyfishAlpha.jpg');
+  loadTexture('creatureNormals', './prototype2/images/creatureNormals.jpg');
+  loadTexture('plankton', './prototype2/images/plankton.jpg');
+  loadTexture('blob', './prototype2/images/blob.jpg');
+  loadTexture('halfBlob', './prototype2/images/halfBlob.jpg');
+  loadTexture('wingAlpha', './prototype2/images/wingAlpha.jpg');
+  loadTexture('wingFull', './prototype2/images/wingFull.png');
+  loadTexture('panorama', './prototype2/images/panorama.jpg');
   
   /*
   for (var i=1; i <= 32; i++) {

@@ -179,7 +179,7 @@
       this.initDandelions();
       loader = new THREE.GeometryLoader;
       loader.addEventListener('load', this.initCreature);
-      loader.load("sophie/sophie_anim3.js");
+      loader.load("./prototype_coffee/sophie/sophie_anim3.js");
       return this;
     };
 
@@ -254,7 +254,7 @@
 
     App.prototype.initDandelions = function() {
       var dandelion, geom, i;
-      this.dandelionTexture = THREE.ImageUtils.loadTexture("textures/dandelion.png");
+      this.dandelionTexture = THREE.ImageUtils.loadTexture("prototype_coffee/textures/dandelion.png");
       geom = new THREE.PlaneGeometry(10, 10);
       if (this.params.animated) {
         geom.morphTargets[0] = {
@@ -334,7 +334,7 @@
       this.creatureMesh.updateMatrix();
       loader = new THREE.GeometryLoader();
       loader.addEventListener('load', this.initWings);
-      loader.load("sophie/wing.js");
+      loader.load("prototype_coffee/sophie/wing.js");
       return this;
     };
 
@@ -376,7 +376,7 @@
 
     App.prototype.initSky = function() {
       var format, geom, path, urls;
-      path = "textures/cube/forest/";
+      path = "./prototype_coffee/textures/cube/forest/";
       format = '.jpg';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'posz' + format, path + 'negz' + format];
       this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls);
@@ -482,11 +482,11 @@
       shininess = 0.1;
       shader = THREE.ShaderUtils.lib["normal"];
       this.creatureShaderUniforms = THREE.UniformsUtils.clone(shader.uniforms);
-      this.creatureShaderUniforms["tDiffuse"].value = THREE.ImageUtils.loadTexture("sophie/texturemapfairy.jpg");
+      this.creatureShaderUniforms["tDiffuse"].value = THREE.ImageUtils.loadTexture("prototype_coffee/sophie/texturemapfairy.jpg");
       this.creatureShaderUniforms["enableDiffuse"].value = true;
-      this.creatureShaderUniforms["tSpecular"].value = THREE.ImageUtils.loadTexture("sophie/specularfairy.jpg");
-      this.creatureShaderUniforms["tAO"].value = THREE.ImageUtils.loadTexture("sophie/ao.png");
-      this.creatureShaderUniforms["tNormal"].value = THREE.ImageUtils.loadTexture("sophie/normal-tangent-last.jpg");
+      this.creatureShaderUniforms["tSpecular"].value = THREE.ImageUtils.loadTexture("prototype_coffee/sophie/specularfairy.jpg");
+      this.creatureShaderUniforms["tAO"].value = THREE.ImageUtils.loadTexture("prototype_coffee/sophie/ao.png");
+      this.creatureShaderUniforms["tNormal"].value = THREE.ImageUtils.loadTexture("prototype_coffee/sophie/normal-tangent-last.jpg");
       this.onCreatureShaderChange();
       this.creatureShaderUniforms["tCube"].value = this.skyCubeTexture;
       this.creatureShaderUniforms["uDiffuseColor"].value.setHex(diffuse);

@@ -63,7 +63,7 @@ function init(){
 	scene.add(cube);
 
 	// Test material
-	test = THREE.ImageUtils.loadTexture('images/test.jpg');	
+	test = THREE.ImageUtils.loadTexture('tornado_layers/images/test.jpg');	
 
 	// Hud for Tornado
 	hud = new Hud(renderer, width,height, false, false);

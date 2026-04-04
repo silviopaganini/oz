@@ -1,6 +1,6 @@
 # Find Your Way to Oz
 
-**[Live demo → oz.fluuu.id](https://oz.fluuu.id)**
+**[Live → oz.fluuu.id](https://oz.fluuu.id)**
 
 Find Your Way to Oz is a Google Chrome Experiment brought to the web by Disney. It allows you to take an interactive journey through a Kansas circus, which leads you to the land of Oz after you are swept up by a massive storm.
 
@@ -32,6 +32,7 @@ This was built when browser 3D was still considered a party trick — before Web
 
 **Stack:** CoffeeScript · Three.js r55 (custom build) · WebGL 1.0 · Backbone.js 0.9.2 · Web Audio API · getUserMedia · Google AppEngine
 
+- **Prototype-first development** — we built dozens of isolated prototypes first, each focused on one hard problem (storm shaders, wind behavior, terrain loading, camera systems, post-processing, and media experiments), then composed the successful ideas into the final application experience.
 - **CoffeeScript** — the entire application (~20k lines) written in CoffeeScript 1.x, compiled to a single `app.js` bundle via a Cakefile. Class hierarchies, event systems, scene management — all of it.
 - **Custom GLSL tornado shader** — the vortex is a volumetric shader adapted from a mouse brain cell animation. No physics simulation. The wind, the spinning debris, the funnel — all faked mathematically.
 - **Multi-pass rendering pipeline** — the storm scene uses a hand-rolled 6-pass render pipeline: tornado RT → background mesh → tornado composite → front pass → god rays → post FX colour correction. All orchestrated in CoffeeScript.
@@ -40,6 +41,19 @@ This was built when browser 3D was still considered a party trick — before Web
 - **getUserMedia (early draft)** — a live webcam feed composited into a cutout photo booth, years before it was standardised.
 - **Five distinct chapters** — Carnival, Zoetrope, Music Box, Cutout, and Storm — each with its own loading strategy, render loop and interaction model.
 - **`website/prototypes/`** — the most honest folder in the repo. Every prototype that led to the final result: storm performance tests, wind simulations, WebGL360 video, media source experiments.
+
+Live prototype index: [oz.fluuu.id/prototypes](https://oz.fluuu.id/prototypes/)
+
+## How it was built
+
+This project was built as a collection of focused R&D prototypes before becoming a single cohesive experience. Instead of designing one monolithic app from day one, we developed many small, isolated experiments, validated what worked, and then integrated the best ideas into production scenes.
+
+That prototype pipeline let us move quickly on risky browser features while keeping the final product stable:
+
+- isolate one technical challenge at a time
+- test performance and visual quality in a controlled sandbox
+- carry proven approaches into the main application
+- repeat until each chapter of the experience was production-ready
 
 ## 2026 modernisation
 

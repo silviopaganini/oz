@@ -60,6 +60,8 @@
 
       IFLLoader.prototype.callbackProgress = null;
 
+      IFLLoader.prototype.callbackError = null;
+
       IFLLoader.prototype.worker = null;
 
       IFLLoader.prototype.convertTextureIndex = 0;
@@ -77,12 +79,14 @@
       IFLLoader.prototype.totalLoadingPhases = 4;
 
       function IFLLoader() {
+        var workerPath;
         this.onXHRReadyStatusChange = __bind(this.onXHRReadyStatusChange, this);
 
         this.onXHRProgress = __bind(this.onXHRProgress, this);
 
         this.onWorkerMessage = __bind(this.onWorkerMessage, this);
-        this.worker = new Worker('js/libs/workers.js');
+        workerPath = (window.location.pathname.indexOf('/prototypes/balloon') !== -1 ? 'balloon/js/libs/workers.js' : 'js/libs/workers.js');
+        this.worker = new Worker(workerPath);
         this.worker.onmessage = this.onWorkerMessage;
         this.texCache = {};
         this.matCache = {};
@@ -108,18 +112,19 @@
         if (this.callbackProgress != null) {
           unit = 100 / this.totalLoadingPhases;
           currentUnitBase = unit * this.loadingPhase;
-          currentUnitProgress = (loaded * unit) / total;
+          currentUnitProgress = total > 0 ? (loaded * unit) / total : 0;
           totalLoaded = currentUnitBase + currentUnitProgress;
           this.callbackProgress(totalLoaded, 100);
           return console.log("TotalLoaded:" + totalLoaded + ", Phase: " + this.loadingPhase + ", loaded:" + loaded + ", total:" + total);
         }
       };
 
-      IFLLoader.prototype.load = function(url, callback, callbackProgress) {
+      IFLLoader.prototype.load = function(url, callback, callbackProgress, callbackError) {
         this.loadingPhase = 0;
         this.url = url;
         this.callback = callback;
         this.callbackProgress = callbackProgress;
+        this.callbackError = callbackError;
         this.xhr = new XMLHttpRequest();
         this.xhr.onreadystatechange = this.onXHRReadyStatusChange;
         this.xhr.onprogress = this.onXHRProgress;
@@ -139,7 +144,10 @@
             response = (_ref = this.xhr.response) != null ? _ref : this.xhr.mozResponseArrayBuffer;
             this.decompressLibrary(response);
           } else {
-            console.error("[ IFLLoader ]: Couldn't load [ " + url + " ] [ " + this.xhr.status + " ]");
+            console.error("[ IFLLoader ]: Couldn't load [ " + this.url + " ] [ " + this.xhr.status + " ]");
+            if (this.callbackError != null) {
+              this.callbackError("http_" + this.xhr.status, this.url);
+            }
           }
         }
       };
@@ -1247,7 +1255,8 @@
       renderTargetParameters = {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
-        format: THREE.RGBFormat
+        format: THREE.RGBAFormat,
+        generateMipmaps: false
       };
       this.renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, renderTargetParameters);
       this.composer = new THREE.EffectComposer(this.renderer, this.renderTarget);
@@ -1264,6 +1273,7 @@
       this.composer.addPass(hblur);
       this.composer.addPass(vblur);
       vblur.renderToScreen = true;
+      this.useComposer = false;
       sunLight = new THREE.DirectionalLight();
       sunLight.color.setRGB(1, .9, .5);
       sunLight.position.set(-100, 100, -490);
@@ -1283,11 +1293,11 @@
       ambient = new THREE.AmbientLight(0xFFFFFF);
       this.scene.add(ambient);
       this.terrainLoader = new ifl.IFLLoader();
-      this.terrainLoader.load("models/env.if3d", this.onTerrainLoaded, this.onTerrainProgress);
+      this.terrainLoader.load("./balloon/models/env.if3d", this.onTerrainLoaded, this.onTerrainProgress);
       this.initSky();
       this.materialManager = new MaterialManager(this.terrainLoader, this.skyCubeTexture);
       this.loader = new ifl.IFLLoader();
-      this.loader.load("models/balloon.if3d", function(iflscene) {
+      this.loader.load("./balloon/models/balloon.if3d", function(iflscene) {
         iflscene.scale.set(.05, .05, .05);
         return _this.scene.add(iflscene);
       });
@@ -1312,7 +1322,7 @@
     App.prototype.initSky = function(iflscene) {
       var cubeShader, format, geom, material, path, urls;
       geom = new THREE.CubeGeometry(2000, 2000, 2000);
-      path = "models/oldtex/";
+      path = "./balloon/models/oldtex/";
       format = '.png';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, onload);
@@ -1414,19 +1424,30 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         child = _ref[_i];
         if (child.name.indexOf("terrain") !== -1) {
-          child.material = this.materialManager.getTerrainLambertMaterial();
+          child.material = new THREE.MeshLambertMaterial({
+            color: 0x8fa37a,
+            ambient: 0x222222,
+            side: THREE.DoubleSide,
+            vertexColors: THREE.VertexColors
+          });
           this.terrain = child;
           child.receiveShadow = child.castShadow = true;
         } else if (child.name.indexOf("lake") !== -1) {
           this.lake = child;
-          child.material = this.materialManager.getLakeMaterial();
+          child.material = new THREE.MeshLambertMaterial({
+            color: 0x5f7f9d,
+            ambient: 0x111111,
+            opacity: 0.75,
+            transparent: true,
+            side: THREE.DoubleSide
+          });
           child.castShadow = child.receiveShadow = false;
         }
       }
       iflscene.position.set(0, 35, 0);
       this.scene.add(iflscene);
       this.loader = new ifl.IFLLoader();
-      this.loader.load("models/trees.if3d", this.onTreeLoaded);
+      this.loader.load("./balloon/models/trees.if3d", this.onTreeLoaded);
       return null;
     };
 
@@ -1448,12 +1469,18 @@
         }
         this.cloudsGeometry.verticesNeedUpdate = true;
       }
-      if ((_ref1 = this.lake) != null) {
-        _ref1.material.uniforms["uOffset"].value.y += delta / 40;
+      if (((_ref1 = this.lake) != null ? _ref1.material : void 0) != null) {
+        if ((this.lake.material.uniforms != null) && (this.lake.material.uniforms["uOffset"] != null)) {
+          this.lake.material.uniforms["uOffset"].value.y += delta / 40;
+        }
       }
       this.renderer.clear();
       this.controls.update();
-      this.composer.render(0.1);
+      if (this.useComposer) {
+        this.composer.render(0.1);
+      } else {
+        this.renderer.render(this.scene, this.camera);
+      }
       THREE.AnimationHandler.update(delta);
     };
 

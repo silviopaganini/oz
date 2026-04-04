@@ -24,26 +24,22 @@
 	</head>
 
 	<body>
-		<script type='text/javascript' src="js/three.min.js"></script>
-		<script type='text/javascript' src='js/Tween.js'></script>
-		<script type='text/javascript' src="js/dat.gui.min.js"></script>
-		<script type='text/javascript' src="js/ShaderGodRays.js"></script>
-		<script type='text/javascript' src="js/ShaderExtras.js"></script>
-		<script type='text/javascript' src="js/WebGLShaders.js"></script>
-		<script type='text/javascript' src="js/postprocessing/EffectComposer.js"></script>
-		<script type='text/javascript' src="js/postprocessing/RenderPass.js"></script>
-		<script type='text/javascript' src="js/postprocessing/BloomPass.js"></script>
-		<script type='text/javascript' src="js/postprocessing/ShaderPass.js"></script>
-		<script type='text/javascript' src="js/postprocessing/MaskPass.js"></script>
-		<script type='text/javascript' src="js/postprocessing/SavePass.js"></script>
-		<script type='text/javascript' src="js/postprocessing/FilmPass.js"></script>
-
-
-		<script type='text/javascript' src="js/Detector.js"></script>
-		<script type='text/javascript' src="js/Stats.js"></script>
-		<script type='text/javascript' src="js/ShaderUtils.js"></script>
-		<script type='text/javascript' src="js/loaders/GeometryLoader.js"></script>
-		<script type='text/javascript' src="js/loaders/LoadingMonitor.js"></script>
+		<script type='text/javascript' src="./prototype/js/three.min.js"></script>
+		<script type='text/javascript' src='./prototype/js/Detector.js'></script>
+		<script type='text/javascript' src='./prototype/js/Stats.js'></script>
+		<script type='text/javascript' src='./prototype/js/Tween.js'></script>
+		<script type='text/javascript' src='./prototype/js/dat.gui.min.js'></script>
+		<script type='text/javascript' src='./prototype/js/ShaderGodRays.js'></script>
+		<script type='text/javascript' src='./prototype/js/ShaderExtras.js'></script>
+		<script type='text/javascript' src='./prototype/js/WebGLShaders.js'></script>
+		<script type='text/javascript' src='./prototype/js/loaders/LoadingMonitor.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/EffectComposer.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/RenderPass.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/BloomPass.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/ShaderPass.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/MaskPass.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/SavePass.js'></script>
+		<script type='text/javascript' src='./prototype/js/postprocessing/FilmPass.js'></script>
 
 
 		<!-- Vertex shader -->
@@ -180,7 +176,7 @@
 				// LOADING
 				var loader = new THREE.GeometryLoader();
 				loader.addEventListener( 'load', initCreature);
-				loader.load("sophie/sophie_anim3.js");
+				loader.load("./prototype/sophie/sophie_anim3.js");
 			}
 
 			function initGUI()
@@ -246,7 +242,7 @@
 			function initDandelions()
 			{
 				
-				var dandelionTexture = THREE.ImageUtils.loadTexture( "textures/dandelion.png" );
+				var dandelionTexture = THREE.ImageUtils.loadTexture( "./prototype/textures/dandelion.png" );
 				var geom = new THREE.PlaneGeometry( 10, 10 );
 				if(params.animated)
 					geom.morphTargets[0] = {name:"fake",vertices:geom.vertices};
@@ -342,7 +338,7 @@
 
 				var loader = new THREE.GeometryLoader();
 				loader.addEventListener( 'load', initWings);
-				loader.load("sophie/wing.js");
+				loader.load("./prototype/sophie/wing.js");
 
 
 			}
@@ -379,7 +375,7 @@
 
 			function initSky()
 			{
-				var path = "textures/cube/forest/";
+				var path = "./prototype/textures/cube/forest/";
 				var format = '.jpg';
 				var urls = [
 						path + 'posx' + format, path + 'negx' + format,
@@ -530,14 +526,14 @@
 				creatureShaderUniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
 				// diffuse
-				creatureShaderUniforms[ "tDiffuse" ].value = THREE.ImageUtils.loadTexture( "sophie/texturemapfairy.jpg" );
+				creatureShaderUniforms[ "tDiffuse" ].value = THREE.ImageUtils.loadTexture( "./prototype/sophie/texturemapfairy.jpg" );
 				creatureShaderUniforms[ "enableDiffuse" ].value = true;
 				// specular
-				creatureShaderUniforms[ "tSpecular" ].value = THREE.ImageUtils.loadTexture( "sophie/specularfairy.jpg" );
+				creatureShaderUniforms[ "tSpecular" ].value = THREE.ImageUtils.loadTexture( "./prototype/sophie/specularfairy.jpg" );
 				// ambient occlusion
-				creatureShaderUniforms[ "tAO" ].value = THREE.ImageUtils.loadTexture( "sophie/ao.png" );
+				creatureShaderUniforms[ "tAO" ].value = THREE.ImageUtils.loadTexture( "./prototype/sophie/ao.png" );
 				// normal map
-				creatureShaderUniforms[ "tNormal" ].value = THREE.ImageUtils.loadTexture( "sophie/normal-tangent-last.jpg" );
+				creatureShaderUniforms[ "tNormal" ].value = THREE.ImageUtils.loadTexture( "./prototype/sophie/normal-tangent-last.jpg" );
 				onCreatureShaderChange();
 				// reflection map
 				creatureShaderUniforms[ "tCube" ].value = skyCubeTexture;

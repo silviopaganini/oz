@@ -60,6 +60,8 @@
 
       IFLLoader.prototype.callbackProgress = null;
 
+      IFLLoader.prototype.callbackError = null;
+
       IFLLoader.prototype.worker = null;
 
       IFLLoader.prototype.convertTextureIndex = 0;
@@ -77,13 +79,23 @@
       IFLLoader.prototype.totalLoadingPhases = 4;
 
       function IFLLoader() {
+        var workerPath;
         this.onXHRReadyStatusChange = __bind(this.onXHRReadyStatusChange, this);
 
         this.onXHRProgress = __bind(this.onXHRProgress, this);
 
         this.onWorkerMessage = __bind(this.onWorkerMessage, this);
-        this.worker = new Worker('js/libs/workers.js');
+        workerPath = (window.location.pathname.indexOf('/prototypes/funfair') !== -1 ? 'funfair/js/libs/workers.js' : 'js/libs/workers.js');
+        this.worker = new Worker(workerPath);
         this.worker.onmessage = this.onWorkerMessage;
+        this.worker.onerror = (function(_this) {
+          return function(event) {
+            console.error("[ IFLLoader ] worker error", event);
+            if (_this.callbackError != null) {
+              return _this.callbackError("worker_error", workerPath);
+            }
+          };
+        })(this);
         this.texCache = {};
         this.matCache = {};
       }
@@ -114,14 +126,29 @@
         }
       };
 
-      IFLLoader.prototype.load = function(url, callback, callbackProgress) {
+      IFLLoader.prototype.load = function(url, callback, callbackProgress, callbackError) {
         this.loadingPhase = 0;
         this.url = url;
         this.callback = callback;
         this.callbackProgress = callbackProgress;
+        this.callbackError = callbackError;
         this.xhr = new XMLHttpRequest();
         this.xhr.onreadystatechange = this.onXHRReadyStatusChange;
         this.xhr.onprogress = this.onXHRProgress;
+        this.xhr.onerror = (function(_this) {
+          return function() {
+            if (_this.callbackError != null) {
+              return _this.callbackError("network_error", _this.url);
+            }
+          };
+        })(this);
+        this.xhr.onabort = (function(_this) {
+          return function() {
+            if (_this.callbackError != null) {
+              return _this.callbackError("request_aborted", _this.url);
+            }
+          };
+        })(this);
         this.xhr.open("GET", url, true);
         this.xhr.responseType = "arraybuffer";
         return this.xhr.send(null);
@@ -138,7 +165,10 @@
             response = (_ref = this.xhr.response) != null ? _ref : this.xhr.mozResponseArrayBuffer;
             this.decompressLibrary(response);
           } else {
-            console.error("[ IFLLoader ]: Couldn't load [ " + url + " ] [ " + this.xhr.status + " ]");
+            console.error("[ IFLLoader ]: Couldn't load [ " + this.url + " ] [ " + this.xhr.status + " ]");
+            if (this.callbackError != null) {
+              this.callbackError("http_" + this.xhr.status, this.url);
+            }
           }
         }
       };
@@ -690,16 +720,19 @@
       };
 
       IFLLoader.prototype.convertMaterial = function(subMesh) {
-        var matid, params;
+        var diffuseTextures, matid, normalTextures, params, specularTextures;
         matid = subMesh.material._reference.id;
         if (!this.matCache[matid]) {
+          diffuseTextures = subMesh.diffuseTextures || subMesh._diffuseTextures || subMesh.material.diffuseTextures || subMesh.material._diffuseTextures || [];
+          normalTextures = subMesh.normalTextures || subMesh._normalTextures || subMesh.material.normalTextures || subMesh.material._normalTextures || [];
+          specularTextures = subMesh.specularTextures || subMesh._specularTextures || subMesh.material.specularTextures || subMesh.material._specularTextures || [];
           params = {
             color: subMesh.material.diffuse.uintValue,
             ambient: subMesh.material.ambient.uintValue,
             specular: subMesh.material.specular.uintValue,
-            map: this.getSubmeshTexture(subMesh.diffuseTextures),
-            normalMap: this.getSubmeshTexture(subMesh.normalTextures),
-            specularMap: this.getSubmeshTexture(subMesh.specularTextures),
+            map: this.getSubmeshTexture(diffuseTextures),
+            normalMap: this.getSubmeshTexture(normalTextures),
+            specularMap: this.getSubmeshTexture(specularTextures),
             lightMap: null,
             bumpMap: null,
             reflectivity: subMesh.material.reflectivity,
@@ -714,18 +747,28 @@
       };
 
       IFLLoader.prototype.getSubmeshTexture = function(from) {
-        if (from.length > 0) {
-          return this.getTexture(from[0].id, false);
+        var entry, textureId;
+        if ((from != null) && from.length > 0) {
+          entry = from[0];
+          textureId = entry.id || ((entry._reference != null ? entry._reference.id : void 0)) || entry.textureID || entry._textureID;
+          if (textureId != null) {
+            return this.getTexture(textureId, false);
+          }
         }
         return null;
       };
 
       IFLLoader.prototype.getTexture = function(id) {
-        var ret, tex;
+        var fileName, key, ret, tex, texturePath;
         tex = this.library.getContent(id);
         if ((tex != null ? tex.converted : void 0) != null) {
           if (!(this.texCache[tex._reference.id] != null)) {
             this.texCache[tex._reference.id] = ret = new THREE.DataTexture(tex.converted, tex._width, tex._height, tex._hasOriginalByteArray ? THREE.RGBFormat : THREE.RGBAFormat);
+            ret.generateMipmaps = false;
+            ret.minFilter = THREE.LinearFilter;
+            ret.magFilter = THREE.LinearFilter;
+            ret.wrapS = THREE.ClampToEdgeWrapping;
+            ret.wrapT = THREE.ClampToEdgeWrapping;
           } else {
             ret = this.texCache[tex._reference.id];
           }
@@ -736,6 +779,29 @@
         if (ret != null) {
           ret.flipY = false;
         }
+        if ((ret == null) && (tex != null)) {
+          key = (tex._reference != null ? tex._reference.id : void 0) || id;
+          fileName = tex._url || tex.url || tex._path || tex.path || tex._file || tex.file || tex._fileName || tex.fileName || tex._name || tex.name;
+          if ((fileName != null) && !(this.texCache[key] != null)) {
+            if (fileName.indexOf("/") === -1) {
+              texturePath = "funfair/textures/" + fileName;
+            } else {
+              texturePath = fileName;
+            }
+            this.texCache[key] = ret = THREE.ImageUtils.loadTexture(texturePath);
+            ret.generateMipmaps = false;
+            ret.minFilter = THREE.LinearFilter;
+            ret.magFilter = THREE.LinearFilter;
+            ret.wrapS = THREE.ClampToEdgeWrapping;
+            ret.wrapT = THREE.ClampToEdgeWrapping;
+            ret.flipY = false;
+          } else if (this.texCache[key] != null) {
+            ret = this.texCache[key];
+          }
+        }
+        if ((ret == null) && (tex != null)) {
+          console.warn("[ IFLLoader ] texture not resolved", id, tex);
+        }
         return ret;
       };
 
@@ -745,6 +811,10 @@
         texture = new THREE.Texture();
         texture.image = images;
         texture.flipY = false;
+        texture.generateMipmaps = false;
+        texture.minFilter = THREE.LinearFilter;
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
         for (index = _i = 0, _len = array.length; _i < _len; index = ++_i) {
           path = array[index];
           tex = this.getTexture(path);
@@ -980,6 +1050,14 @@
 
     App.prototype.projector = null;
 
+    App.prototype.worldModelCandidates = null;
+
+    App.prototype.worldModelIndex = 0;
+
+    App.prototype.worldReady = false;
+
+    App.prototype.pathReady = false;
+
     function App() {
       this.onWindowResize = __bind(this.onWindowResize, this);
 
@@ -992,6 +1070,8 @@
       this.onWorldLoaded = __bind(this.onWorldLoaded, this);
 
       this.onWorldProgress = __bind(this.onWorldProgress, this);
+
+      this.onWorldError = __bind(this.onWorldError, this);
 
       this.onTouchMove = __bind(this.onTouchMove, this);
 
@@ -1027,7 +1107,8 @@
       renderTargetParameters = {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.LinearFilter,
-        format: THREE.RGBFormat
+        format: THREE.RGBAFormat,
+        generateMipmaps: false
       };
       this.renderTarget = new THREE.WebGLRenderTarget(this.APP_WIDTH, this.APP_HEIGHT, renderTargetParameters);
       this.composer = new THREE.EffectComposer(this.renderer, this.renderTarget);
@@ -1052,9 +1133,15 @@
       this.scene.add(ambient);
       this.initSky();
       this.initSun();
-      $.getJSON('js/camerapath.json', this.initPathControls);
+      $.getJSON('funfair/js/camerapath.json', this.initPathControls);
       this.loader = new ifl.IFLLoader();
-      this.loader.load("models/fair_hi.if3d", this.onWorldLoaded, this.onWorldProgress);
+      this.worldReady = false;
+      this.pathReady = false;
+      this.worldModelCandidates = [
+        "models/fair_hi.if3d", "./models/fair_hi.if3d", "../models/fair_hi.if3d", "../../models/fair_hi.if3d", "funfair/models/fair_hi.if3d", "./funfair/models/fair_hi.if3d", "../funfair/models/fair_hi.if3d"
+      ];
+      this.worldModelIndex = 0;
+      this.loadWorldModel();
       this.stats = new Stats();
       this.stats.domElement.style.position = 'absolute';
       this.stats.domElement.style.top = '0px';
@@ -1119,8 +1206,27 @@
         }
       }
       this.scene.add(iflscene);
-      this.controls.animation.play(true, 0);
-      return $("#loading").remove();
+      this.worldReady = true;
+      return this.tryStartExperience();
+    };
+
+    App.prototype.loadWorldModel = function() {
+      var url;
+      if (this.worldModelIndex >= this.worldModelCandidates.length) {
+        return this.onWorldError("all_paths_failed", "fair_hi.if3d");
+      }
+      url = this.worldModelCandidates[this.worldModelIndex];
+      return this.loader.load(url, this.onWorldLoaded, this.onWorldProgress, this.onWorldError);
+    };
+
+    App.prototype.onWorldError = function(reason, modelUrl) {
+      if (reason !== "all_paths_failed" && reason.indexOf("http_404") === 0) {
+        this.worldModelIndex++;
+        return this.loadWorldModel();
+      }
+      console.error("[ App ] model load failed", reason, modelUrl);
+      $("#loading").html("<div>Could not load scene assets.</div><div style='font-size:12px;opacity:.8;margin-top:6px'>" + modelUrl + " (" + reason + ")</div>");
+      return $("#loading").delay(2000).fadeOut(300);
     };
 
     App.prototype.initPathControls = function(data) {
@@ -1143,7 +1249,19 @@
       };
       this.controls.init();
       this.scene.add(this.controls.debugPath);
-      return this.scene.add(this.controls.animationParent);
+      this.scene.add(this.controls.animationParent);
+      this.pathReady = true;
+      return this.tryStartExperience();
+    };
+
+    App.prototype.tryStartExperience = function() {
+      if (!this.worldReady || !this.pathReady) {
+        return;
+      }
+      if ((this.controls != null ? this.controls.animation : void 0) != null) {
+        this.controls.animation.play(true, 0);
+      }
+      return $("#loading").remove();
     };
 
     App.prototype.createPyramid = function(x, y, w, h, d) {
@@ -1181,8 +1299,7 @@
     };
 
     App.prototype.initSun = function() {
-      var flareColor, lensFlare, sunLight, textureFlare0, textureFlare2, textureFlare3,
-        _this = this;
+      var sunLight;
       sunLight = new THREE.DirectionalLight();
       sunLight.color.setRGB(1, 1, 1);
       sunLight.position.set(5000, 5000, -5000);
@@ -1199,43 +1316,21 @@
       sunLight.shadowCameraTop = 5000;
       sunLight.shadowCameraBottom = -5000;
       this.scene.add(sunLight);
-      textureFlare0 = THREE.ImageUtils.loadTexture("textures/lensflare/lensflare0.png");
-      textureFlare2 = THREE.ImageUtils.loadTexture("textures/lensflare/lensflare2.png");
-      textureFlare3 = THREE.ImageUtils.loadTexture("textures/lensflare/lensflare3.png");
-      flareColor = new THREE.Color(0xFFFFFF);
-      lensFlare = new THREE.LensFlare(textureFlare0, 700, 0.0, THREE.AdditiveBlending, flareColor);
-      lensFlare.position = sunLight.position;
-      lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare2, 512, 0.0, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare3, 60, 0.6, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare3, 70, 0.7, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare3, 120, 0.9, THREE.AdditiveBlending);
-      lensFlare.add(textureFlare3, 70, 1.0, THREE.AdditiveBlending);
-      lensFlare.customUpdateCallback = function(object) {
-        var flare, vecX, vecY, _i, _len, _ref;
-        vecX = -object.positionScreen.x * 2;
-        vecY = -object.positionScreen.y * 2;
-        _ref = object.lensFlares;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          flare = _ref[_i];
-          flare.x = object.positionScreen.x + vecX * flare.distance;
-          flare.y = object.positionScreen.y + vecY * flare.distance;
-          flare.rotation = 0;
-        }
-        object.lensFlares[2].y += 0.025;
-        return object.lensFlares[3].rotation = object.positionScreen.x * 0.5 + 45 * Math.PI / 180;
-      };
-      return this.scene.add(lensFlare);
+      return;
     };
 
     App.prototype.initSky = function() {
       var cubeShader, format, material, path, urls;
-      path = "textures/skybloom/";
+      path = "./funfair/textures/skybloom/";
       format = '.png';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, onload);
       this.skyCubeTexture.format = THREE.RGBFormat;
+      this.skyCubeTexture.generateMipmaps = false;
+      this.skyCubeTexture.minFilter = THREE.LinearFilter;
+      this.skyCubeTexture.magFilter = THREE.LinearFilter;
+      this.skyCubeTexture.wrapS = THREE.ClampToEdgeWrapping;
+      this.skyCubeTexture.wrapT = THREE.ClampToEdgeWrapping;
       cubeShader = THREE.ShaderUtils.lib["cube"];
       cubeShader.uniforms["tCube"].value = this.skyCubeTexture;
       material = new THREE.ShaderMaterial({
@@ -1289,7 +1384,7 @@
     };
 
     App.prototype.onWindowResize = function() {
-      var _ref;
+      var renderTargetParameters, _ref;
       this.APP_WIDTH = $(window).width();
       this.APP_HEIGHT = $(window).height();
       this.APP_HALF_X = this.APP_WIDTH / 2;
@@ -1297,7 +1392,13 @@
       this.camera.aspect = this.APP_WIDTH / this.APP_HEIGHT;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(this.APP_WIDTH, this.APP_HEIGHT);
-      this.renderTarget = new THREE.WebGLRenderTarget(this.APP_WIDTH, this.APP_HEIGHT);
+      renderTargetParameters = {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat,
+        generateMipmaps: false
+      };
+      this.renderTarget = new THREE.WebGLRenderTarget(this.APP_WIDTH, this.APP_HEIGHT, renderTargetParameters);
       this.composer.reset(this.renderTarget);
       if ((_ref = this.controls) != null) {
         _ref.handleResize();

@@ -9,12 +9,12 @@ var bufferOK = {};
 var numBuffersLoading = 6;
 
 function initBuffers(){
-  loadObject('axis','meshes/axis.json');
-  loadObject('sphere','meshes/sphere.json');
-  loadObject('box','meshes/box.json');
-  loadObject('quad','meshes/quad.json');
-  loadObject('creature', 'meshes/creature.json');
-  loadObject('wing', 'meshes/wing.json');
+  loadObject('axis','./prototype2/meshes/axis.json');
+  loadObject('sphere','./prototype2/meshes/sphere.json');
+  loadObject('box','./prototype2/meshes/box.json');
+  loadObject('quad','./prototype2/meshes/quad.json');
+  loadObject('creature', './prototype2/meshes/creature.json');
+  loadObject('wing', './prototype2/meshes/wing.json');
   generate2DGrid('2Dgrid');
   generate3DGrid('3Dgrid')
 }

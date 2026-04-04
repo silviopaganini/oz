@@ -99,12 +99,12 @@
         value: 1
       },
       "scale": {
-        type: "f",
-        value: 1
+        type: "v2",
+        value: new THREE.Vector2(1, 1)
       },
       "offset": {
-        type: "f",
-        value: 0
+        type: "v2",
+        value: new THREE.Vector2(0, 0)
       }
     };
 
@@ -167,7 +167,7 @@
       this.onXHRProgress = __bind(this.onXHRProgress, this);
 
       this.onWorkerMessage = __bind(this.onWorkerMessage, this);
-      this.worker = new Worker('js/workers/iflworker.js');
+      this.worker = new Worker('storm_geo/js/workers/iflworker.js');
       this.worker.onmessage = this.onWorkerMessage;
       this.texCache = {};
       this.matCache = {};
@@ -1165,7 +1165,7 @@
       this.noiseScene.add(this.noiseQuadTarget);
       this.initSky();
       this.terrainLoader = new IFLLoader();
-      this.terrainLoader.load("models/storm.if3d", this.onTerrainLoaded, this.onTerrainProgress);
+      this.terrainLoader.load("storm_geo/models/storm.if3d", this.onTerrainLoaded, this.onTerrainProgress);
       this.container.appendChild(this.renderer.domElement);
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enabled = true;
@@ -1187,7 +1187,7 @@
     App.prototype.initSky = function(iflscene) {
       var format, geom, material, path, urls;
       geom = new THREE.CubeGeometry(2000, 2000, 2000);
-      path = "models/";
+      path = "storm_geo/models/";
       format = '.png';
       urls = [path + 'posx' + format, path + 'negx' + format, path + 'posy' + format, path + 'negy' + format, path + 'negz' + format, path + 'posz' + format];
       this.skyCubeTexture = THREE.ImageUtils.loadTextureCube(urls, null, onload);
@@ -1240,45 +1240,49 @@
       chest.position.set(0, -15, 0);
       this.baloon.add(chest);
       this.scene.add(this.baloon);
-      for (i = _j = 0; _j < 8; i = ++_j) {
-        partmat = new THREE.ParticleBasicMaterial();
-        partmat.transparent = true;
-        partmat.depthWrite = false;
-        if (i < 4) {
-          partmat.color = new THREE.Color(0x111111);
-          partmat.size = Math.random() * 5;
-        } else {
-          partmat.color = new THREE.Color(0xCCCCCC);
-          partmat.size = 10 + Math.random() * 20;
+      if (!this.particleGeo) {
+        console.warn("[storm_geo] No storm particle template mesh found; skipping particle system setup.");
+      } else {
+        for (i = _j = 0; _j < 8; i = ++_j) {
+          partmat = new THREE.ParticleBasicMaterial();
+          partmat.transparent = true;
+          partmat.depthWrite = false;
+          if (i < 4) {
+            partmat.color = new THREE.Color(0x111111);
+            partmat.size = Math.random() * 5;
+          } else {
+            partmat.color = new THREE.Color(0xCCCCCC);
+            partmat.size = 10 + Math.random() * 20;
+          }
+          partmat.map = THREE.ImageUtils.loadTexture("storm_geo/models/trans2.png");
+          this.particleGeo.computeFaceNormals();
+          this.particleGeo.computeCentroids();
+          _ref1 = this.particleGeo.faces;
+          for (_k = 0, _len1 = _ref1.length; _k < _len1; _k++) {
+            face = _ref1[_k];
+            centroid = face.centroid;
+            normal = face.normal.clone();
+            ran = -0.5 + Math.random();
+            normal.normalize();
+            normal.multiplyScalar(ran * 30);
+            this.particleGeo.vertices[face.a].addSelf(normal);
+            ran = -0.5 + Math.random();
+            normal.normalize();
+            normal.multiplyScalar(ran * 30);
+            this.particleGeo.vertices[face.b].addSelf(normal);
+            ran = -0.5 + Math.random();
+            normal.normalize();
+            normal.multiplyScalar(ran * 30);
+            this.particleGeo.vertices[face.c].addSelf(normal);
+          }
+          particle = new THREE.ParticleSystem(this.particleGeo, partmat);
+          particle.rotation.y = Math.random() * Math.PI * 2;
+          s = 0.8 + Math.random() * .2;
+          particle.position.set(0, -100, 0);
+          particle.speed = this.cloudMinSpeed + Math.random() * (this.cloudMaxSpeed - this.cloudMinSpeed);
+          this.scene.add(particle);
+          this.particles.push(particle);
         }
-        partmat.map = THREE.ImageUtils.loadTexture("models/trans2.png");
-        this.particleGeo.computeFaceNormals();
-        this.particleGeo.computeCentroids();
-        _ref1 = this.particleGeo.faces;
-        for (_k = 0, _len1 = _ref1.length; _k < _len1; _k++) {
-          face = _ref1[_k];
-          centroid = face.centroid;
-          normal = face.normal.clone();
-          ran = -0.5 + Math.random();
-          normal.normalize();
-          normal.multiplyScalar(ran * 30);
-          this.particleGeo.vertices[face.a].addSelf(normal);
-          ran = -0.5 + Math.random();
-          normal.normalize();
-          normal.multiplyScalar(ran * 30);
-          this.particleGeo.vertices[face.b].addSelf(normal);
-          ran = -0.5 + Math.random();
-          normal.normalize();
-          normal.multiplyScalar(ran * 30);
-          this.particleGeo.vertices[face.c].addSelf(normal);
-        }
-        particle = new THREE.ParticleSystem(this.particleGeo, partmat);
-        particle.rotation.y = Math.random() * Math.PI * 2;
-        s = 0.8 + Math.random() * .2;
-        particle.position.set(0, -100, 0);
-        particle.speed = this.cloudMinSpeed + Math.random() * (this.cloudMaxSpeed - this.cloudMinSpeed);
-        this.scene.add(particle);
-        this.particles.push(particle);
       }
       this.createCloudMaterial();
       this.onCloudNumberChange(this.numClouds);
