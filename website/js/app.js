@@ -12614,9 +12614,9 @@
 
     StormInteractive.prototype.enableRender = false;
 
-    StormInteractive.prototype.compatDisableFrontPass = true;
+    StormInteractive.prototype.compatDisableFrontPass = false;
 
-    StormInteractive.prototype.compatDisableSceneMeshPass = true;
+    StormInteractive.prototype.compatDisableSceneMeshPass = false;
 
     StormInteractive.prototype.stormAnimTime = 0;
 

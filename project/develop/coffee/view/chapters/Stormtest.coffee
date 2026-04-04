@@ -29,8 +29,9 @@ class StormInteractive extends Base3DChapter
     L_LOADSCENE : 0
     # Scene
     enableRender : false
-    compatDisableFrontPass : true
-    compatDisableSceneMeshPass : true
+    # Keep the original multi-pass ordering so balloon/tornado depth reads correctly.
+    compatDisableFrontPass : false
+    compatDisableSceneMeshPass : false
     stormAnimTime : 0
     stormState : 0
     sceneRT : null

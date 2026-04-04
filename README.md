@@ -62,16 +62,41 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
-To recompile CoffeeScript after editing source files:
+`npm run dev` now orchestrates the full legacy pipeline:
+
+- one-time compile of CoffeeScript + Less before Vite starts
+- parallel CoffeeScript and Less watchers during development
+- Vite dev server for local testing and static asset serving
+
+To run one-off asset compiles without starting the dev server:
 
 ```bash
-npm run coffee:build
+npm run assets:build
 ```
 
 To build for deployment:
 
 ```bash
 npm run build   # output in /dist
+```
+
+Build flow:
+
+1. clean `/dist`
+2. compile CoffeeScript bundles
+3. compile `project/develop/less/styles.less` -> `website/css/styles.css`
+4. minify `app.js` and `appDetect.js` for dist references
+5. verify required generated website artifacts
+6. run `vite build`
+7. patch dist HTML to use `appDetect.min` and remove temporary minified website files
+
+Useful commands:
+
+```bash
+npm run coffee:build   # compile app.js and appDetect.js only
+npm run less:build     # compile styles.less -> website/css/styles.css
+npm run verify:website # check required generated files/references
+npm run preview        # preview dist output
 ```
 
 ## Structure
@@ -83,6 +108,13 @@ website/                  Compiled site — what the browser loads
 website/prototypes/       Every prototype built during production
 docs/                     Reference images and diagrams
 ```
+
+## Legacy constraints (intentional)
+
+- **CoffeeScript order is fixed**: the app still relies on concatenation order and shared globals, so compile ordering is preserved exactly.
+- **RequireJS entry remains non-module**: `rDetect.js` + `data-main="./js/appDetect"` are kept in place to avoid runtime behavior changes.
+- **Main app only**: modernization scripts intentionally target `website/` + `project/develop/coffee` and do not include `website/prototypes/*`.
+- **Static-first compatibility**: Vite is used as orchestrator/build wrapper while legacy asset paths and runtime expectations are preserved.
 
 ## Awards
 

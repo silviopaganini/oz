@@ -12234,8 +12234,10 @@ THREE.WebGLRenderer = function ( parameters ) {
 	}
 
 	function doUpdateVertexBuffer(position, __webglVertexBuffer) {
-		_gl.bindBuffer( _gl.ARRAY_BUFFER, __webglVertexBuffer );
-		_gl.vertexAttribPointer( position, 3, _gl.FLOAT, false, 0, 0 );		
+		if ( position >= 0 ) {
+			_gl.bindBuffer( _gl.ARRAY_BUFFER, __webglVertexBuffer );
+			_gl.vertexAttribPointer( position, 3, _gl.FLOAT, false, 0, 0 );
+		}
 	}
 
 	function doUpdateSkin(material,attributes,__webglSkinIndicesBuffer,__webglSkinWeightsBuffer){
