@@ -45,7 +45,6 @@ jobs:
       - name: Sync website to S3
         run: |
           aws s3 sync website s3://fluuu.id/projects/oz \
-            --exclude "prototypes/*" \
             --exclude "*.git/*" \
             --exclude "*/node_modules/*" \
             --exclude "npm-debug.log" \
